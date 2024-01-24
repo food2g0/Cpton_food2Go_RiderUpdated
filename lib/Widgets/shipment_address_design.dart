@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpton_food2go_rider/assisstantMethod/get_current_location.dart';
 import 'package:cpton_food2go_rider/global/global.dart';
+import 'package:cpton_food2go_rider/mainScreen/home_screen.dart';
 import 'package:cpton_food2go_rider/mainScreen/order_details_screen.dart';
 import 'package:cpton_food2go_rider/mainScreen/shipment_screen.dart';
 import 'package:cpton_food2go_rider/models/address.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../splashScreen/splash_screen.dart';
 
@@ -16,11 +18,12 @@ class ShipmentAddressDesign extends StatelessWidget
   final String? sellerId;
   final String? orderByUser;
 
-  ShipmentAddressDesign({this.model, this.orderStatus, this.orderId, this.sellerId, this.orderByUser});
+
+  ShipmentAddressDesign({this.model, this.orderStatus, this.orderId, this.sellerId, this.orderByUser, });
 
 
 
-  confirmedParcelShipment(BuildContext context, String getOrderID, String sellerId, String purchaserId)
+  confirmedParcelShipment(BuildContext context, String getOrderID, String sellerId, String purchaserId,)
   {
     FirebaseFirestore.instance
         .collection("orders")
@@ -35,7 +38,7 @@ class ShipmentAddressDesign extends StatelessWidget
     });
 
     //send rider to shipmentScreen
-    Navigator.push(context, MaterialPageRoute(builder: (context) => ShipmentScreen(
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ParcelPickingScreen(
       purchaserId: purchaserId,
       purchaserAddress: model!.fullAddress,
       purchaserLat: model!.lat,
@@ -113,6 +116,7 @@ class ShipmentAddressDesign extends StatelessWidget
                 uLocation.getCurrentLocation();
 
                 confirmedParcelShipment(context, orderId!, sellerId!, orderByUser!);
+
               },
               child: Container(
                 decoration: const BoxDecoration(
@@ -147,7 +151,7 @@ class ShipmentAddressDesign extends StatelessWidget
             child: InkWell(
               onTap: ()
               {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const MySplashScreen()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
               },
               child: Container(
                 decoration: const BoxDecoration(

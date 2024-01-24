@@ -20,13 +20,11 @@ separateOrderItemIDs(orderId)
     //56557657
     String getItemId = (pos != -1) ? item.substring(0, pos) : item;
 
-    print("\nThis is itemID now = " + getItemId);
 
     separateItemIDsList.add(getItemId);
   }
 
-  print("\nThis is Items List now = ");
-  print(separateItemIDsList);
+
 
   return separateItemIDsList;
 }
@@ -47,19 +45,11 @@ separateItemIDs()
     //56557657
     String getItemId = (pos != -1) ? item.substring(0, pos) : item;
 
-    // if (kDebugMode) {
-    //   print("\nThis is itemID now = $getItemId");
-    // }
+
 
     separateItemIDsList.add(getItemId);
   }
 
-  // if (kDebugMode) {
-  //   print("\nThis is Items List now = ");
-  // }
-  // if (kDebugMode) {
-  //   print(separateItemIDsList);
-  // }
 
   return separateItemIDsList;
 }

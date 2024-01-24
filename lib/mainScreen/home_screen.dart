@@ -4,6 +4,7 @@ import 'package:cpton_food2go_rider/Widgets/progress_bar.dart';
 import 'package:cpton_food2go_rider/Widgets/riders_drawer.dart';
 import 'package:cpton_food2go_rider/assisstantMethod/assistant_methods.dart';
 import 'package:cpton_food2go_rider/assisstantMethod/get_current_location.dart';
+import 'package:cpton_food2go_rider/mainScreen/order_in_progress.dart';
 import 'package:flutter/material.dart';
 
 import '../authentication/auth_screen.dart';
@@ -17,6 +18,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -25,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
     UserLocation uLocation = UserLocation();
     uLocation.getCurrentLocation();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -117,14 +120,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     return FutureBuilder<QuerySnapshot>(
                       future: FirebaseFirestore.instance
                           .collection("items")
-                          .where("productsID",
-                          whereIn: separateOrderItemIDs(
-                              (snapshot.data!.docs[index].data()!
-                              as Map<String, dynamic>)[
-                              "productsIDs"]))
-                          .where("orderBy",
-                          whereIn: (snapshot.data!.docs[index].data()!
-                          as Map<String, dynamic>)["uid"])
+                          .where(
+                        "productsID",
+                        whereIn: separateOrderItemIDs(
+                          (snapshot.data!.docs[index].data()!
+                          as Map<String, dynamic>)["productsIDs"],
+                        ),
+                      )
+                          .where(
+                        "orderBy",
+                        whereIn: (snapshot.data!.docs[index].data()!
+                        as Map<String, dynamic>)["uid"],
+                      )
                           .orderBy("publishedDate", descending: true)
                           .get(),
                       builder: (context, snap) {
@@ -133,10 +140,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           itemCount: snap.data!.docs.length,
                           data: snap.data!.docs,
                           orderID: snapshot.data!.docs[index].id,
-                          seperateQuantitiesList:
-                          separateOrderItemQuantities(
-                              (snapshot.data!.docs[index].data()!
-                              as Map<String, dynamic>)["productsIDs"]),
+                          seperateQuantitiesList: separateOrderItemQuantities(
+                            (snapshot.data!.docs[index].data()!
+                            as Map<String, dynamic>)["productsIDs"],
+                          ),
                         )
                             : Center(child: circularProgress());
                       },
@@ -148,6 +155,51 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: Theme(
+        data: ThemeData(
+          canvasColor: Color(0xFF890010), // Background color
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+
+            // Handle navigation to different screens based on index
+            if (index == 0) {
+              // Navigate to Home screen
+            } else if (index == 1) {
+              // Navigate to History screen
+            } else if (index == 2) {
+              // Navigate to Earnings screen
+            } else if (index == 3) {
+              // Navigate to Ongoing Delivery screen
+              Navigator.push(context, MaterialPageRoute(builder: (c) => OrderInProgress()));
+            }
+          },
+          selectedItemColor: Colors.white, // Selected item color
+          unselectedItemColor: Colors.grey, // Unselected item color
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.history),
+              label: 'History',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.monetization_on),
+              label: 'Earnings',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.delivery_dining),
+              label: 'Ongoing Delivery',
+            ),
+          ],
+        ),
       ),
     );
   }
