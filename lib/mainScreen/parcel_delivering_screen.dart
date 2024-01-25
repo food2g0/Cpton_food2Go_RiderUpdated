@@ -42,8 +42,8 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
         .doc(getOrderId).update({
       "status": "ended",
       "address": completeAddress,
-      "lat": position!.latitude,
-      "lng": position!.longitude,
+      // "lat": position!.latitude,
+      // "lng": position!.longitude,
       "earnings": "", //pay per parcel delivery amount
     }).then((value)
     {

@@ -77,8 +77,8 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
         .doc(getOrderId).update({
       "status": "delivering",
       "address": completeAddress,
-      "lat": position!.latitude,
-      "lng": position!.longitude,
+      // "lat": position!.latitude,
+      // "lng": position!.longitude,
     });
 
     Navigator.push(context, MaterialPageRoute(builder: (c)=> ParcelDeliveringScreen(
