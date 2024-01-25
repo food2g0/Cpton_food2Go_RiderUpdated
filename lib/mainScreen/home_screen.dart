@@ -20,13 +20,13 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-
-    UserLocation uLocation = UserLocation();
-    uLocation.getCurrentLocation();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //
+  //   UserLocation uLocation = UserLocation();
+  //   uLocation.getCurrentLocation();
+  // }
 
   @override
   Widget build(BuildContext context) {

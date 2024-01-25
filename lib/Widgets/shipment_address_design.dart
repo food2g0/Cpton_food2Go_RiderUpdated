@@ -25,23 +25,17 @@ class ShipmentAddressDesign extends StatelessWidget
 
   confirmedParcelShipment(BuildContext context, String getOrderID, String sellerId, String purchaserId,)
   {
-    if (sharedPreferences != null && position != null) {
-      FirebaseFirestore.instance
-          .collection("orders")
-          .doc(getOrderID)
-          .update({
-        "riderUID": sharedPreferences!.getString("uid"),
-        "riderName": sharedPreferences!.getString("name"),
-        "status": "picking",
-        "lat": position?.latitude,
-        "lng": position?.longitude,
-        "address": completeAddress,
-      });
-    } else {
-      // Handle the case where sharedPreferences or position is null
-      print("sharedPreferences or position is null");
-    }
-
+    FirebaseFirestore.instance
+        .collection("orders")
+        .doc(getOrderID)
+        .update({
+      "riderUID": sharedPreferences!.getString("uid"),
+      "riderName": sharedPreferences!.getString("name"),
+      "status": "picking",
+      // "lat": position!.latitude,
+      // "lng": position!.longitude,
+      "address": completeAddress,
+    });
 
     //send rider to shipmentScreen
     Navigator.push(context, MaterialPageRoute(builder: (context) => ParcelPickingScreen(
@@ -118,8 +112,8 @@ class ShipmentAddressDesign extends StatelessWidget
             child: InkWell(
               onTap: ()
               {
-                UserLocation uLocation = UserLocation();
-                uLocation.getCurrentLocation();
+                // UserLocation uLocation = UserLocation();
+                // uLocation.getCurrentLocation();
 
                 confirmedParcelShipment(context, orderId!, sellerId!, orderByUser!);
 
