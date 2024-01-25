@@ -8,8 +8,9 @@ import 'package:location/location.dart' as loc;
 
 class MapScreen extends StatefulWidget {
   final String sellerUID;
+  final String user_id;
 
-  MapScreen({required this.sellerUID});
+  MapScreen(QuerySnapshot<Object?> snapshot,  { required this.sellerUID,  required this.user_id});
 
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -27,6 +28,7 @@ class _MapScreenState extends State<MapScreen> {
   Marker? _origin;
   Marker? _destination;
   Set<Polyline> _polylines = {};
+  StreamSubscription<QuerySnapshot>? _subscription;
 
   @override
   void initState() {
@@ -35,6 +37,16 @@ class _MapScreenState extends State<MapScreen> {
     _destination = null;
     _fetchLocationData();
     _fetchDestinationData();
+    _requestPermission();
+    _subscribeToLocationUpdates();
+  }
+  void _subscribeToLocationUpdates() {
+    _subscription = FirebaseFirestore.instance
+        .collection('location')
+        .snapshots()
+        .listen((QuerySnapshot snapshot) {
+      MapScreen(snapshot, sellerUID: widget.sellerUID, user_id: '',);
+    });
   }
 
   Future<void> _fetchLocationData() async {
@@ -54,7 +66,6 @@ class _MapScreenState extends State<MapScreen> {
           position: LatLng(originLatitude, originLongitude),
         );
 
-        // Add polyline between _origin and _destination
         _polylines.add(
           Polyline(
             polylineId: PolylineId('route'),
@@ -83,7 +94,6 @@ class _MapScreenState extends State<MapScreen> {
         destinationLatitude = sellerSnapshot.data()!["lat"];
         destinationLongitude = sellerSnapshot.data()!["lng"];
 
-        // Set the _destination marker
         setState(() {
           _destination = Marker(
             markerId: MarkerId('destination'),
@@ -92,7 +102,6 @@ class _MapScreenState extends State<MapScreen> {
             position: LatLng(destinationLatitude, destinationLongitude),
           );
 
-          // Add polyline between _origin and _destination
           _polylines.add(
             Polyline(
               polylineId: PolylineId('route'),
@@ -118,6 +127,7 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void dispose() {
     _googleMapController.dispose();
+    _locationSubscription?.cancel();
     super.dispose();
   }
 
@@ -155,7 +165,7 @@ class _MapScreenState extends State<MapScreen> {
                 CameraUpdate.newCameraPosition(
                   CameraPosition(
                     target: initialCameraPosition,
-                    zoom: 15.0,
+                    zoom: 10.0,
                   ),
                 ),
               );
@@ -171,6 +181,15 @@ class _MapScreenState extends State<MapScreen> {
               _printSellerLocation();
             },
             child: const Icon(Icons.location_on),
+          ),
+          const SizedBox(height: 16),
+          FloatingActionButton(
+            backgroundColor: Colors.green,
+            foregroundColor: Colors.black,
+            onPressed: () {
+              _listenLocation();
+            },
+            child: const Icon(Icons.location_searching),
           ),
         ],
       ),
@@ -216,6 +235,33 @@ class _MapScreenState extends State<MapScreen> {
       print("Seller Longitude: $sellerLongitude");
     } else {
       print("Seller data not found!");
+    }
+  }
+
+  Future<void> _listenLocation() async {
+    _locationSubscription = location.onLocationChanged.handleError((onError) {
+      print(onError);
+      _locationSubscription?.cancel();
+      setState(() {
+        _locationSubscription = null;
+      });
+    }).listen((loc.LocationData currentLocation) async {
+      await FirebaseFirestore.instance.collection('location').doc('user1').set({
+        'latitude': currentLocation.latitude,
+        'longitude': currentLocation.longitude,
+        'name': 'john',
+      }, SetOptions(merge: true));
+    });
+  }
+
+  Future<void> _requestPermission() async {
+    var status = await Permission.location.request();
+    if (status.isGranted) {
+      print('Location permission granted.');
+    } else if (status.isDenied) {
+      _requestPermission();
+    } else if (status.isPermanentlyDenied) {
+      openAppSettings();
     }
   }
 }

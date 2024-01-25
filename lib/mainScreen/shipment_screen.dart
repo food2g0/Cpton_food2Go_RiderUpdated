@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpton_food2go_rider/Maps/map.dart';
+import 'package:cpton_food2go_rider/Widgets/myMap.dart';
 import 'package:cpton_food2go_rider/assisstantMethod/get_current_location.dart';
 import 'package:cpton_food2go_rider/global/global.dart';
 import 'package:cpton_food2go_rider/mainScreen/parcel_delivering_screen.dart';
@@ -104,94 +105,133 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
           ),
 
           const SizedBox(height: 5,),
-
-          GestureDetector(
-            onTap: () {
-              print("Seller ID: ${widget.sellerId}");
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (c) => MapScreen(sellerUID: widget.sellerId ?? ""),
-                ),
-              );
-              _listenLocation();
-              _getLocation();
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'images/restaurant.png',
-                  width: 50,
-                ),
-                const SizedBox(width: 7,),
-                Column(
-                  children: const [
-                    SizedBox(height: 12,),
-                    Text(
-                      "Show Cafe/Restaurant Location",
-                      style: TextStyle(
-                        fontFamily: "Signatra",
-                        fontSize: 18,
-                        letterSpacing: 2,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          Expanded(child: StreamBuilder(stream:
+              FirebaseFirestore.instance.collection('location')
+              .snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (!snapshot.hasData) {
+          return Center(child: CircularProgressIndicator());
+          }
+          return ListView.builder(
+          itemCount: snapshot.data?.docs.length,
+          itemBuilder: (context, index){
+          return ListTile(
+          title:
+          Text(snapshot.data!.docs[index]['name'].toString()),
+          subtitle: Row(
+          children: [
+          Text(snapshot.data!.docs[index]['latitude']
+              .toString()),
+          SizedBox(
+          width: 20,
           ),
+          Text(snapshot.data!.docs[index]['longitude']
+              .toString()),
 
-          const SizedBox(height: 40,),
+          ],
+          ),
+                trailing: IconButton(icon: Icon(Icons.directions),
+              onPressed: ()
 
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Center(
-              child: InkWell(
-                onTap: ()
                 {
-                  UserLocation uLocation = UserLocation();
-                  uLocation.getCurrentLocation();
-
-                  //confirmed - that rider has picked parcel from seller
-                  confirmParcelHasBeenPicked(
-                      widget.getOrderID,
-                      widget.sellerId,
-                      widget.purchaserId,
-                      widget.purchaserAddress,
-                      widget.purchaserLat,
-                      widget.purchaserLng
-                  );
+                  _listenLocation();
+                  _getLocation();
+                Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) =>
+                MyMap(snapshot.data!.docs[index].id, )));
                 },
-                child: Container(
-                  decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.cyan,
-                          Colors.amber,
-                        ],
-                        begin:  FractionalOffset(0.0, 0.0),
-                        end:  FractionalOffset(1.0, 0.0),
-                        stops: [0.0, 1.0],
-                        tileMode: TileMode.clamp,
-                      )
-                  ),
-                  width: MediaQuery.of(context).size.width - 90,
-                  height: 50,
-                  child: const Center(
-                    child: Text(
-                      "Order has been Picked - Confirmed",
-                      style: TextStyle(color: Colors.white, fontSize: 15.0),
-                    ),
-                  ),
                 ),
-              ),
-            ),
-          ),
-
-
+          );
+          });
+              },
+          )),
         ],
       ),
+
+      // GestureDetector(
+      //   onTap: () {
+      //     _listenLocation();
+      //     Navigator.push(
+      //       context,
+      //       MaterialPageRoute(
+      //         builder: (c) => MapScreen(snapshot.data!.docs[index].id, sellerUID: widget.sellerId ?? ""),
+      //       ),
+      //     );
+      //     _getLocation();
+      //   },
+      //   child: Row(
+      //     mainAxisAlignment: MainAxisAlignment.center,
+      //     children: [
+      //       Image.asset(
+      //         'images/restaurant.png',
+      //         width: 50,
+      //       ),
+      //       const SizedBox(width: 7,),
+      //       Column(
+      //         children: const [
+      //           SizedBox(height: 12,),
+      //           Text(
+      //             "Show Cafe/Restaurant Location",
+      //             style: TextStyle(
+      //               fontFamily: "Signatra",
+      //               fontSize: 18,
+      //               letterSpacing: 2,
+      //             ),
+      //           ),
+      //         ],
+      //       ),
+      //     ],
+      //   ),
+      // ),
+      //
+      //
+      //    SizedBox(height: 40,),
+      //
+      //     Padding(
+      //       padding: const EdgeInsets.all(10.0),
+      //       child: Center(
+      //         child: InkWell(
+      //           onTap: ()
+      //           {
+      //             // UserLocation uLocation = UserLocation();
+      //             // uLocation.getCurrentLocation();
+      //
+      //             //confirmed - that rider has picked parcel from seller
+      //             confirmParcelHasBeenPicked(
+      //                 widget.getOrderID,
+      //                 widget.sellerId,
+      //                 widget.purchaserId,
+      //                 widget.purchaserAddress,
+      //                 widget.purchaserLat,
+      //                 widget.purchaserLng
+      //             );
+      //           },
+      //           child: Container(
+      //             decoration: const BoxDecoration(
+      //                 gradient: LinearGradient(
+      //                   colors: [
+      //                     Colors.cyan,
+      //                     Colors.amber,
+      //                   ],
+      //                   begin:  FractionalOffset(0.0, 0.0),
+      //                   end:  FractionalOffset(1.0, 0.0),
+      //                   stops: [0.0, 1.0],
+      //                   tileMode: TileMode.clamp,
+      //                 )
+      //             ),
+      //             width: MediaQuery.of(context).size.width - 90,
+      //             height: 50,
+      //             child: const Center(
+      //               child: Text(
+      //                 "Order has been Picked - Confirmed",
+      //                 style: TextStyle(color: Colors.white, fontSize: 15.0),
+      //               ),
+      //             ),
+      //           ),
+      //         ),
+      //       ),
+      //     ),
+
     );
   }
   _getLocation() async {

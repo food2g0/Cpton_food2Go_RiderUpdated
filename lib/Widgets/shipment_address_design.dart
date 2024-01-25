@@ -32,8 +32,8 @@ class ShipmentAddressDesign extends StatelessWidget
       "riderUID": sharedPreferences!.getString("uid"),
       "riderName": sharedPreferences!.getString("name"),
       "status": "picking",
-      "lat": position!.latitude,
-      "lng": position!.longitude,
+      // "lat": position!.latitude,
+      // "lng": position!.longitude,
       "address": completeAddress,
     });
 
@@ -112,8 +112,8 @@ class ShipmentAddressDesign extends StatelessWidget
             child: InkWell(
               onTap: ()
               {
-                UserLocation uLocation = UserLocation();
-                uLocation.getCurrentLocation();
+                // UserLocation uLocation = UserLocation();
+                // uLocation.getCurrentLocation();
 
                 confirmedParcelShipment(context, orderId!, sellerId!, orderByUser!);
 
