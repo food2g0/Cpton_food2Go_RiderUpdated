@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpton_food2go_rider/Maps/map.dart';
+import 'package:cpton_food2go_rider/Widgets/RiderToSellerMap.dart';
 import 'package:cpton_food2go_rider/assisstantMethod/get_current_location.dart';
 import 'package:cpton_food2go_rider/global/global.dart';
 import 'package:cpton_food2go_rider/mainScreen/parcel_delivering_screen.dart';
@@ -104,18 +105,53 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
           ),
 
           const SizedBox(height: 5,),
+          Expanded(child: StreamBuilder(stream:
+          FirebaseFirestore.instance.collection('location')
+              .snapshots(),
+            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (!snapshot.hasData) {
+                return Center(child: CircularProgressIndicator());
+              }
+              return ListView.builder(
+                  itemCount: snapshot.data?.docs.length,
+                  itemBuilder: (context, index){
+                    return ListTile(
+                      title:
+                      Text(snapshot.data!.docs[index]['name'].toString()),
+                      subtitle: Row(
+                        children: [
+                          Text(snapshot.data!.docs[index]['latitude']
+                              .toString()),
+                          SizedBox(
+                            width: 20,
+                          ),
+                          Text(snapshot.data!.docs[index]['longitude']
+                              .toString()),
 
+                        ],
+                      ),
+                      trailing: IconButton(icon: Icon(Icons.directions),
+                        onPressed: ()
+
+                        {
+                          _listenLocation();
+                          _getLocation();
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => MyMap(
+                               user_id: snapshot.data!.docs[index].id, // Pass the user_id parameter
+                              sellerUID: widget.sellerId ?? "", // Pass the sellerUID parameter
+                            ),
+                          ));
+                          _listenLocation();
+                        },
+                      ),
+                    );
+                  });
+            },
+          )),
           GestureDetector(
             onTap: () {
-              print("Seller ID: ${widget.sellerId}");
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (c) => MapScreen(sellerUID: widget.sellerId ?? ""),
-                ),
-              );
-              _listenLocation();
-              _getLocation();
+
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -141,8 +177,7 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
               ],
             ),
           ),
-
-          const SizedBox(height: 40,),
+          SizedBox(height: 40,),
 
           Padding(
             padding: const EdgeInsets.all(10.0),
@@ -150,8 +185,8 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
               child: InkWell(
                 onTap: ()
                 {
-                  UserLocation uLocation = UserLocation();
-                  uLocation.getCurrentLocation();
+                  // UserLocation uLocation = UserLocation();
+                  // uLocation.getCurrentLocation();
 
                   //confirmed - that rider has picked parcel from seller
                   confirmParcelHasBeenPicked(
@@ -188,10 +223,15 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
               ),
             ),
           ),
-
-
         ],
+
       ),
+
+
+
+
+
+
     );
   }
   _getLocation() async {
@@ -203,10 +243,10 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
           .doc()
 
       // FirebaseFirestore.instance.collection('location').doc('user1')
-      .set({
-         'latitude': _locationResult.latitude,
-         'longitude': _locationResult.longitude,
-         'name': 'user1',
+          .set({
+        'latitude': _locationResult.latitude,
+        'longitude': _locationResult.longitude,
+        'name': 'user1',
       }, SetOptions(merge: true));
     } catch (e) {
       print(e);
@@ -242,4 +282,3 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
     }
   }
 }
-
