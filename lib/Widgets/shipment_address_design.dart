@@ -99,7 +99,10 @@ class ShipmentAddressDesign extends StatelessWidget
           padding: const EdgeInsets.all(10.0),
           child: Text(
             model!.fullAddress!,
-            textAlign: TextAlign.justify,
+            style: TextStyle(
+              fontFamily: "Poppins",
+              fontSize: 12,
+            ),
           ),
         ),
 
@@ -122,8 +125,8 @@ class ShipmentAddressDesign extends StatelessWidget
                 decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Colors.cyan,
-                        Colors.amber,
+                        Colors.greenAccent,
+                        Colors.green,
                       ],
                       begin:  FractionalOffset(0.0, 0.0),
                       end:  FractionalOffset(1.0, 0.0),
@@ -136,7 +139,7 @@ class ShipmentAddressDesign extends StatelessWidget
                 child: const Center(
                   child: Text(
                     "Confirm - To Deliver this Parcel",
-                    style: TextStyle(color: Colors.white, fontSize: 15.0),
+                    style: TextStyle(color: Colors.white70, fontSize: 12.0),
                   ),
                 ),
               ),
@@ -157,8 +160,8 @@ class ShipmentAddressDesign extends StatelessWidget
                 decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Colors.cyan,
-                        Colors.amber,
+                        Color(0xFF890010),
+                        Colors.red,
                       ],
                       begin:  FractionalOffset(0.0, 0.0),
                       end:  FractionalOffset(1.0, 0.0),

@@ -31,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFA19E9F),
+      backgroundColor: Colors.white70,
       appBar: AppBar(
         flexibleSpace: Container(
           decoration: const BoxDecoration(
@@ -102,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(
                 fontFamily: "Poppins",
                 fontSize: 16,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w700,
                 color: Colors.black,
               ),
             ),

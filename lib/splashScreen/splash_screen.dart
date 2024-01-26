@@ -15,70 +15,51 @@ class MySplashScreen extends StatefulWidget {
   State<MySplashScreen> createState() => _MySplashScreenState();
 }
 
-
-
-
-class _MySplashScreenState extends State<MySplashScreen>
-{
-
-  startTimer()
-  {
-
-
-    Timer(const Duration(seconds: 4),()async{
-
-      //if seller is already logged in
-
-      if(firebaseAuth.currentUser != null)
-      {
-        Navigator.push(context, MaterialPageRoute(builder: (c)=> const HomeScreen()));
+class _MySplashScreenState extends State<MySplashScreen> {
+  startTimer() {
+    Timer(const Duration(seconds: 4), () async {
+      if (firebaseAuth.currentUser != null) {
+        Navigator.push(context, MaterialPageRoute(builder: (c) => const HomeScreen()));
+      } else {
+        Navigator.push(context, MaterialPageRoute(builder: (c) => const AuthScreen()));
       }
-      //if rider is not logged in
-      else
-        {
-          Navigator.push(context, MaterialPageRoute(builder: (c)=> const AuthScreen()));
-        }
-
-
     });
   }
 
-@override
+  @override
   void initState() {
     super.initState();
-
     startTimer();
   }
 
   @override
   Widget build(BuildContext context) {
     return Material(
-
       child: Container(
         color: Colors.black,
         child: Center(
-
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Padding(
-
                 padding: const EdgeInsets.all(8.0),
-                child: Image.asset("images/logo.png"),
+                child: Image.asset(
+                  "images/appIcon.png",
+                  width: 150, // Adjust the width as needed
+                  height: 150, // Adjust the height as needed
+                ),
               ),
-
-              const   SizedBox(height: 10,),
-
+              const SizedBox(height: 10,),
               const Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text(
-                  "Food To Go",
+                  "Welcome Food2Go Rider",
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 20,
-                    fontFamily: "Roboto",
-
+                    color: Color(0xFF890010),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: "Poppins",
                   ),
                 ),
               ),
@@ -89,5 +70,4 @@ class _MySplashScreenState extends State<MySplashScreen>
     );
   }
 }
-
 

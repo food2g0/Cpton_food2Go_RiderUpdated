@@ -20,19 +20,18 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   String orderStatus = "";
   String orderByUser = "";
   String sellerId = "";
-  getOrderInfo()
-  {
-    FirebaseFirestore.instance.collection("orders")
+  getOrderInfo() {
+    FirebaseFirestore.instance
+        .collection("orders")
         .doc(widget.orderID)
         .get()
-        .then((DocumentSnapshot)
-        {
-          orderStatus = DocumentSnapshot.data()!["status"].toString();
-          orderByUser = DocumentSnapshot.data()!["orderBy"].toString();
-          sellerId = DocumentSnapshot.data()!["sellerUID"].toString();
-
-        });
+        .then((DocumentSnapshot) {
+      orderStatus = DocumentSnapshot.data()!["status"].toString();
+      orderByUser = DocumentSnapshot.data()!["orderBy"].toString();
+      sellerId = DocumentSnapshot.data()!["sellerUID"].toString();
+    });
   }
+
   @override
   void initState() {
 
@@ -68,10 +67,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        "Total Amount : Php ${dataMap["totalAmount"]}",
+                        "Total Amount (including shipping fee): Php ${dataMap["totalAmount"] + 50}",
                         style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
                           fontFamily: "Poppins",
                         ),
                       ),
@@ -102,7 +101,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                 ),
                               )}",
                           style: const TextStyle(
-                            fontSize: 14,
+                            fontSize: 12,
                             color: Colors.grey,
                             fontFamily: "Poppins",
                           ),
