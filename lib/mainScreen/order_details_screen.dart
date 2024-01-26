@@ -2,9 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpton_food2go_rider/Widgets/progress_bar.dart';
 import 'package:cpton_food2go_rider/Widgets/shipment_address_design.dart';
 import 'package:cpton_food2go_rider/Widgets/statusBanner.dart';
-import 'package:cpton_food2go_rider/global/global.dart';
 import 'package:cpton_food2go_rider/models/address.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -70,9 +68,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        "Total Amount Php " + dataMap["totalAmount"].toString(),
+                        "Total Amount : Php ${dataMap["totalAmount"]}",
                         style: const TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                           fontFamily: "Poppins",
                         ),
@@ -84,9 +82,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                      child: Align(
                        alignment: Alignment.centerLeft,
                        child: Text(
-                          "Order Id = " + widget.orderID!,
+                          "Order Id = ${widget.orderID!}",
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 12,
                             fontFamily: "Poppins",
                           ),
                         ),
@@ -98,14 +96,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                          "Order at: " +
-                              DateFormat("dd MMMM, yyyy - hh:mm aa").format(
+                          "Order at: ${DateFormat("dd MMMM, yyyy - hh:mm aa").format(
                                 DateTime.fromMillisecondsSinceEpoch(
                                   int.parse(dataMap["orderTime"]),
                                 ),
-                              ),
+                              )}",
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                             color: Colors.grey,
                             fontFamily: "Poppins",
                           ),

@@ -37,7 +37,7 @@ class _SignUpPageState extends State<SignUpPage> {
   Position? position;
   List<Placemark>? placeMarks;
 
-  String sellerImageUrl = "";
+  String riderAvatarUrl = "";
   String completeAddress = "";
 
   Future<void> _getImage() async {
@@ -102,7 +102,7 @@ class _SignUpPageState extends State<SignUpPage> {
           fStorage.TaskSnapshot taskSnapshot =
               await uploadTask.whenComplete(() {});
           await taskSnapshot.ref.getDownloadURL().then((url) {
-            sellerImageUrl = url;
+            riderAvatarUrl = url;
 
             //save info to firestore
             authenticateRiderAndSignUp();
@@ -165,7 +165,7 @@ class _SignUpPageState extends State<SignUpPage> {
       "riderUID": currentUser.uid,
       "riderEmail": currentUser.email,
       "riderName": nameController.text.trim(),
-      "riderAvatarUrl": sellerImageUrl,
+      "riderAvatarUrl": riderAvatarUrl,
       "phone": phoneController.text.trim(),
       "address": completeAddress,
       "status": "approved",
@@ -179,7 +179,7 @@ class _SignUpPageState extends State<SignUpPage> {
     await sharedPreferences.setString("uid", currentUser.uid);
     await sharedPreferences.setString("email", currentUser.email.toString());
     await sharedPreferences.setString("name", nameController.text.trim());
-    await sharedPreferences.setString("photoUrl", sellerImageUrl);
+    await sharedPreferences.setString("riderAvatarUrl", riderAvatarUrl);
   }
 
   @override
@@ -341,29 +341,9 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                     ),
                   ),
-                  SizedBox(height: w * 0.08),
-                  RichText(
-                      text: const TextSpan(
-                    text: "Sign up using one of the following methods:",
-                    style: TextStyle(color: Colors.white, fontSize: 15),
-                  )),
-                  const SizedBox(height: 23),
-                  Wrap(
-                    children: List<Widget>.generate(3, (index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: CircleAvatar(
-                          radius: 22,
-                          backgroundColor: Colors.white,
-                          child: CircleAvatar(
-                            radius: 20,
-                            backgroundImage:
-                                AssetImage("images/" + images[index]),
-                          ),
-                        ),
-                      );
-                    }),
-                  )
+
+
+
                 ],
               ),
             ),

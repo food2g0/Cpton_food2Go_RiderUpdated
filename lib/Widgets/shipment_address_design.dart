@@ -2,11 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpton_food2go_rider/assisstantMethod/get_current_location.dart';
 import 'package:cpton_food2go_rider/global/global.dart';
 import 'package:cpton_food2go_rider/mainScreen/home_screen.dart';
-import 'package:cpton_food2go_rider/mainScreen/order_details_screen.dart';
+
 import 'package:cpton_food2go_rider/mainScreen/shipment_screen.dart';
 import 'package:cpton_food2go_rider/models/address.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 
 import '../splashScreen/splash_screen.dart';
 
@@ -60,33 +60,33 @@ class ShipmentAddressDesign extends StatelessWidget
           padding: EdgeInsets.all(10.0),
           child: Text(
               'Shipping Details:',
-              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)
+              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontFamily: "Poppins")
           ),
         ),
         const SizedBox(
           height: 6.0,
         ),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 90, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 5),
           width: MediaQuery.of(context).size.width,
           child: Table(
             children: [
               TableRow(
                 children: [
                   const Text(
-                    "Name",
-                    style: TextStyle(color: Colors.black),
+                    "Name : ",
+                    style: TextStyle(color: Colors.black, fontFamily: "Poppins", fontSize: 12),
                   ),
-                  Text(model!.name!),
+                  Text(model!.name!,style: TextStyle(color: Colors.black, fontFamily: "Poppins", fontSize: 12),),
                 ],
               ),
               TableRow(
                 children: [
                   const Text(
-                    "Phone Number",
-                    style: TextStyle(color: Colors.black),
+                    "Phone Number : ",
+                    style: TextStyle(color: Colors.black, fontFamily: "Poppins", fontSize: 12),
                   ),
-                  Text(model!.phoneNumber!),
+                  Text(model!.phoneNumber!,  style: TextStyle(color: Colors.black, fontFamily: "Poppins", fontSize: 12), ),
                 ],
               ),
             ],

@@ -33,9 +33,17 @@ dependencies:
   google_maps_place_search_advance: ^0.0.4
   flutter_polyline_points: ^2.0.0
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.13.1
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "images/appIcon.png"
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

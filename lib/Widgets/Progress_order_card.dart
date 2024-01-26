@@ -40,10 +40,10 @@ class OrderCardInProgress extends StatelessWidget
         ),
         padding: const EdgeInsets.all(10),
         margin: const EdgeInsets.all(10),
-        height: itemCount! * 125,
+        height: itemCount! * 145,
         child: ListView.builder(
           itemCount: itemCount,
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index)
           {
             Items model = Items.fromJson(data![index].data()! as Map<String, dynamic>);
@@ -62,7 +62,7 @@ Widget placedOrderDesignWidget(Items model, BuildContext context, seperateQuanti
 {
   return Container(
     width: MediaQuery.of(context).size.width,
-    height: 120,
+    height: 200,
     color: Colors.grey[200],
     child: Row(
       children: [
@@ -86,7 +86,7 @@ Widget placedOrderDesignWidget(Items model, BuildContext context, seperateQuanti
                       style: const TextStyle(
                         color: Colors.black,
                         fontSize: 16,
-                        fontFamily: "Acme",
+                        fontFamily: "Poppins",
                       ),
                     ),
                   ),
@@ -94,7 +94,7 @@ Widget placedOrderDesignWidget(Items model, BuildContext context, seperateQuanti
                     width: 10,
                   ),
                   const Text(
-                    "€ ",
+                    "Php  ",
                     style: TextStyle(fontSize: 16.0, color: Colors.blue),
                   ),
                   Text(
@@ -125,8 +125,8 @@ Widget placedOrderDesignWidget(Items model, BuildContext context, seperateQuanti
                       seperateQuantitiesList,
                       style: const TextStyle(
                         color: Colors.black54,
-                        fontSize: 30,
-                        fontFamily: "Acme",
+                        fontSize: 20,
+                        fontFamily: "Poppins",
                       ),
                     ),
                   ),

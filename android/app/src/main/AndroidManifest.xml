@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
-        android:label="cpton_food2go_rider"
+        android:label="Rider App"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 

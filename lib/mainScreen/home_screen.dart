@@ -3,7 +3,7 @@ import 'package:cpton_food2go_rider/Widgets/order_card.dart';
 import 'package:cpton_food2go_rider/Widgets/progress_bar.dart';
 import 'package:cpton_food2go_rider/Widgets/riders_drawer.dart';
 import 'package:cpton_food2go_rider/assisstantMethod/assistant_methods.dart';
-import 'package:cpton_food2go_rider/assisstantMethod/get_current_location.dart';
+
 import 'package:cpton_food2go_rider/mainScreen/order_in_progress.dart';
 import 'package:flutter/material.dart';
 
@@ -38,12 +38,14 @@ class _HomeScreenState extends State<HomeScreen> {
             color: Color(0xFF890010),
           ),
         ),
-        title: Align(
+        title: const Align(
           alignment: Alignment.centerLeft,
           child: Text(
             "Riders Dashboard",
             style: TextStyle(
               fontFamily: "Poppins",
+              fontSize: 16,
+              color: Colors.white70
             ),
           ),
         ),
@@ -117,33 +119,45 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? ListView.builder(
                   itemCount: snapshot.data!.docs.length,
                   itemBuilder: (context, index) {
+                    // Get seller's UID
+                    String sellerUID =
+                    (snapshot.data!.docs[index].data()! as Map<String, dynamic>)["sellerUID"];
+
                     return FutureBuilder<QuerySnapshot>(
                       future: FirebaseFirestore.instance
                           .collection("items")
                           .where(
                         "productsID",
                         whereIn: separateOrderItemIDs(
-                          (snapshot.data!.docs[index].data()!
-                          as Map<String, dynamic>)["productsIDs"],
+                          (snapshot.data!.docs[index].data()! as Map<String, dynamic>)["productsIDs"],
                         ),
                       )
                           .where(
                         "orderBy",
-                        whereIn: (snapshot.data!.docs[index].data()!
-                        as Map<String, dynamic>)["uid"],
+                        whereIn: (snapshot.data!.docs[index].data()! as Map<String, dynamic>)["uid"],
                       )
                           .orderBy("publishedDate", descending: true)
                           .get(),
                       builder: (context, snap) {
                         return snap.hasData
-                            ? OrderCard(
-                          itemCount: snap.data!.docs.length,
-                          data: snap.data!.docs,
-                          orderID: snapshot.data!.docs[index].id,
-                          seperateQuantitiesList: separateOrderItemQuantities(
-                            (snapshot.data!.docs[index].data()!
-                            as Map<String, dynamic>)["productsIDs"],
-                          ),
+                            ? FutureBuilder<DocumentSnapshot>(
+                          future: FirebaseFirestore.instance
+                              .collection("sellers")
+                              .doc(sellerUID)
+                              .get(),
+                          builder: (context, sellerSnap) {
+                            return sellerSnap.hasData
+                                ? OrderCard(
+                              itemCount: snap.data!.docs.length,
+                              data: snap.data!.docs,
+                              orderID: snapshot.data!.docs[index].id,
+                              seperateQuantitiesList: separateOrderItemQuantities(
+                                (snapshot.data!.docs[index].data()! as Map<String, dynamic>)["productsIDs"],
+                              ),
+                              sellerName: sellerSnap.data!["sellersName"], // Pass the seller's name
+                            )
+                                : Center(child: circularProgress());
+                          },
                         )
                             : Center(child: circularProgress());
                       },
@@ -153,6 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     : Center(child: circularProgress());
               },
             ),
+
           ),
         ],
       ),

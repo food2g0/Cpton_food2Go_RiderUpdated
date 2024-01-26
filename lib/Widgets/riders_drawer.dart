@@ -14,6 +14,7 @@ class RidersDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("Debug riderAvatarUrl in RidersDrawer: ${sharedPreferences?.getString("riderAvatarUrl")}");
     return Drawer(
       child: ListView(
         children: [
@@ -33,7 +34,7 @@ class RidersDrawer extends StatelessWidget {
                       width: 100,
                       child: CircleAvatar(
                         backgroundImage: NetworkImage(
-                            sharedPreferences!.getString("photoUrl").toString()
+                            sharedPreferences!.getString("riderAvatarUrl").toString()
                         ),
 
                       ),

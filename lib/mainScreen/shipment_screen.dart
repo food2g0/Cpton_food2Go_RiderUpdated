@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpton_food2go_rider/Maps/map.dart';
-import 'package:cpton_food2go_rider/Widgets/myMap.dart';
-import 'package:cpton_food2go_rider/assisstantMethod/get_current_location.dart';
 import 'package:cpton_food2go_rider/global/global.dart';
 import 'package:cpton_food2go_rider/mainScreen/parcel_delivering_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:location/location.dart' as loc;
 import 'package:permission_handler/permission_handler.dart';
+
+import '../Widgets/RidersToSellerMap.dart';
 
 
 class ParcelPickingScreen extends StatefulWidget
@@ -43,7 +43,7 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
   final loc.Location location = loc.Location();
   StreamSubscription<loc.LocationData>? _locationSubscription;
   double? sellerLat, sellerLng;
-
+  String? sellerAddress;
 
 
   @override
@@ -65,6 +65,7 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
     {
       sellerLat = DocumentSnapshot.data()!["lat"];
       sellerLng = DocumentSnapshot.data()!["lng"];
+      sellerAddress = DocumentSnapshot.data()!["sellersAddress"];
     });
   }
 
@@ -94,6 +95,14 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor:  const Color(0xFF890010),
+        title: const Text("Track Order",style: TextStyle(
+          fontSize: 18,
+          color: Colors.white70,
+          fontFamily: "Poppins"
+        ),),
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -106,131 +115,95 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
 
           const SizedBox(height: 5,),
           Expanded(child: StreamBuilder(stream:
-              FirebaseFirestore.instance.collection('location')
+          FirebaseFirestore.instance.collection('location')
               .snapshots(),
-              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData) {
-          return Center(child: CircularProgressIndicator());
-          }
-          return ListView.builder(
-          itemCount: snapshot.data?.docs.length,
-          itemBuilder: (context, index){
-          return ListTile(
-          title:
-          Text(snapshot.data!.docs[index]['name'].toString()),
-          subtitle: Row(
-          children: [
-          Text(snapshot.data!.docs[index]['latitude']
-              .toString()),
-          SizedBox(
-          width: 20,
-          ),
-          Text(snapshot.data!.docs[index]['longitude']
-              .toString()),
+            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (!snapshot.hasData) {
+                return Center(child: CircularProgressIndicator());
+              }
+              return ListView.builder(
+                  itemCount: snapshot.data?.docs.length,
+                  itemBuilder: (context, index){
+                    return ListTile(
+                      title: Text(snapshot.data!.docs[index]['name'].toString()),
+                      subtitle: Row(
+                        children: [
+                          Visibility(
+                            visible: false, // Set visibility to false to hide the latitude Text
+                            child: Text(snapshot.data!.docs[index]['latitude'].toString()),
+                          ),
+                          SizedBox(width: 20),
+                          Visibility(
+                            visible: false, // Set visibility to false to hide the longitude Text
+                            child: Text(snapshot.data!.docs[index]['longitude'].toString()),
+                          ),
+                        ],
+                      ),
+                      trailing: TextButton(
+                        onPressed: () {
+                          _listenLocation();
+                          _getLocation();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => MyMap(
+                                user_id: snapshot.data!.docs[index].id,
+                                sellerUID: widget.sellerId ?? "", sellerAddress: sellerAddress,
 
-          ],
-          ),
-                trailing: IconButton(icon: Icon(Icons.directions),
-              onPressed: ()
+                              ),
+                            ),
+                          );
+                          _listenLocation();
+                        },
+                        child: Text("Track Order"), // Replace with your desired button text
+                      ),
+                    );
 
-                {
-                  _listenLocation();
-                  _getLocation();
-                Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) =>
-                MyMap(snapshot.data!.docs[index].id, )));
-                },
-                ),
-          );
-          });
-              },
+                  });
+            },
           )),
+
+
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Center(
+              child: InkWell(
+                onTap: ()
+                {
+                  // UserLocation uLocation = UserLocation();
+                  // uLocation.getCurrentLocation();
+
+                  //confirmed - that rider has picked parcel from seller
+                  confirmParcelHasBeenPicked(
+                      widget.getOrderID,
+                      widget.sellerId,
+                      widget.purchaserId,
+                      widget.purchaserAddress,
+                      widget.purchaserLat,
+                      widget.purchaserLng
+                  );
+                },
+                child: Container(
+                 color: Color(0xFF890010),
+                  width: MediaQuery.of(context).size.width - 90,
+                  height: 60,
+                  child: const Center(
+                    child: Text(
+                      "Order has been Picked - Confirmed",
+                      style: TextStyle(color: Colors.white, fontSize: 12.0),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
+
       ),
 
-      // GestureDetector(
-      //   onTap: () {
-      //     _listenLocation();
-      //     Navigator.push(
-      //       context,
-      //       MaterialPageRoute(
-      //         builder: (c) => MapScreen(snapshot.data!.docs[index].id, sellerUID: widget.sellerId ?? ""),
-      //       ),
-      //     );
-      //     _getLocation();
-      //   },
-      //   child: Row(
-      //     mainAxisAlignment: MainAxisAlignment.center,
-      //     children: [
-      //       Image.asset(
-      //         'images/restaurant.png',
-      //         width: 50,
-      //       ),
-      //       const SizedBox(width: 7,),
-      //       Column(
-      //         children: const [
-      //           SizedBox(height: 12,),
-      //           Text(
-      //             "Show Cafe/Restaurant Location",
-      //             style: TextStyle(
-      //               fontFamily: "Signatra",
-      //               fontSize: 18,
-      //               letterSpacing: 2,
-      //             ),
-      //           ),
-      //         ],
-      //       ),
-      //     ],
-      //   ),
-      // ),
-      //
-      //
-      //    SizedBox(height: 40,),
-      //
-      //     Padding(
-      //       padding: const EdgeInsets.all(10.0),
-      //       child: Center(
-      //         child: InkWell(
-      //           onTap: ()
-      //           {
-      //             // UserLocation uLocation = UserLocation();
-      //             // uLocation.getCurrentLocation();
-      //
-      //             //confirmed - that rider has picked parcel from seller
-      //             confirmParcelHasBeenPicked(
-      //                 widget.getOrderID,
-      //                 widget.sellerId,
-      //                 widget.purchaserId,
-      //                 widget.purchaserAddress,
-      //                 widget.purchaserLat,
-      //                 widget.purchaserLng
-      //             );
-      //           },
-      //           child: Container(
-      //             decoration: const BoxDecoration(
-      //                 gradient: LinearGradient(
-      //                   colors: [
-      //                     Colors.cyan,
-      //                     Colors.amber,
-      //                   ],
-      //                   begin:  FractionalOffset(0.0, 0.0),
-      //                   end:  FractionalOffset(1.0, 0.0),
-      //                   stops: [0.0, 1.0],
-      //                   tileMode: TileMode.clamp,
-      //                 )
-      //             ),
-      //             width: MediaQuery.of(context).size.width - 90,
-      //             height: 50,
-      //             child: const Center(
-      //               child: Text(
-      //                 "Order has been Picked - Confirmed",
-      //                 style: TextStyle(color: Colors.white, fontSize: 15.0),
-      //               ),
-      //             ),
-      //           ),
-      //         ),
-      //       ),
-      //     ),
+
+
+
+
 
     );
   }
@@ -243,10 +216,10 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
           .doc()
 
       // FirebaseFirestore.instance.collection('location').doc('user1')
-      .set({
-         'latitude': _locationResult.latitude,
-         'longitude': _locationResult.longitude,
-         'name': 'user1',
+          .set({
+        'latitude': _locationResult.latitude,
+        'longitude': _locationResult.longitude,
+        'name': 'user1',
       }, SetOptions(merge: true));
     } catch (e) {
       print(e);
@@ -282,4 +255,3 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
     }
   }
 }
-
