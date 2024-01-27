@@ -32,6 +32,7 @@ dependencies:
   dio: ^5.4.0
   google_maps_place_search_advance: ^0.0.4
   flutter_polyline_points: ^2.0.0
+  fluttertoast: ^8.2.4
 
 
 dev_dependencies:

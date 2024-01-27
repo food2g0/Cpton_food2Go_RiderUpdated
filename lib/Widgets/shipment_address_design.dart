@@ -7,6 +7,7 @@ import 'package:cpton_food2go_rider/mainScreen/home_screen.dart';
 import 'package:cpton_food2go_rider/mainScreen/ParcelPicking_Screen.dart';
 import 'package:cpton_food2go_rider/models/address.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:location/location.dart'as loc;
 import 'package:permission_handler/permission_handler.dart';
 
@@ -20,9 +21,10 @@ class ShipmentAddressDesign extends StatefulWidget
   final String? orderId;
   final String? sellerId;
   final String? orderByUser;
+  final String? riderUID;
 
 
-  ShipmentAddressDesign({this.model, this.orderStatus, this.orderId, this.sellerId, this.orderByUser, });
+  ShipmentAddressDesign({this.model, this.orderStatus, this.orderId, this.sellerId, this.orderByUser, this.riderUID, });
 
   @override
   State<ShipmentAddressDesign> createState() => _ShipmentAddressDesignState();
@@ -31,31 +33,60 @@ class ShipmentAddressDesign extends StatefulWidget
 class _ShipmentAddressDesignState extends State<ShipmentAddressDesign> {
   final loc.Location location = loc.Location();
   StreamSubscription<loc.LocationData>? _locationSubscription;
+  bool canProceed = true;
 
-  confirmedParcelShipment(BuildContext context, String getOrderID, String sellerId, String purchaserId,)
-  {
-    FirebaseFirestore.instance
-        .collection("orders")
-        .doc(getOrderID)
-        .update({
+  Future<void> confirmedParcelShipment(BuildContext context, String getOrderID, String sellerId, String purchaserId) async {
+    // Get a reference to the order document
+    DocumentReference orderRef = FirebaseFirestore.instance.collection("orders").doc(getOrderID);
+
+    // Update the order status to "accepted" and set the rider details
+    await orderRef.update({
       "riderUID": sharedPreferences!.getString("uid"),
       "riderName": sharedPreferences!.getString("name"),
-      "status": "picking",
-      // "lat": position!.latitude,
-      // "lng": position!.longitude,
+      "status": "accepted",
       "address": completeAddress,
     });
 
-    //send rider to shipmentScreen
-    Navigator.push(context, MaterialPageRoute(builder: (context) => ParcelPickingScreen(
-      purchaserId: purchaserId,
-      purchaserAddress: widget.model!.fullAddress,
-      purchaserLat: widget.model!.lat,
-      purchaserLng: widget.model!.lng,
-      sellerId: sellerId,
-      getOrderID: getOrderID,
-    )));
+    // Get the updated order snapshot
+    DocumentSnapshot orderSnapshot = await orderRef.get();
+
+    // Check if the order is already accepted by another rider
+    String currentStatus = orderSnapshot["status"];
+    String updatedRiderUID = orderSnapshot["riderUID"];
+
+    if (currentStatus == "accepted" && updatedRiderUID != sharedPreferences!.getString("uid")) {
+      // Parcel has already been accepted by another rider
+      Fluttertoast.showToast(
+        msg: "Parcel has already been accepted by another rider",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+
+      // Set canProceed to false
+      canProceed = false;
+    }
+
+    // Check if the updated riderUID is equal to the current user's UID
+    if (canProceed && updatedRiderUID == sharedPreferences!.getString("uid")) {
+      // Send the rider to ParcelPickingScreen
+      Navigator.push(context, MaterialPageRoute(builder: (context) => ParcelPickingScreen(
+        purchaserId: purchaserId,
+        purchaserAddress: widget.model!.fullAddress,
+        purchaserLat: widget.model!.lat,
+        purchaserLng: widget.model!.lng,
+        sellerId: sellerId,
+        getOrderID: getOrderID,
+      )));
+    }
   }
+
+
+
+
 
   @override
   Widget build(BuildContext context)

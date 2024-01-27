@@ -4,6 +4,8 @@ import 'package:cpton_food2go_rider/Widgets/progress_bar.dart';
 import 'package:cpton_food2go_rider/assisstantMethod/assistant_methods.dart';
 import 'package:flutter/material.dart';
 
+import '../global/global.dart';
+
 class OrderInProgress extends StatefulWidget {
   @override
   _OrderInProgressState createState() => _OrderInProgressState();
@@ -35,7 +37,8 @@ class _OrderInProgressState extends State<OrderInProgress> {
         body: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection("orders")
-              .where("status", isEqualTo: "picking")
+              .where("status", isEqualTo: "accepted")
+              .where("riderUID", isEqualTo: sharedPreferences!.getString("uid"))
               .orderBy("orderTime", descending: true)
               .snapshots(),
           builder: (context, snapshot) {

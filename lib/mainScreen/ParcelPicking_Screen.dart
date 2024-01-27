@@ -20,6 +20,7 @@ class ParcelPickingScreen extends StatefulWidget
   double? purchaserLat;
   double? purchaserLng;
   String? riderName;
+  String? riderUID;
 
 
   ParcelPickingScreen({
@@ -30,6 +31,7 @@ class ParcelPickingScreen extends StatefulWidget
     this.purchaserLat,
     this.riderName,
     this.purchaserLng,
+    this.riderUID
   });
 
   @override
