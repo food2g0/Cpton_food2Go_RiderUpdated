@@ -142,7 +142,6 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
                                   ),
                                 ),
                               );
-                              _listenLocation();
                             },
                             style: ElevatedButton.styleFrom(
                               primary: Color(0xFF31572c),
@@ -213,11 +212,13 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
         _locationSubscription = null;
       });
     }).listen((loc.LocationData currentlocation) async {
-      await FirebaseFirestore.instance.collection('orders').doc(widget.getOrderID).set({
-        'Riderlatitude': currentlocation.latitude,
-        'Riderlongitude': currentlocation.longitude,
+      await FirebaseFirestore.instance.collection('location').doc('user1').set({
+        'latitude': currentlocation.latitude,
+        'longitude': currentlocation.longitude,
+        'name': 'john'
       }, SetOptions(merge: true));
     });
+  }
   }
 
   _requestPermission() async {
@@ -230,4 +231,3 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
       openAppSettings();
     }
   }
-}

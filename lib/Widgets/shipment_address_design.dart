@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cpton_food2go_rider/assisstantMethod/get_current_location.dart';
 import 'package:cpton_food2go_rider/global/global.dart';
 import 'package:cpton_food2go_rider/mainScreen/home_screen.dart';
 
@@ -197,21 +196,15 @@ class _ShipmentAddressDesignState extends State<ShipmentAddressDesign> {
   _getLocation() async {
     try {
       final loc.LocationData _locationResult = await location.getLocation();
-      await FirebaseFirestore.instance.collection("orders")
-          .doc(widget.orderId)
-
-
-      // FirebaseFirestore.instance.collection('location').doc('user1')
-          .set({
-        'Riderlatitude': _locationResult.latitude,
-        'Riderlongitude': _locationResult.longitude,
-        'name1': 'user1',
+      await FirebaseFirestore.instance.collection('location').doc('user1').set({
+        'latitude1': _locationResult.latitude,
+        'longitude1': _locationResult.longitude,
+        'name': 'john'
       }, SetOptions(merge: true));
     } catch (e) {
       print(e);
     }
   }
-
   _requestPermission() async {
     var status = await Permission.location.request();
     if (status.isGranted) {
