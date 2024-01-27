@@ -1,15 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+
 import '../global/global.dart';
 
 
 
-separateOrderItemIDs(orderId)
+
+separateOrderItemIDs(orderIDs)
 {
   List<String> separateItemIDsList=[], defaultItemList=[];
   int i=0;
 
-  defaultItemList = List<String>.from(orderId ?? []);
-
+  defaultItemList = List<String>.from(orderIDs);
 
   for(i; i<defaultItemList.length; i++)
   {
@@ -20,11 +22,13 @@ separateOrderItemIDs(orderId)
     //56557657
     String getItemId = (pos != -1) ? item.substring(0, pos) : item;
 
+    print("\nThis is itemID now = " + getItemId);
 
     separateItemIDsList.add(getItemId);
   }
 
-
+  print("\nThis is Items List now = ");
+  print(separateItemIDsList);
 
   return separateItemIDsList;
 }
@@ -45,24 +49,27 @@ separateItemIDs()
     //56557657
     String getItemId = (pos != -1) ? item.substring(0, pos) : item;
 
-
+    print("\nThis is itemID now = " + getItemId);
 
     separateItemIDsList.add(getItemId);
   }
 
+  print("\nThis is Items List now = ");
+  print(separateItemIDsList);
 
   return separateItemIDsList;
 }
 
 
 
-separateOrderItemQuantities(orderID)
+
+separateOrderItemQuantities(orderIDs)
 {
   List<String> separateItemQuantityList=[];
   List<String> defaultItemList=[];
   int i=1;
 
-  defaultItemList = List<String>.from(orderID);
+  defaultItemList = List<String>.from(orderIDs);
 
   for(i; i<defaultItemList.length; i++)
   {
@@ -78,24 +85,16 @@ separateOrderItemQuantities(orderID)
     //7
     var quanNumber = int.parse(listItemCharacters[1].toString());
 
-    // if (kDebugMode) {
-    //   print("\nThis is Quantity Number = $quanNumber");
-    // }
+    print("\nThis is Quantity Number = " + quanNumber.toString());
 
     separateItemQuantityList.add(quanNumber.toString());
   }
 
-  // if (kDebugMode) {
-  //   print("\nThis is Quantity List now = ");
-  // }
-  // if (kDebugMode) {
-  //   print(separateItemQuantityList);
-  // }
+  print("\nThis is Quantity List now = ");
+  print(separateItemQuantityList);
 
   return separateItemQuantityList;
 }
-
-
 
 separateItemQuantities()
 {
@@ -119,25 +118,16 @@ separateItemQuantities()
     //7
     var quanNumber = int.parse(listItemCharacters[1].toString());
 
-    // if (kDebugMode) {
-    //   print("\nThis is Quantity Number = $quanNumber");
-    // }
+    print("\nThis is Quantity Number = " + quanNumber.toString());
 
     separateItemQuantityList.add(quanNumber);
   }
 
-  // if (kDebugMode) {
-  //   print("\nThis is Quantity List now = ");
-  // }
-  // if (kDebugMode) {
-  //   print(separateItemQuantityList);
-  // }
+  print("\nThis is Quantity List now = ");
+  print(separateItemQuantityList);
 
   return separateItemQuantityList;
 }
-
-
-
 
 clearCartNow(context)
 {

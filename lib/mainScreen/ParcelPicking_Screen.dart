@@ -78,8 +78,8 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
         .doc(getOrderId).update({
       "status": "delivering",
       "address": completeAddress,
-      "lat": position!.latitude,
-      "lng": position!.longitude,
+      // "lat": position!.latitude,
+      // "lng": position!.longitude,
     });
 
     Navigator.push(context, MaterialPageRoute(builder: (c)=> ParcelDeliveringScreen(
@@ -98,9 +98,9 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
       appBar: AppBar(
         backgroundColor:  const Color(0xFF890010),
         title: const Text("Track Order",style: TextStyle(
-          fontSize: 18,
-          color: Colors.white70,
-          fontFamily: "Poppins"
+            fontSize: 18,
+            color: Colors.white70,
+            fontFamily: "Poppins"
         ),),
       ),
       body: Column(
@@ -115,7 +115,8 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
 
           const SizedBox(height: 5,),
           Expanded(child: StreamBuilder(stream:
-          FirebaseFirestore.instance.collection('location')
+          FirebaseFirestore.instance.collection("orders")
+              .limit(1)
               .snapshots(),
             builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
               if (!snapshot.hasData) {
@@ -125,42 +126,48 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
                   itemCount: snapshot.data?.docs.length,
                   itemBuilder: (context, index){
                     return ListTile(
-                      title: Text(snapshot.data!.docs[index]['name'].toString()),
-                      subtitle: Row(
-                        children: [
-                          Visibility(
-                            visible: false, // Set visibility to false to hide the latitude Text
-                            child: Text(snapshot.data!.docs[index]['latitude'].toString()),
-                          ),
-                          SizedBox(width: 20),
-                          Visibility(
-                            visible: false, // Set visibility to false to hide the longitude Text
-                            child: Text(snapshot.data!.docs[index]['longitude'].toString()),
-                          ),
-                        ],
-                      ),
-                      trailing: TextButton(
-                        onPressed: () {
-                          _listenLocation();
-                          _getLocation();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => MyMap(
-                                user_id: snapshot.data!.docs[index].id,
-                                sellerUID: widget.sellerId ?? "", sellerAddress: sellerAddress,
+                      trailing: Center(
+                        child: SizedBox(
+                          width: 150, // Set your desired width
+                          height: 40, // Set your desired height
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: TextButton(
+                              onPressed: () {
+                                // Your onPressed logic
+                                _listenLocation();
 
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => MyMap(
+                                      user_id: snapshot.data!.docs[index].id,
+                                      sellerUID: widget.sellerId ?? "",
+                                      sellerAddress: sellerAddress,
+                                    ),
+                                  ),
+                                );
+                                _listenLocation();
+                              },
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                              ),
+                              child: Text(
+                                "Start Navigation",
+                                style: TextStyle(color: Colors.white),
                               ),
                             ),
-                          );
-                          _listenLocation();
-                        },
-                        child: Text("Track Order"), // Replace with your desired button text
+                          ),
+                        ),
                       ),
                     );
 
+
+
+
                   });
             },
-          )),
+          ),
+          ),
 
 
           Padding(
@@ -183,7 +190,7 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
                   );
                 },
                 child: Container(
-                 color: Color(0xFF890010),
+                  color: Color(0xFF890010),
                   width: MediaQuery.of(context).size.width - 90,
                   height: 60,
                   child: const Center(
@@ -207,24 +214,7 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
 
     );
   }
-  _getLocation() async {
-    try {
-      final loc.LocationData _locationResult = await location.getLocation();
-      await FirebaseFirestore.instance.collection("riders")
-          .doc(sharedPreferences!.getString("uid"))
-          .collection("location")
-          .doc()
 
-      // FirebaseFirestore.instance.collection('location').doc('user1')
-          .set({
-        'latitude': _locationResult.latitude,
-        'longitude': _locationResult.longitude,
-        'name': 'user1',
-      }, SetOptions(merge: true));
-    } catch (e) {
-      print(e);
-    }
-  }
 
   Future<void> _listenLocation() async {
     _locationSubscription = location.onLocationChanged.handleError((onError) {
@@ -234,9 +224,9 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
         _locationSubscription = null;
       });
     }).listen((loc.LocationData currentlocation) async {
-      await FirebaseFirestore.instance.collection('location').doc('user1').set({
-        'latitude': currentlocation.latitude,
-        'longitude': currentlocation.longitude,
+      await FirebaseFirestore.instance.collection('orders').doc(widget.getOrderID).set({
+        'Riderlatitude': currentlocation.latitude,
+        'Riderlongitude': currentlocation.longitude,
 
       }, SetOptions(merge: true));
     });

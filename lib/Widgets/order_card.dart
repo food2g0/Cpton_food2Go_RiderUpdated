@@ -48,7 +48,7 @@ class OrderCard extends StatelessWidget {
 Widget placedOrderDesignWidget(Items model, BuildContext context, String seperateQuantitiesList, String? sellerName) {
   return Container(
     width: MediaQuery.of(context).size.width,
-    height: 110,
+    height: 210,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

@@ -43,9 +43,9 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Text(
             "Riders Dashboard",
             style: TextStyle(
-              fontFamily: "Poppins",
-              fontSize: 16,
-              color: Colors.white70
+                fontFamily: "Poppins",
+                fontSize: 16,
+                color: Colors.white70
             ),
           ),
         ),

@@ -154,7 +154,7 @@ class _MyMapState extends State<MyMap> {
         ),),
       ),
       body: GoogleMap(
-        mapType: MapType.hybrid,
+        mapType: MapType.normal,
         onMapCreated: (controller) {
           _googleMapController = controller;
         },

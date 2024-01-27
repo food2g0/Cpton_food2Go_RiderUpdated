@@ -1,16 +1,20 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpton_food2go_rider/assisstantMethod/get_current_location.dart';
 import 'package:cpton_food2go_rider/global/global.dart';
 import 'package:cpton_food2go_rider/mainScreen/home_screen.dart';
 
-import 'package:cpton_food2go_rider/mainScreen/shipment_screen.dart';
+import 'package:cpton_food2go_rider/mainScreen/ParcelPicking_Screen.dart';
 import 'package:cpton_food2go_rider/models/address.dart';
 import 'package:flutter/material.dart';
+import 'package:location/location.dart'as loc;
+import 'package:permission_handler/permission_handler.dart';
 
 
 import '../splashScreen/splash_screen.dart';
 
-class ShipmentAddressDesign extends StatelessWidget
+class ShipmentAddressDesign extends StatefulWidget
 {
   final Address? model;
   final String? orderStatus;
@@ -21,7 +25,13 @@ class ShipmentAddressDesign extends StatelessWidget
 
   ShipmentAddressDesign({this.model, this.orderStatus, this.orderId, this.sellerId, this.orderByUser, });
 
+  @override
+  State<ShipmentAddressDesign> createState() => _ShipmentAddressDesignState();
+}
 
+class _ShipmentAddressDesignState extends State<ShipmentAddressDesign> {
+  final loc.Location location = loc.Location();
+  StreamSubscription<loc.LocationData>? _locationSubscription;
 
   confirmedParcelShipment(BuildContext context, String getOrderID, String sellerId, String purchaserId,)
   {
@@ -40,15 +50,13 @@ class ShipmentAddressDesign extends StatelessWidget
     //send rider to shipmentScreen
     Navigator.push(context, MaterialPageRoute(builder: (context) => ParcelPickingScreen(
       purchaserId: purchaserId,
-      purchaserAddress: model!.fullAddress,
-      purchaserLat: model!.lat,
-      purchaserLng: model!.lng,
+      purchaserAddress: widget.model!.fullAddress,
+      purchaserLat: widget.model!.lat,
+      purchaserLng: widget.model!.lng,
       sellerId: sellerId,
       getOrderID: getOrderID,
     )));
   }
-
-
 
   @override
   Widget build(BuildContext context)
@@ -77,7 +85,7 @@ class ShipmentAddressDesign extends StatelessWidget
                     "Name : ",
                     style: TextStyle(color: Colors.black, fontFamily: "Poppins", fontSize: 12),
                   ),
-                  Text(model!.name!,style: TextStyle(color: Colors.black, fontFamily: "Poppins", fontSize: 12),),
+                  Text(widget.model!.name!,style: TextStyle(color: Colors.black, fontFamily: "Poppins", fontSize: 12),),
                 ],
               ),
               TableRow(
@@ -86,7 +94,7 @@ class ShipmentAddressDesign extends StatelessWidget
                     "Phone Number : ",
                     style: TextStyle(color: Colors.black, fontFamily: "Poppins", fontSize: 12),
                   ),
-                  Text(model!.phoneNumber!,  style: TextStyle(color: Colors.black, fontFamily: "Poppins", fontSize: 12), ),
+                  Text(widget.model!.phoneNumber!,  style: TextStyle(color: Colors.black, fontFamily: "Poppins", fontSize: 12), ),
                 ],
               ),
             ],
@@ -98,7 +106,7 @@ class ShipmentAddressDesign extends StatelessWidget
         Padding(
           padding: const EdgeInsets.all(10.0),
           child: Text(
-            model!.fullAddress!,
+            widget.model!.fullAddress!,
             style: TextStyle(
               fontFamily: "Poppins",
               fontSize: 12,
@@ -107,7 +115,7 @@ class ShipmentAddressDesign extends StatelessWidget
         ),
 
 
-        orderStatus == "ended"
+        widget.orderStatus == "ended"
             ? Container()
             : Padding(
           padding: const EdgeInsets.all(10.0),
@@ -115,10 +123,9 @@ class ShipmentAddressDesign extends StatelessWidget
             child: InkWell(
               onTap: ()
               {
-                // UserLocation uLocation = UserLocation();
-                // uLocation.getCurrentLocation();
-
-                confirmedParcelShipment(context, orderId!, sellerId!, orderByUser!);
+                _getLocation();
+                _requestPermission();
+                confirmedParcelShipment(context, widget.orderId!, widget.sellerId!, widget.orderByUser!);
 
               },
               child: Container(
@@ -185,5 +192,34 @@ class ShipmentAddressDesign extends StatelessWidget
         const SizedBox(height: 20,),
       ],
     );
+  }
+
+  _getLocation() async {
+    try {
+      final loc.LocationData _locationResult = await location.getLocation();
+      await FirebaseFirestore.instance.collection("orders")
+          .doc(widget.orderId)
+
+
+      // FirebaseFirestore.instance.collection('location').doc('user1')
+          .set({
+        'Riderlatitude': _locationResult.latitude,
+        'Riderlongitude': _locationResult.longitude,
+        'name1': 'user1',
+      }, SetOptions(merge: true));
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  _requestPermission() async {
+    var status = await Permission.location.request();
+    if (status.isGranted) {
+      print('done');
+    } else if (status.isDenied) {
+      _requestPermission();
+    } else if (status.isPermanentlyDenied) {
+      openAppSettings();
+    }
   }
 }
