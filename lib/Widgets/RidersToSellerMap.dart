@@ -7,21 +7,21 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as loc;
 import 'package:permission_handler/permission_handler.dart';
 
-class MyMap extends StatefulWidget {
+class RiderToSellerMap extends StatefulWidget {
   final String user_id;
   final String sellerUID;
   final String? sellerAddress;
 
-  MyMap({
+  RiderToSellerMap({
     required this.user_id,
     required this.sellerUID,  this.sellerAddress,
   });
 
   @override
-  _MyMapState createState() => _MyMapState();
+  _RiderToSellerMapState createState() => _RiderToSellerMapState();
 }
 
-class _MyMapState extends State<MyMap> {
+class _RiderToSellerMapState extends State<RiderToSellerMap> {
 
 
 

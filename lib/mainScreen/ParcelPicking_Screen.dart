@@ -96,125 +96,114 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor:  const Color(0xFF890010),
-        title: const Text("Track Order",style: TextStyle(
-            fontSize: 18,
-            color: Colors.white70,
-            fontFamily: "Poppins"
-        ),),
+        backgroundColor: const Color(0xFF890010),
+        title: const Text(
+          "Track Order",
+          style: TextStyle(fontSize: 18, color: Colors.white70, fontFamily: "Poppins"),
+        ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              "images/confirm1.png",
+              width: 350,
+            ),
+            const SizedBox(height: 10,),
+            Container(
+              height: 100, // Set a specific height for your ListView.builder
+              child: StreamBuilder(
+                stream: FirebaseFirestore.instance.collection("orders").limit(1).snapshots(),
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (!snapshot.hasData) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  return ListView.builder(
+                    itemCount: snapshot.data?.docs.length ?? 0,
+                    itemBuilder: (context, index) {
+                      if (snapshot.data?.docs == null || index >= snapshot.data!.docs.length) {
+                        return Container(); // or any other widget indicating the absence of data
+                      }
 
-          Image.asset(
-            "images/confirm1.png",
-            width: 350,
-          ),
-
-          const SizedBox(height: 5,),
-          Expanded(child: StreamBuilder(stream:
-          FirebaseFirestore.instance.collection("orders")
-              .limit(1)
-              .snapshots(),
-            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (!snapshot.hasData) {
-                return Center(child: CircularProgressIndicator());
-              }
-              return ListView.builder(
-                  itemCount: snapshot.data?.docs.length,
-                  itemBuilder: (context, index){
-                    return ListTile(
-                      trailing: Center(
-                        child: SizedBox(
-                          width: 150, // Set your desired width
-                          height: 40, // Set your desired height
-                          child: Container(
-                            alignment: Alignment.center,
-                            child: TextButton(
-                              onPressed: () {
-                                // Your onPressed logic
-                                _listenLocation();
-
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => MyMap(
-                                      user_id: snapshot.data!.docs[index].id,
-                                      sellerUID: widget.sellerId ?? "",
-                                      sellerAddress: sellerAddress,
-                                    ),
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              _listenLocation();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => RiderToSellerMap(
+                                    user_id: snapshot.data!.docs[index].id,
+                                    sellerUID: widget.sellerId ?? "",
+                                    sellerAddress: sellerAddress,
                                   ),
-                                );
-                                _listenLocation();
-                              },
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-                              ),
-                              child: Text(
-                                "Start Navigation",
-                                style: TextStyle(color: Colors.white),
-                              ),
+                                ),
+                              );
+                              _listenLocation();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              primary: Color(0xFF31572c),
+                              padding: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.navigation_outlined, color: Color(0xFFFFFFFF),),
+                                Text(
+                                  "Start Navigation",
+                                  style: TextStyle(fontSize: 14, fontFamily: "Poppins", color: Colors.white),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                      ),
-                    );
+                      );
 
+                    },
+                  );
 
-
-
-                  });
-            },
-          ),
-          ),
-
-
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Center(
-              child: InkWell(
-                onTap: ()
-                {
-                  // UserLocation uLocation = UserLocation();
-                  // uLocation.getCurrentLocation();
-
-                  //confirmed - that rider has picked parcel from seller
-                  confirmParcelHasBeenPicked(
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    confirmParcelHasBeenPicked(
                       widget.getOrderID,
                       widget.sellerId,
                       widget.purchaserId,
                       widget.purchaserAddress,
                       widget.purchaserLat,
-                      widget.purchaserLng
-                  );
-                },
-                child: Container(
-                  color: Color(0xFF890010),
-                  width: MediaQuery.of(context).size.width - 90,
-                  height: 60,
-                  child: const Center(
-                    child: Text(
-                      "Order has been Picked - Confirmed",
-                      style: TextStyle(color: Colors.white, fontSize: 12.0),
-                    ),
+                      widget.purchaserLng,
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Color(0xFF890010),
+                    padding: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.check, color: Color(0xFFFFFFFF),),
+                      Text(
+                        "Order has been Picked",
+                        style: TextStyle(color: Colors.white, fontSize: 14.0),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
-          ),
-        ],
-
+          ],
+        ),
       ),
-
-
-
-
-
-
     );
   }
-
 
   Future<void> _listenLocation() async {
     _locationSubscription = location.onLocationChanged.handleError((onError) {
@@ -227,12 +216,9 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
       await FirebaseFirestore.instance.collection('orders').doc(widget.getOrderID).set({
         'Riderlatitude': currentlocation.latitude,
         'Riderlongitude': currentlocation.longitude,
-
       }, SetOptions(merge: true));
     });
   }
-
-
 
   _requestPermission() async {
     var status = await Permission.location.request();
