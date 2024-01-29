@@ -1,20 +1,42 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cpton_food2go_rider/theme/Colors.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as loc;
 import 'package:permission_handler/permission_handler.dart';
 
+import '../global/global.dart';
+import '../mainScreen/parcel_delivering_screen.dart';
+
 class RiderToSellerMap extends StatefulWidget {
   final String user_id;
   final String sellerUID;
   final String? sellerAddress;
+  bool parcelPicked = false;
+  String? purchaserId;
+  String? sellerId;
+  String? getOrderID;
+  String? purchaserAddress;
+  double? purchaserLat;
+  double? purchaserLng;
+  String? riderName;
+  String? riderUID;
+
 
   RiderToSellerMap({
     required this.user_id,
     required this.sellerUID,  this.sellerAddress,
+    this.purchaserId,
+    this.sellerId,
+    this.getOrderID,
+    this.purchaserAddress,
+    this.purchaserLat,
+    this.riderName,
+    this.purchaserLng,
+    this.riderUID
   });
 
   @override
@@ -44,6 +66,25 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
     _fetchDestinationData();
     _requestPermission();
     _subscribeToLocationUpdates();
+  }
+  confirmParcelHasBeenPicked(getOrderId, sellerId, purchaserId, purchaserAddress, )
+  {
+    FirebaseFirestore.instance
+        .collection("orders")
+        .doc(getOrderId).update({
+      "status": "delivering",
+      "address": completeAddress,
+      // "lat": position!.latitude,
+      // "lng": position!.longitude,
+    });
+
+    Navigator.push(context, MaterialPageRoute(builder: (c)=> ParcelDeliveringScreen(
+      purchaserId: purchaserId,
+      purchaserAddress: purchaserAddress,
+
+      sellerId: sellerId,
+      getOrderId: getOrderId,
+    )));
   }
 
   @override
@@ -148,32 +189,69 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.red,
-        title: Text(widget.sellerAddress!,style: const TextStyle(
-          fontSize: 10,
-        ),),
-      ),
-      body: GoogleMap(
-        mapType: MapType.normal,
-        onMapCreated: (controller) {
-          _googleMapController = controller;
-        },
-        markers: _getMarkers(),
-        polylines: _polylines,
-        initialCameraPosition: const CameraPosition(
-          target: LatLng(0.0, 0.0),
+        backgroundColor: AppColors().red,
+        title: Text(
+          widget.sellerAddress!,
+          style: TextStyle(fontSize: 12, color: AppColors().white),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.red,
-        foregroundColor: Colors.black,
-        onPressed: () {
-          _fetchDestinationData();
-        },
-        child: const Icon(Icons.location_on),
+      body: Stack(
+        children: [
+          GoogleMap(
+            mapType: MapType.normal,
+            onMapCreated: (controller) {
+              _googleMapController = controller;
+            },
+            markers: _getMarkers(),
+            polylines: _polylines,
+            initialCameraPosition: const CameraPosition(
+              target: LatLng(0.0, 0.0),
+            ),
+          ),
+          Positioned(
+            bottom: 16.0,
+            child: FloatingActionButton(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.black,
+              onPressed: () {
+                _fetchDestinationData();
+              },
+              child: const Icon(Icons.location_on),
+            ),
+          ),
+          Positioned(
+            bottom: 70.0,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  confirmParcelHasBeenPicked(
+                    widget.getOrderID,
+                    widget.sellerId,
+                    widget.purchaserId,
+                    widget.purchaserAddress,
+
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: AppColors().red, // Set the background color
+                  onPrimary: Colors.white, // Set the text color
+                  minimumSize: Size(200.0, 50.0), // Set the button size
+                ),
+                child: Text('Parcel has been Picked',
+                style: TextStyle(
+                  fontFamily: "Poppins"
+                ),),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
+
+
 
   Set<Marker> _getMarkers() {
     final Set<Marker> markers = {};

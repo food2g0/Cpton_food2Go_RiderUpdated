@@ -9,13 +9,34 @@ import 'package:google_maps_place_search_advance/google_maps_place_search_advanc
 import 'package:location/location.dart' as loc;
 import 'package:permission_handler/permission_handler.dart';
 
+import '../theme/Colors.dart';
+
 class RiderToCustomerMap extends StatefulWidget {
   final String user_id;
-  final String sellerUID;
+  final String? sellerAddress;
+  bool parcelPicked = false;
+  String? purchaserId;
+  String? sellerId;
+  String? getOrderID;
+  String? purchaserAddress;
+  double? purchaserLat;
+  double? purchaserLng;
+  String? riderName;
+  String? riderUID;
+  String? customersUID;
 
   RiderToCustomerMap({
     required this.user_id,
-    required this.sellerUID,
+    this.sellerAddress,
+    this.purchaserId,
+    this.sellerId,
+    this.getOrderID,
+    required this.purchaserAddress,
+    this.purchaserLat,
+    this.riderName,
+    this.purchaserLng,
+    this.riderUID,
+    this.customersUID
   });
 
   @override
@@ -118,56 +139,87 @@ class _RiderToCustomerMapState extends State<RiderToCustomerMap> {
 
   Future<void> _fetchDestinationData() async {
     try {
-      print("Fetching destination data for sellerUID: ${widget.sellerUID}");
+      print("Setting destination data directly");
 
-      var sellerSnapshot = await FirebaseFirestore.instance.collection('sellers').doc(widget.sellerUID).get();
+      // Use the existing purchaserLat and purchaserLng
+      destinationLatitude = widget.purchaserLat!;
+      destinationLongitude = widget.purchaserLng!;
 
-      if (sellerSnapshot.exists) {
-        destinationLatitude = sellerSnapshot.data()!["lat"];
-        destinationLongitude = sellerSnapshot.data()!["lng"];
+      setState(() {
+        _destination = Marker(
+          markerId: MarkerId('destination'),
+          infoWindow: const InfoWindow(title: 'Destination'),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+          position: LatLng(destinationLatitude, destinationLongitude),
+        );
+      });
 
-        setState(() {
-          _destination = Marker(
-            markerId: MarkerId('destination'),
-            infoWindow: const InfoWindow(title: 'Destination'),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-            position: LatLng(destinationLatitude, destinationLongitude),
-          );
-        });
-
-        print("_destination: $_destination");
-      } else {
-        print("Seller snapshot does not exist.");
-      }
+      print("_destination: $_destination");
     } catch (e) {
-      print("Error fetching destination data: $e");
+      print("Error setting destination data: $e");
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GoogleMap(
-        mapType: MapType.terrain,
-        onMapCreated: (controller) {
-          _googleMapController = controller;
-        },
-        markers: _getMarkers(),
-        polylines: _polylines,
-        initialCameraPosition: const CameraPosition(
-          target: LatLng(0.0, 0.0),
+      appBar: AppBar(
+        backgroundColor: AppColors().red,
+        title: Text(
+          widget.purchaserAddress!,
+          style: TextStyle(fontSize: 12, color: AppColors().white),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.red,
-        foregroundColor: Colors.black,
-        onPressed: () {
-          _fetchDestinationData();
-        },
-        child: const Icon(Icons.location_on),
+      body: Stack(
+        children: [
+          GoogleMap(
+            mapType: MapType.normal,
+            onMapCreated: (controller) {
+              _googleMapController = controller;
+            },
+            markers: _getMarkers(),
+            polylines: _polylines,
+            initialCameraPosition: const CameraPosition(
+              target: LatLng(0.0, 0.0),
+            ),
+          ),
+          Positioned(
+            bottom: 16.0,
+            child: FloatingActionButton(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.black,
+              onPressed: () {
+                _fetchDestinationData();
+              },
+              child: const Icon(Icons.location_on),
+            ),
+          ),
+          Positioned(
+            bottom: 70.0,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: ElevatedButton(
+                onPressed: () {
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: AppColors().red, // Set the background color
+                  onPrimary: Colors.white, // Set the text color
+                  minimumSize: Size(200.0, 50.0), // Set the button size
+                ),
+                child: Text('Parcel has been Picked',
+                  style: TextStyle(
+                      fontFamily: "Poppins"
+                  ),),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
+
 
   Set<Marker> _getMarkers() {
     final Set<Marker> markers = {};

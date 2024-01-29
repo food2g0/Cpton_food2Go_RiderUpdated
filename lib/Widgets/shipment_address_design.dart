@@ -46,6 +46,15 @@ class _ShipmentAddressDesignState extends State<ShipmentAddressDesign> {
       "status": "accepted",
       "address": completeAddress,
     });
+    DocumentReference orderRefs = FirebaseFirestore.instance.collection("users").doc(widget.orderByUser)
+    .collection("orders").doc(getOrderID);
+
+    await orderRefs.update({
+      "riderUID": sharedPreferences!.getString("uid"),
+      "riderName": sharedPreferences!.getString("name"),
+      "status": "accepted",
+      "address": completeAddress,
+    });
 
     // Get the updated order snapshot
     DocumentSnapshot orderSnapshot = await orderRef.get();

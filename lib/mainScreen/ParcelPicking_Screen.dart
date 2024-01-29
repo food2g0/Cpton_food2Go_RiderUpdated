@@ -21,7 +21,7 @@ class ParcelPickingScreen extends StatefulWidget
   double? purchaserLng;
   String? riderName;
   String? riderUID;
-
+  String? orderByUser;
 
   ParcelPickingScreen({
     this.purchaserId,
@@ -31,7 +31,8 @@ class ParcelPickingScreen extends StatefulWidget
     this.purchaserLat,
     this.riderName,
     this.purchaserLng,
-    this.riderUID
+    this.riderUID,
+    this.orderByUser
   });
 
   @override
@@ -75,6 +76,7 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
 
   confirmParcelHasBeenPicked(getOrderId, sellerId, purchaserId, purchaserAddress, purchaserLat, purchaserLng)
   {
+
     FirebaseFirestore.instance
         .collection("orders")
         .doc(getOrderId).update({
@@ -83,6 +85,15 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
       // "lat": position!.latitude,
       // "lng": position!.longitude,
     });
+    FirebaseFirestore.instance
+        .collection("users").doc(widget.orderByUser)
+        .collection("orders").doc(widget.getOrderID).update({
+      "status": "delivering",
+      "address": completeAddress,
+      // "lat": position!.latitude,
+      // "lng": position!.longitude,
+    });
+
 
     Navigator.push(context, MaterialPageRoute(builder: (c)=> ParcelDeliveringScreen(
       purchaserId: purchaserId,
