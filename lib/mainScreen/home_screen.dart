@@ -5,7 +5,9 @@ import 'package:cpton_food2go_rider/Widgets/riders_drawer.dart';
 import 'package:cpton_food2go_rider/assisstantMethod/assistant_methods.dart';
 
 import 'package:cpton_food2go_rider/mainScreen/order_in_progress.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:smooth_star_rating_null_safety/smooth_star_rating_null_safety.dart';
 
 import '../authentication/auth_screen.dart';
 import '../global/global.dart';
@@ -19,6 +21,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+  FirebaseAuth _auth = FirebaseAuth.instance;
 
   // @override
   // void initState() {
@@ -71,30 +74,79 @@ class _HomeScreenState extends State<HomeScreen> {
               alignment: Alignment.topLeft,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: RichText(
-                  text: TextSpan(
-                    style: TextStyle(
-                      fontFamily: "Poppins",
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: "Welcome ",
-                      ),
-                      TextSpan(
-                        text: sharedPreferences!.getString("name")!,
+                child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    RichText(
+                      text: TextSpan(
                         style: TextStyle(
-                          color: Color(0xFF890010),
+                          fontFamily: "Poppins",
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
+                        children: [
+                          TextSpan(
+                            text: "Welcome ",
+                          ),
+                          TextSpan(
+                            text: sharedPreferences!.getString("name")!,
+                            style: TextStyle(
+                              color: Color(0xFF890010),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    SizedBox(height: 8),
+
+                    StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection("riders")
+                          .doc(_auth.currentUser!.uid)
+                          .collection("ridersRecord")
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return CircularProgressIndicator(); // or another loading indicator
+                        }
+                        if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        }
+
+                        // Process the ratings data
+                        var ratings = snapshot.data!.docs
+                            .map((doc) => (doc.data() as Map<String, dynamic>)['rating'] as num?)
+                            .toList();
+
+                        // Retrieve the average rating
+                        double averageRating = 0;
+                        if (ratings.isNotEmpty) {
+                          var totalRating = ratings
+                              .map((rating) => rating ?? 0)
+                              .reduce((a, b) => a + b);
+                          averageRating = totalRating / ratings.length;
+                        }
+                        return SmoothStarRating(
+                          rating: averageRating,
+                          allowHalfRating: false,
+                          starCount: 5,
+                          size: 30,
+                          color: Colors.yellow,
+                          borderColor: Colors.grey,
+                        );
+                      },
+                    )
+
+
+                  ],
                 ),
+
               ),
             ),
+
           ),
+
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
