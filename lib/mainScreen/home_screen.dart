@@ -3,7 +3,6 @@ import 'package:cpton_food2go_rider/Widgets/order_card.dart';
 import 'package:cpton_food2go_rider/Widgets/progress_bar.dart';
 import 'package:cpton_food2go_rider/Widgets/riders_drawer.dart';
 import 'package:cpton_food2go_rider/assisstantMethod/assistant_methods.dart';
-
 import 'package:cpton_food2go_rider/mainScreen/order_in_progress.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -23,14 +22,6 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //
-  //   UserLocation uLocation = UserLocation();
-  //   uLocation.getCurrentLocation();
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,9 +37,9 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Text(
             "Riders Dashboard",
             style: TextStyle(
-                fontFamily: "Poppins",
-                fontSize: 16,
-                color: Colors.white70
+              fontFamily: "Poppins",
+              fontSize: 16,
+              color: Colors.white70,
             ),
           ),
         ),
@@ -75,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     RichText(
                       text: TextSpan(
@@ -98,8 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 8),
-
+                    SizedBox(height: 10,),
                     StreamBuilder<QuerySnapshot>(
                       stream: FirebaseFirestore.instance
                           .collection("riders")
@@ -108,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           .snapshots(),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
-                          return CircularProgressIndicator(); // or another loading indicator
+                          return CircularProgressIndicator();
                         }
                         if (snapshot.hasError) {
                           return Text('Error: ${snapshot.error}');
@@ -127,24 +117,41 @@ class _HomeScreenState extends State<HomeScreen> {
                               .reduce((a, b) => a + b);
                           averageRating = totalRating / ratings.length;
                         }
-                        return SmoothStarRating(
-                          rating: averageRating,
-                          allowHalfRating: false,
-                          starCount: 5,
-                          size: 30,
-                          color: Colors.yellow,
-                          borderColor: Colors.grey,
+
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              children: [
+                                SizedBox(height: 8),
+                                Text(
+                                  'Your current Ratings: ${averageRating.toStringAsFixed(2)}/5.00',
+                                  style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                SmoothStarRating(
+                                  rating: averageRating,
+                                  allowHalfRating: false,
+                                  starCount: 5,
+                                  size: 30,
+                                  color: Colors.yellow,
+                                  borderColor: Colors.black45,
+                                ),
+                              ],
+                            ),
+                          ],
                         );
                       },
-                    )
-
-
+                    ),
                   ],
                 ),
-
               ),
             ),
-
           ),
 
           Padding(
