@@ -19,11 +19,11 @@ class RiderToCustomerMap extends StatefulWidget {
   String? sellerId;
   String? getOrderID;
   String? purchaserAddress;
-  double? purchaserLat;
-  double? purchaserLng;
   String? riderName;
   String? riderUID;
   String? customersUID;
+  double? customerLatitude;
+  double? customerLongitude;
 
   RiderToCustomerMap({
     required this.user_id,
@@ -32,9 +32,9 @@ class RiderToCustomerMap extends StatefulWidget {
     this.sellerId,
     this.getOrderID,
     required this.purchaserAddress,
-    this.purchaserLat,
+    this.customerLatitude,
+    this.customerLongitude,
     this.riderName,
-    this.purchaserLng,
     this.riderUID,
     this.customersUID
   });
@@ -142,8 +142,8 @@ class _RiderToCustomerMapState extends State<RiderToCustomerMap> {
       print("Setting destination data directly");
 
       // Use the existing purchaserLat and purchaserLng
-      destinationLatitude = widget.purchaserLat!;
-      destinationLongitude = widget.purchaserLng!;
+      destinationLatitude = widget.customerLatitude!;
+      destinationLongitude = widget.customerLongitude!;
 
       setState(() {
         _destination = Marker(

@@ -43,6 +43,112 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
 {
   final loc.Location location = loc.Location();
   StreamSubscription<loc.LocationData>? _locationSubscription;
+  double? customerLat, customerLng;
+  String? customerAddress;
+
+  @override
+  void initState() {
+    super.initState();
+    _requestPermission();
+    getCustomerData();
+    getOrderByOrderId(widget.getOrderId);
+    getOrderDetails();
+    // location.changeSettings(interval: 300, accuracy: loc.LocationAccuracy.high);
+    // location.enableBackgroundMode(enable: true);
+  }
+
+  Future<Map<String, dynamic>?> getOrderByOrderId(String? orderId) async {
+    if (orderId != null) {
+      try {
+        DocumentSnapshot orderSnapshot = await FirebaseFirestore.instance
+            .collection("orders")
+            .doc(orderId)
+            .get();
+
+        if (orderSnapshot.exists) {
+          // Order details are available, you can access them using orderSnapshot.data()
+          Map<String, dynamic>? orderData = orderSnapshot.data() as Map<String, dynamic>?;
+
+          if (orderData != null) {
+            print("Order Details for Order ID $orderId: $orderData");
+            return orderData; // Return the order details
+          } else {
+            print("Error: Order data is null for Order ID $orderId");
+          }
+        } else {
+          print("Order not found for Order ID $orderId!");
+        }
+      } catch (e) {
+        print("Error fetching order details: $e");
+      }
+    }
+
+    // Return null if order details are not found
+    return null;
+  }
+
+
+  Future<void> getOrderDetails() async {
+    // Call the method to get order details for a specific order ID
+    Map<String, dynamic>? orderDetails = await getOrderByOrderId(widget.getOrderId);
+
+    // Check if orderDetails is not null before using it
+    if (orderDetails != null) {
+      // Access orderBy value
+      String? orderBy = orderDetails['orderBy'];
+      print("orderBy: $orderBy");
+    }
+  }
+
+  Future<void> getCustomerData() async {
+    try {
+      // Call the method to get order details for a specific order ID
+      Map<String, dynamic>? orderDetails = await getOrderByOrderId(widget.getOrderId);
+
+      if (orderDetails != null) {
+        // Access orderBy value
+        String? orderBy = orderDetails['orderBy'];
+        String? addressID = orderDetails['addressID'];
+        print("orderBy: $orderBy");
+        print("addressID: $addressID");
+
+        // Use the orderBy value to fetch customer data
+        DocumentSnapshot customerSnapshot = await FirebaseFirestore.instance
+            .collection("users")
+            .doc(orderBy)
+            .collection("userAddress")
+            .doc(addressID)
+            .get();
+
+        if (customerSnapshot.exists) {
+          // Customer details are available, you can access them using customerSnapshot.data()
+          Map<String, dynamic>? customerData = customerSnapshot.data() as Map<String, dynamic>?;
+
+          if (customerData != null) {
+            print("Customer Details: $customerData");
+
+            // Print individual data fields
+            print("Customer Latitude: ${customerData['lat']}");
+            print("Customer Longitude: ${customerData['lng']}");
+            print("Customer Full Address: ${customerData['fullAddress']}");
+
+            // Assign customer data to class variables if needed
+            setState(() {
+              customerLat = customerData['lat'];
+              customerLng = customerData['lng'];
+              customerAddress = customerData['fullAddress'];
+            });
+          } else {
+            print("Error: Customer data is null for user ID $orderBy");
+          }
+        } else {
+          print("Customer not found for user ID $orderBy!");
+        }
+      }
+    } catch (e) {
+      print("Error fetching customer details: $e");
+    }
+  }
 
 
 
@@ -127,23 +233,45 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
                         return Container(); // or any other widget indicating the absence of data
                       }
 
-                      return Padding(
+                      return  Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Center(
                           child: ElevatedButton(
-                            onPressed: () {
-                              _listenLocation();
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => RiderToCustomerMap(
-                                    user_id: snapshot.data!.docs[index].id,
-                                    purchaserLat: widget.purchaserLat,
-                                    purchaserAddress: widget.purchaserAddress,
-                                    purchaserLng: widget.purchaserLng,
-                                  ),
-                                ),
-                              );
+                            onPressed: () async {
+                              getCustomerData();
+                              try {
+                                // Call getCustomerData to retrieve customer details
+                                await getCustomerData();
+
+                                // Access customerLat, customerLng, and customerAddress from the updated state
+                                double? customerLatitude = customerLat;
+                                double? customerLongitude = customerLng;
+                                String? purchaserAddress = customerAddress;
+
+                                // Check if values are not null before using them
+                                if (customerLatitude != null && customerLongitude != null && purchaserAddress != null) {
+                                  // Start location listening
+                                  _listenLocation();
+
+                                  // Navigate to RiderToCustomerMap with the updated values
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => RiderToCustomerMap(
+                                        user_id: snapshot.data!.docs[index].id,
+                                        customerLatitude: customerLat,
+                                        customerLongitude: customerLng,
+                                        purchaserAddress: customerAddress,
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  print("Error: Customer data is null");
+                                }
+                              } catch (e) {
+                                print("Error on button press: $e");
+                              }
                             },
+
                             style: ElevatedButton.styleFrom(
                               primary: Color(0xFF31572c),
                               padding: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
@@ -151,7 +279,7 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.navigation_outlined, color: Color(0xFFFFFFFF),),
+                                Icon(Icons.navigation_outlined, color: Color(0xFFFFFFFF)),
                                 Text(
                                   "Start Navigation",
                                   style: TextStyle(fontSize: 14, fontFamily: "Poppins", color: Colors.white),
