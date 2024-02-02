@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpton_food2go_rider/authentication/signup_page.dart';
+import 'package:cpton_food2go_rider/theme/Colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -119,7 +120,7 @@ class _AuthScreenState extends State<AuthScreen> {
         .height;
 
     return Scaffold(
-      backgroundColor: Colors.grey,
+      backgroundColor: AppColors().white,
       body: SingleChildScrollView( // Wrap with SingleChildScrollView
         child: Column(
           mainAxisSize: MainAxisSize.max,
@@ -158,10 +159,12 @@ class _AuthScreenState extends State<AuthScreen> {
             SizedBox(height: w * 0.08),
             ElevatedButton(
               child: const Text("Login", style: TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.normal),
+                  color: Colors.white,
+                  fontFamily: "Poppins",
+                  fontWeight: FontWeight.w700),
               ),
               style: ElevatedButton.styleFrom(
-                primary: Colors.black45,
+                primary: AppColors().red,
                 padding: const EdgeInsets.symmetric(
                     horizontal: 50, vertical: 15),
               ),
@@ -175,17 +178,18 @@ class _AuthScreenState extends State<AuthScreen> {
             SizedBox(height: w * 0.08),
             RichText(text: TextSpan(
                 text: "Don\'t have an account?",
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 15
+                style: TextStyle(
+                    color: AppColors().black1,
+                    fontSize: 15,
+                  fontFamily: "Poppins"
                 ),
                 children: [
                   TextSpan(
                       text: "  Create!",
-                      style: const TextStyle(
-                          color: Colors.black,
-
-                          fontSize: 16,
+                      style: TextStyle(
+                          color: AppColors().black,
+                          fontFamily: "Poppins",
+                          fontSize: 15,
                           fontWeight: FontWeight.w600
 
                       ),

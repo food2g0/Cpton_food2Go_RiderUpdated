@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/Colors.dart';
+
 class CustomTextField extends StatelessWidget {
   final TextEditingController? controller;
   final IconData? data;
@@ -14,6 +16,7 @@ class CustomTextField extends StatelessWidget {
     this.isObsecure,
     this.enabled,
   });
+
   String? _validateemail(String? value) {
     if (value == null || value.isEmpty) {
       return "Full Name is required";
@@ -29,7 +32,7 @@ class CustomTextField extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.transparent,
-        border: Border.all(color: Colors.black),
+        border: Border.all(color: AppColors().black),
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
       padding: const EdgeInsets.all(8.0),
@@ -40,11 +43,14 @@ class CustomTextField extends StatelessWidget {
         obscureText: isObsecure!,
         validator: _validateemail,
         cursorColor: Theme.of(context).primaryColor,
+        style: TextStyle( // Set the font family here
+          fontFamily: "Poppins",
+        ),
         decoration: InputDecoration(
           border: InputBorder.none,
           prefixIcon: Icon(
             data,
-            color: Colors.black,
+            color: AppColors().red,
           ),
           hintText: hintText,
         ),

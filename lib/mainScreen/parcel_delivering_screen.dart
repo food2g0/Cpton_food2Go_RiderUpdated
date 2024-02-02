@@ -15,8 +15,6 @@ class ParcelDeliveringScreen extends StatefulWidget
 {
   String? purchaserId;
   String? purchaserAddress;
-  double? purchaserLat;
-  double? purchaserLng;
   String? customersUID;
   String? sellerId;
   String? getOrderId;
@@ -24,8 +22,6 @@ class ParcelDeliveringScreen extends StatefulWidget
   ParcelDeliveringScreen({
     this.purchaserId,
     this.purchaserAddress,
-    this.purchaserLat,
-    this.purchaserLng,
     this.customersUID,
     this.sellerId,
     this.getOrderId,
@@ -79,7 +75,20 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
     return null;
   }
 
-
+  // String orderStatus = "";
+  // String orderByUser = "";
+  // String sellerId = "";
+  // getOrderInfo() {
+  //   FirebaseFirestore.instance
+  //       .collection("orders")
+  //       .doc(widget.orderID)
+  //       .get()
+  //       .then((DocumentSnapshot) {
+  //     orderStatus = DocumentSnapshot.data()!["status"].toString();
+  //     orderByUser = DocumentSnapshot.data()!["orderBy"].toString();
+  //     sellerId = DocumentSnapshot.data()!["sellerUID"].toString();
+  //   });
+  // }
   Future<void> getOrderDetails() async {
     // Call the method to get order details for a specific order ID
     Map<String, dynamic>? orderDetails = await getOrderByOrderId(widget.getOrderId);
@@ -144,7 +153,7 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
 
 
 
-  confirmParcelHasBeenDelivered(getOrderId, sellerId, purchaserId, purchaserAddress, purchaserLat, purchaserLng) {
+  confirmParcelHasBeenDelivered(getOrderId, sellerId, purchaserId, purchaserAddress,) {
     try {
       print('getOrderId: $getOrderId'); // Print the value of getOrderId
       print('previousRiderEarnings: $previousRiderEarnings');
@@ -349,8 +358,6 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
                       widget.sellerId,
                       widget.purchaserId,
                       widget.purchaserAddress,
-                      widget.purchaserLat,
-                      widget.purchaserLng,
                     );
                   },
                   style: ElevatedButton.styleFrom(

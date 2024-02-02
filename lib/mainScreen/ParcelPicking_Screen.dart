@@ -98,8 +98,6 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
     Navigator.push(context, MaterialPageRoute(builder: (c)=> ParcelDeliveringScreen(
       purchaserId: purchaserId,
       purchaserAddress: purchaserAddress,
-      purchaserLat: purchaserLat,
-      purchaserLng: purchaserLng,
       sellerId: sellerId,
       getOrderId: getOrderId,
     )));
