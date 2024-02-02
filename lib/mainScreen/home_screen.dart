@@ -59,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white70,
+      backgroundColor: AppColors().white,
       appBar: AppBar(
         flexibleSpace: Container(
           decoration:  BoxDecoration(
@@ -85,15 +85,9 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Container(
-              height: 150,
-              width: 460,
-              decoration: const ShapeDecoration(
-                color: Color(0xFFFFFFFF),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                ),
-              ),
+            Card(
+              color: AppColors().black,
+              elevation: 2,
               child: Align(
                 alignment: Alignment.topLeft,
                 child: Padding(
@@ -107,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             fontFamily: "Poppins",
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: AppColors().black,
+                            color: AppColors().white,
                           ),
                           children: [
                             TextSpan(
@@ -116,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             TextSpan(
                               text: sharedPreferences!.getString("name")!,
                               style: TextStyle(
-                                color: AppColors().red,
+                                color: AppColors().white,
                               ),
                             ),
                           ],
