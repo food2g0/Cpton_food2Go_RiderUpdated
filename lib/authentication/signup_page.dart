@@ -63,7 +63,7 @@ class _SignUpPageState extends State<SignUpPage> {
     Placemark pMark = placeMarks![0];
 
     completeAddress =
-        '${pMark.subThoroughfare} ${pMark.thoroughfare}, ${pMark.subLocality} ${pMark.locality}, ${pMark.subAdministrativeArea}, ${pMark.administrativeArea} ${pMark.postalCode}, ${pMark.country}';
+    '${pMark.subThoroughfare} ${pMark.thoroughfare}, ${pMark.subLocality} ${pMark.locality}, ${pMark.subAdministrativeArea}, ${pMark.administrativeArea} ${pMark.postalCode}, ${pMark.country}';
 
     locationController.text = completeAddress;
   }
@@ -99,9 +99,9 @@ class _SignUpPageState extends State<SignUpPage> {
               .child("riders")
               .child(fileName);
           fStorage.UploadTask uploadTask =
-              reference.putFile(File(imageXFile!.path));
+          reference.putFile(File(imageXFile!.path));
           fStorage.TaskSnapshot taskSnapshot =
-              await uploadTask.whenComplete(() {});
+          await uploadTask.whenComplete(() {});
           await taskSnapshot.ref.getDownloadURL().then((url) {
             riderAvatarUrl = url;
 
@@ -114,7 +114,7 @@ class _SignUpPageState extends State<SignUpPage> {
               builder: (c) {
                 return ErrorDialog(
                   message:
-                      "Please write the complete required info for Registration.",
+                  "Please write the complete required info for Registration.",
                 );
               });
         }
@@ -152,12 +152,41 @@ class _SignUpPageState extends State<SignUpPage> {
     });
 
     if (currentUser != null) {
-      saveDataToFirestore(currentUser!).then((value) {
-        Navigator.pop(context);
-        //send user to homePage
-        Route newRoute = MaterialPageRoute(builder: (c) => const HomeScreen());
-        Navigator.pushReplacement(context, newRoute);
-      });
+      await saveDataToFirestore(currentUser!);
+
+      // Check the status before redirecting
+      if (currentUser != null && currentUser!.uid.isNotEmpty) {
+        FirebaseFirestore.instance
+            .collection("riders")
+            .doc(currentUser?.uid)
+            .get()
+            .then((DocumentSnapshot documentSnapshot) {
+          if (documentSnapshot.exists) {
+            String status = documentSnapshot.get("status");
+
+            // Check the status
+            if (status == "disapproved") {
+              // Disapproved status, show a message or take appropriate action
+              Navigator.pop(context); // Close loading dialog
+              showDialog(
+                context: context,
+                builder: (c) {
+                  return ErrorDialog(
+                    message: "Your account is not approved yet. Please wait for approval.",
+                  );
+                },
+              );
+            } else {
+              // Approved status, redirect to the home page
+              Navigator.pop(context); // Close loading dialog
+              Route newRoute = MaterialPageRoute(builder: (c) => const HomeScreen());
+              Navigator.pushReplacement(context, newRoute);
+            }
+          } else {
+            // Handle the case where the document does not exist
+          }
+        });
+      }
     }
   }
 
@@ -200,22 +229,19 @@ class _SignUpPageState extends State<SignUpPage> {
               height: h * 0.4,
               decoration: const BoxDecoration(
                   image: DecorationImage(
-                image: AssetImage("images/log.png"),
-                fit: BoxFit.cover,
-              )),
+                    image: AssetImage("images/log.png"),
+                    fit: BoxFit.cover,
+                  )),
             ),
             Container(
-
               margin: const EdgeInsets.only(left: 20, right: 20),
               width: w,
               child: const Column(
-
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [],
               ),
             ),
             Container(
-
               child: Column(
                 mainAxisSize: MainAxisSize.max,
                 children: [
@@ -249,9 +275,6 @@ class _SignUpPageState extends State<SignUpPage> {
                       ],
                     ),
                   ),
-
-
-
                   const SizedBox(height: 20),
                   Form(
                     key: _formKey,
@@ -305,12 +328,11 @@ class _SignUpPageState extends State<SignUpPage> {
                             height: 40,
                             alignment: Alignment.center,
                             child: ElevatedButton.icon(
-                              label:  Text(
+                              label: Text(
                                 "Get my Current Location",
-                                style: TextStyle(color: AppColors().white,
-                                  fontFamily: "Poppins",),
+                                style: TextStyle(color: AppColors().white, fontFamily: "Poppins",),
                               ),
-                              icon:  Icon(
+                              icon: Icon(
                                 Icons.location_on,
                                 color: AppColors().red,
                               ),
@@ -318,10 +340,11 @@ class _SignUpPageState extends State<SignUpPage> {
                                 getCurrentLocation();
                               },
                               style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors().black,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  )),
+                                backgroundColor: AppColors().black,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
                             ))
                       ],
                     ),
@@ -349,9 +372,6 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-
-
-
                 ],
               ),
             ),
