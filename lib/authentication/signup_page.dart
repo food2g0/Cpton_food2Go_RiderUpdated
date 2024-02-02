@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cpton_food2go_rider/theme/Colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -168,7 +169,7 @@ class _SignUpPageState extends State<SignUpPage> {
       "riderAvatarUrl": riderAvatarUrl,
       "phone": phoneController.text.trim(),
       "address": completeAddress,
-      "status": "approved",
+      "status": "disapproved",
       "earnings": 0.0,
       "lat": position?.latitude ?? 0.0, // Handle null position gracefully
       "lng": position?.longitude ?? 0.0,
@@ -189,7 +190,7 @@ class _SignUpPageState extends State<SignUpPage> {
     double w = MediaQuery.of(context).size.width;
     double h = MediaQuery.of(context).size.height;
     return Scaffold(
-      backgroundColor: Colors.grey,
+      backgroundColor: AppColors().white,
       body: SingleChildScrollView(
         // Wrap with SingleChildScrollView
         child: Column(
@@ -221,25 +222,36 @@ class _SignUpPageState extends State<SignUpPage> {
                   const SizedBox(
                     height: 10,
                   ),
-                  InkWell(
+                  GestureDetector(
                     onTap: () {
                       _getImage();
                     },
-                    child: CircleAvatar(
-                      radius: MediaQuery.of(context).size.width * 0.10,
-                      backgroundColor: Colors.black87,
-                      backgroundImage: imageXFile == null
-                          ? null
-                          : FileImage(File(imageXFile!.path)),
-                      child: imageXFile == null
-                          ? Icon(
-                              Icons.add_photo_alternate,
-                              size: MediaQuery.of(context).size.width * 0.10,
-                              color: Colors.grey,
-                            )
-                          : null,
+                    child: Stack(
+                      children: [
+                        CustomTextField(
+                          controller: null, // Since this field is just for display
+                          data: Icons.add_photo_alternate,
+                          hintText: "Select Image",
+                          isObsecure: false, // Not relevant for this field
+                          enabled: false, // Not editable
+                        ),
+                        if (imageXFile != null)
+                          Positioned(
+                            right: 8.0,
+                            top: 8.0,
+                            child: Image.file(
+                              File(imageXFile!.path),
+                              width: MediaQuery.of(context).size.width * 0.20,
+                              height: MediaQuery.of(context).size.width * 0.20,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                      ],
                     ),
                   ),
+
+
+
                   const SizedBox(height: 20),
                   Form(
                     key: _formKey,
@@ -293,19 +305,20 @@ class _SignUpPageState extends State<SignUpPage> {
                             height: 40,
                             alignment: Alignment.center,
                             child: ElevatedButton.icon(
-                              label: const Text(
+                              label:  Text(
                                 "Get my Current Location",
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(color: AppColors().white,
+                                  fontFamily: "Poppins",),
                               ),
-                              icon: const Icon(
+                              icon:  Icon(
                                 Icons.location_on,
-                                color: Colors.red,
+                                color: AppColors().red,
                               ),
                               onPressed: () {
                                 getCurrentLocation();
                               },
                               style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.black45,
+                                  backgroundColor: AppColors().black,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20),
                                   )),
@@ -321,18 +334,12 @@ class _SignUpPageState extends State<SignUpPage> {
                         formValidation();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black45,
+                        backgroundColor: AppColors().black,
                         padding: const EdgeInsets.symmetric(vertical: 10),
                       ),
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            "Next",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
                           Icon(
                             Icons.arrow_forward,
                             color: Colors.white,
@@ -341,6 +348,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 20),
 
 
 
