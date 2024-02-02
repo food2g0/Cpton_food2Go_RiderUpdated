@@ -1,106 +1,72 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cpton_food2go_rider/Widgets/order_card.dart';
-import 'package:cpton_food2go_rider/Widgets/progress_bar.dart';
-import 'package:cpton_food2go_rider/assisstantMethod/assistant_methods.dart';
-import 'package:cpton_food2go_rider/theme/Colors.dart';
 import 'package:flutter/material.dart';
 
+import '../Widgets/order_card.dart';
+import '../Widgets/progress_bar.dart';
+import '../assisstantMethod/assistant_methods.dart';
 import '../global/global.dart';
+import '../theme/Colors.dart';
 import 'earning_screen.dart';
-import 'history_screen.dart';
 import 'home_screen.dart';
+import 'order_in_progress.dart';
 
-class OrderInProgress extends StatefulWidget {
+class HistoryScreen extends StatefulWidget {
+  const HistoryScreen({super.key});
+
   @override
-  _OrderInProgressState createState() => _OrderInProgressState();
+  State<HistoryScreen> createState() => _HistoryScreenState();
 }
 
-class _OrderInProgressState extends State<OrderInProgress> {
+class _HistoryScreenState extends State<HistoryScreen> {
   int _currentIndex = 0;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          flexibleSpace: Container(
-            decoration:  BoxDecoration(
-              color: AppColors().red,
-            ),
-          ),
-          title: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              "Order In Progress",
-              style: TextStyle(
-                fontFamily: "Poppins",
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-                color: AppColors().white
-              ),
-            ),
-          ),
-          centerTitle: false,
-          automaticallyImplyLeading: true,
+          backgroundColor: AppColors().red,
+          title: Text("History",
+          style: TextStyle(
+            fontSize: 14,
+            fontFamily: "Poppins",
+            fontWeight: FontWeight.w700,
+            color: AppColors().white,
+          ),),
         ),
         body: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection("orders")
-              .where("status", isEqualTo: "accepted")
               .where("riderUID", isEqualTo: sharedPreferences!.getString("uid"))
-              .orderBy("orderTime", descending: true)
+              .where("status", isEqualTo: "ended")
               .snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Center(child: Text("Error: ${snapshot.error}"));
-            }
-
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: circularProgress());
-            }
-
-            if (snapshot.data!.docs.isEmpty) {
-              // The stream has no items
-              return Center(child: Text("No orders in progress"));
-            }
-
-            // The stream has items, proceed with building the UI
-            return ListView.builder(
+          builder: (c, snapshot)
+          {
+            return snapshot.hasData
+                ? ListView.builder(
               itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, index) {
-                return StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
+              itemBuilder: (c, index)
+              {
+                return FutureBuilder<QuerySnapshot>(
+                  future: FirebaseFirestore.instance
                       .collection("items")
-                      .where(
-                    "productsID",
-                    whereIn: separateOrderItemIDs(
-                      (snapshot.data!.docs[index].data()!
-                      as Map<String, dynamic>)["productsIDs"],
-                    ),
-                  )
-                      .where(
-                    "orderBy",
-                    whereIn: (snapshot.data!.docs[index].data()!
-                    as Map<String, dynamic>)["uid"],
-                  )
+                      .where("productsID", whereIn: separateOrderItemIDs((snapshot.data!.docs[index].data()! as Map<String, dynamic>) ["productsIDs"]))
                       .orderBy("publishedDate", descending: true)
-                      .snapshots(),
-                  builder: (context, snap) {
+                      .get(),
+                  builder: (c, snap)
+                  {
                     return snap.hasData
                         ? OrderCard(
                       itemCount: snap.data!.docs.length,
                       data: snap.data!.docs,
                       orderID: snapshot.data!.docs[index].id,
-                      seperateQuantitiesList:
-                      separateOrderItemQuantities(
-                        (snapshot.data!.docs[index].data()!
-                        as Map<String, dynamic>)["productsIDs"],
-                      ),
+                      seperateQuantitiesList: separateOrderItemQuantities((snapshot.data!.docs[index].data()! as Map<String, dynamic>)["productsIDs"]),
                     )
                         : Center(child: circularProgress());
                   },
                 );
               },
-            );
+            )
+                : Center(child: circularProgress(),);
           },
         ),
         bottomNavigationBar: Theme(

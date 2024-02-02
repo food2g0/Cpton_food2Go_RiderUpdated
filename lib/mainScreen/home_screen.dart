@@ -3,7 +3,10 @@ import 'package:cpton_food2go_rider/Widgets/order_card.dart';
 import 'package:cpton_food2go_rider/Widgets/progress_bar.dart';
 import 'package:cpton_food2go_rider/Widgets/riders_drawer.dart';
 import 'package:cpton_food2go_rider/assisstantMethod/assistant_methods.dart';
+import 'package:cpton_food2go_rider/mainScreen/earning_screen.dart';
+import 'package:cpton_food2go_rider/mainScreen/history_screen.dart';
 import 'package:cpton_food2go_rider/mainScreen/order_in_progress.dart';
+import 'package:cpton_food2go_rider/theme/Colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_star_rating_null_safety/smooth_star_rating_null_safety.dart';
@@ -23,23 +26,54 @@ class _HomeScreenState extends State<HomeScreen> {
   FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
+  void initState() {
+    super.initState();
+    getPerParcelDeliveryAmount();
+    getRiderPreviousEarnings();
+  }
+
+
+  getRiderPreviousEarnings()
+  {
+    FirebaseFirestore.instance
+        .collection("riders")
+        .doc(sharedPreferences!.getString("uid"))
+        .get().then((snap)
+    {
+      previousRiderEarnings = snap.data()!["earnings"].toString();
+    });
+  }
+
+  getPerParcelDeliveryAmount()
+  {
+    FirebaseFirestore.instance
+        .collection("perDelivery")
+        .doc("Xho8zZ64d1kXIUhuJ6q9")
+        .get().then((snap)
+    {
+      perOrderDeliveryAmount = snap.data()!["amount"].toString();
+    });
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white70,
       appBar: AppBar(
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            color: Color(0xFF890010),
+          decoration:  BoxDecoration(
+            color: AppColors().red,
           ),
         ),
-        title: const Align(
+        title:  Align(
           alignment: Alignment.centerLeft,
           child: Text(
             "Riders Dashboard",
             style: TextStyle(
               fontFamily: "Poppins",
               fontSize: 16,
-              color: Colors.white70,
+              color: AppColors().white,
             ),
           ),
         ),
@@ -47,192 +81,204 @@ class _HomeScreenState extends State<HomeScreen> {
         automaticallyImplyLeading: true,
       ),
       drawer: RidersDrawer(),
-      body: Column(
-        children: [
-          Container(
-            height: 150,
-            width: 460,
-            decoration: const ShapeDecoration(
-              color: Color(0xFFFFFFFF),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(15),
-                  bottomRight: Radius.circular(15),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Container(
+              height: 150,
+              width: 460,
+              decoration: const ShapeDecoration(
+                color: Color(0xFFFFFFFF),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
                 ),
               ),
-            ),
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    RichText(
-                      text: TextSpan(
-                        style: TextStyle(
-                          fontFamily: "Poppins",
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: "Welcome ",
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RichText(
+                        text: TextSpan(
+                          style: TextStyle(
+                            fontFamily: "Poppins",
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors().black,
                           ),
-                          TextSpan(
-                            text: sharedPreferences!.getString("name")!,
-                            style: TextStyle(
-                              color: Color(0xFF890010),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 10,),
-                    StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection("riders")
-                          .doc(_auth.currentUser!.uid)
-                          .collection("ridersRecord")
-                          .snapshots(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return CircularProgressIndicator();
-                        }
-                        if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
-                        }
-
-                        // Process the ratings data
-                        var ratings = snapshot.data!.docs
-                            .map((doc) => (doc.data() as Map<String, dynamic>)['rating'] as num?)
-                            .toList();
-
-                        // Retrieve the average rating
-                        double averageRating = 0;
-                        if (ratings.isNotEmpty) {
-                          var totalRating = ratings
-                              .map((rating) => rating ?? 0)
-                              .reduce((a, b) => a + b);
-                          averageRating = totalRating / ratings.length;
-                        }
-
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Column(
-                              children: [
-                                SizedBox(height: 8),
-                                Text(
-                                  'Your current Ratings: ${averageRating.toStringAsFixed(2)}/5.00',
-                                  style: TextStyle(
-                                    fontFamily: "Poppins",
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                SmoothStarRating(
-                                  rating: averageRating,
-                                  allowHalfRating: false,
-                                  starCount: 5,
-                                  size: 30,
-                                  color: Colors.yellow,
-                                  borderColor: Colors.black45,
-                                ),
-                              ],
+                            TextSpan(
+                              text: "Welcome ",
+                            ),
+                            TextSpan(
+                              text: sharedPreferences!.getString("name")!,
+                              style: TextStyle(
+                                color: AppColors().red,
+                              ),
                             ),
                           ],
-                        );
-                      },
-                    ),
-                  ],
+                        ),
+                      ),
+                      SizedBox(height: 10,),
+                      StreamBuilder<QuerySnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection("riders")
+                            .doc(_auth.currentUser!.uid)
+                            .collection("ridersRecord")
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return CircularProgressIndicator();
+                          }
+                          if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          }
+
+                          // Process the ratings data
+                          var ratings = snapshot.data!.docs
+                              .map((doc) => (doc.data() as Map<String, dynamic>)['rating'] as num?)
+                              .toList();
+
+                          // Retrieve the average rating
+                          double averageRating = 0;
+                          if (ratings.isNotEmpty) {
+                            var totalRating = ratings
+                                .map((rating) => rating ?? 0)
+                                .reduce((a, b) => a + b);
+                            averageRating = totalRating / ratings.length;
+                          }
+
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start, // Align to the start (left)
+                                children: [
+                                  Text(
+                                    'Your current Ratings: ',
+                                    style: TextStyle(
+                                      fontFamily: "Poppins",
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors().black1,
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Row(
+                                    children: [
+                                      SmoothStarRating(
+                                        rating: averageRating,
+                                        allowHalfRating: false,
+                                        starCount: 5,
+                                        size: 25,
+                                        color: Colors.yellow,
+                                        borderColor: Colors.black45,
+                                      ),
+                                      SizedBox(width: 5), // Adjust spacing as needed
+                                      Text('${averageRating.toStringAsFixed(2)}/5.00',
+                                      style: TextStyle(
+                                        fontFamily: "Poppins",
+                                        color: AppColors().black1,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600
+                                      ),),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
 
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              "New Order",
-              style: TextStyle(
-                fontFamily: "Poppins",
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Colors.black,
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "New Order",
+                style: TextStyle(
+                  fontFamily: "Poppins",
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection("orders")
-                  .where("status", isEqualTo: "normal")
-                  .orderBy("orderTime", descending: true)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                return snapshot.hasData
-                    ? ListView.builder(
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index) {
-                    // Get seller's UID
-                    String sellerUID =
-                    (snapshot.data!.docs[index].data()! as Map<String, dynamic>)["sellerUID"];
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection("orders")
+                    .where("status", isEqualTo: "normal")
+                    .orderBy("orderTime", descending: true)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  return snapshot.hasData
+                      ? ListView.builder(
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, index) {
+                      // Get seller's UID
+                      String sellerUID =
+                      (snapshot.data!.docs[index].data()! as Map<String, dynamic>)["sellerUID"];
 
-                    return FutureBuilder<QuerySnapshot>(
-                      future: FirebaseFirestore.instance
-                          .collection("items")
-                          .where(
-                        "productsID",
-                        whereIn: separateOrderItemIDs(
-                          (snapshot.data!.docs[index].data()! as Map<String, dynamic>)["productsIDs"],
-                        ),
-                      )
-                          .where(
-                        "orderBy",
-                        whereIn: (snapshot.data!.docs[index].data()! as Map<String, dynamic>)["uid"],
-                      )
-                          .orderBy("publishedDate", descending: true)
-                          .get(),
-                      builder: (context, snap) {
-                        return snap.hasData
-                            ? FutureBuilder<DocumentSnapshot>(
-                          future: FirebaseFirestore.instance
-                              .collection("sellers")
-                              .doc(sellerUID)
-                              .get(),
-                          builder: (context, sellerSnap) {
-                            return sellerSnap.hasData
-                                ? OrderCard(
-                              itemCount: snap.data!.docs.length,
-                              data: snap.data!.docs,
-                              orderID: snapshot.data!.docs[index].id,
-                              seperateQuantitiesList: separateOrderItemQuantities(
-                                (snapshot.data!.docs[index].data()! as Map<String, dynamic>)["productsIDs"],
-                              ),
-                              sellerName: sellerSnap.data!["sellersName"], // Pass the seller's name
-                            )
-                                : Center(child: circularProgress());
-                          },
+                      return FutureBuilder<QuerySnapshot>(
+                        future: FirebaseFirestore.instance
+                            .collection("items")
+                            .where(
+                          "productsID",
+                          whereIn: separateOrderItemIDs(
+                            (snapshot.data!.docs[index].data()! as Map<String, dynamic>)["productsIDs"],
+                          ),
                         )
-                            : Center(child: circularProgress());
-                      },
-                    );
-                  },
-                )
-                    : Center(child: circularProgress());
-              },
-            ),
+                            .where(
+                          "orderBy",
+                          whereIn: (snapshot.data!.docs[index].data()! as Map<String, dynamic>)["uid"],
+                        )
+                            .orderBy("publishedDate", descending: true)
+                            .get(),
+                        builder: (context, snap) {
+                          return snap.hasData
+                              ? FutureBuilder<DocumentSnapshot>(
+                            future: FirebaseFirestore.instance
+                                .collection("sellers")
+                                .doc(sellerUID)
+                                .get(),
+                            builder: (context, sellerSnap) {
+                              return sellerSnap.hasData
+                                  ? OrderCard(
+                                itemCount: snap.data!.docs.length,
+                                data: snap.data!.docs,
+                                orderID: snapshot.data!.docs[index].id,
+                                seperateQuantitiesList: separateOrderItemQuantities(
+                                  (snapshot.data!.docs[index].data()! as Map<String, dynamic>)["productsIDs"],
+                                ),
+                                sellerName: sellerSnap.data!["sellersName"], // Pass the seller's name
+                              )
+                                  : Center(child: circularProgress());
+                            },
+                          )
+                              : Center(child: circularProgress());
+                        },
+                      );
+                    },
+                  )
+                      : Center(child: circularProgress());
+                },
+              ),
 
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: Theme(
         data: ThemeData(
-          canvasColor: Color(0xFF890010), // Background color
+          canvasColor: AppColors().black, // Background color
         ),
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
@@ -246,8 +292,11 @@ class _HomeScreenState extends State<HomeScreen> {
               // Navigate to Home screen
             } else if (index == 1) {
               // Navigate to History screen
+              Navigator.push(context, MaterialPageRoute(builder: (c)=> HistoryScreen()));
             } else if (index == 2) {
               // Navigate to Earnings screen
+              Navigator.push(context, MaterialPageRoute(builder: (c)=> EarningScreen()));
+
             } else if (index == 3) {
               // Navigate to Ongoing Delivery screen
               Navigator.push(context, MaterialPageRoute(builder: (c) => OrderInProgress()));

@@ -45,17 +45,9 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
   StreamSubscription<loc.LocationData>? _locationSubscription;
   double? customerLat, customerLng;
   String? customerAddress;
+  String? orderTotalAmount = "";
 
-  @override
-  void initState() {
-    super.initState();
-    _requestPermission();
-    getCustomerData();
-    getOrderByOrderId(widget.getOrderId);
-    getOrderDetails();
-    // location.changeSettings(interval: 300, accuracy: loc.LocationAccuracy.high);
-    // location.enableBackgroundMode(enable: true);
-  }
+
 
   Future<Map<String, dynamic>?> getOrderByOrderId(String? orderId) async {
     if (orderId != null) {
@@ -152,50 +144,101 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
 
 
 
+  confirmParcelHasBeenDelivered(getOrderId, sellerId, purchaserId, purchaserAddress, purchaserLat, purchaserLng) {
+    try {
+      print('getOrderId: $getOrderId'); // Print the value of getOrderId
+      print('previousRiderEarnings: $previousRiderEarnings');
+      print('perOrderDeliveryAmount: $perOrderDeliveryAmount');
 
-  confirmParcelHasBeenDelivered(getOrderId, sellerId, purchaserId, purchaserAddress, purchaserLat, purchaserLng)
-  {
+      // Check if previousRiderEarnings is not an empty string before parsing
+      double previousRiderEarningsValue = previousRiderEarnings.isNotEmpty
+          ? double.parse(previousRiderEarnings)
+          : 0.0; // Provide a default value if empty
 
-    FirebaseFirestore.instance
-        .collection("orders")
-        .doc(getOrderId).update({
-      "status": "ended",
-      "address": completeAddress,
-      // "lat": position!.latitude,
-      // "lng": position!.longitude,
-      "earnings": "", //pay per parcel delivery amount
-    }).then((value)
-    {
+      double perOrderDeliveryAmountValue = double.parse(perOrderDeliveryAmount);
+
+      String newRiderTotalEarningsAmount =
+      (previousRiderEarningsValue + perOrderDeliveryAmountValue).toString();
+
+      print('newRiderTotalEarningsAmount: $newRiderTotalEarningsAmount');
+
       FirebaseFirestore.instance
-          .collection("riders")
-          .doc(sharedPreferences!.getString("uid"))
-          .update(
-          {
-            "earnings": "", //total earnings amount of rider
-          });
-    }).then((value)
-    {
-      FirebaseFirestore.instance
-          .collection("sellers")
-          .doc(widget.sellerId)
-          .update(
-          {
-            "earnings": "", //total earnings amount of seller
-          });
-    }).then((value)
-    {
-      FirebaseFirestore.instance
-          .collection("users")
-          .doc(purchaserId)
           .collection("orders")
-          .doc(getOrderId).update(
-          {
-            "status": "ended",
-            "riderUID": sharedPreferences!.getString("uid"),
-          });
-    });
+          .doc(getOrderId).update({
+        "status": "ended",
+        "address": completeAddress,
+        "earnings": perOrderDeliveryAmount, // pay per parcel delivery amount
+      }).then((value)
+      {
+        FirebaseFirestore.instance
+            .collection("riders")
+            .doc(sharedPreferences!.getString("uid"))
+            .update(
+            {
+              "earnings": newRiderTotalEarningsAmount,
+            });
+      }).then((value)
+      {
+        FirebaseFirestore.instance
+            .collection("sellers")
+            .doc(widget.sellerId)
+            .update(
+            {
+              "earnings": (double.parse(orderTotalAmount!) + previousRiderEarningsValue).toString(),
+            });
+      }).then((value)
+      {
+        FirebaseFirestore.instance
+            .collection("users")
+            .doc(purchaserId)
+            .collection("orders")
+            .doc(getOrderId).update(
+            {
+              "status": "ended",
+              "riderUID": sharedPreferences!.getString("uid"),
+            });
+      });
 
-    Navigator.push(context, MaterialPageRoute(builder: (c)=> const MySplashScreen()));
+      Navigator.push(context, MaterialPageRoute(builder: (c)=> const MySplashScreen()));
+    } catch (e) {
+      print("Error confirming parcel delivery: $e");
+    }
+  }
+
+  getOrderTotalAmount() {
+    FirebaseFirestore.instance.collection("orders").doc(widget.getOrderId)
+        .get().then((snap)
+    {
+      orderTotalAmount = snap.data()!["totalAmount"].toString();
+      widget.sellerId = snap.data()!["sellerUID"].toString();
+    }).then((value)
+    {
+      getSellerData();
+    });
+  }
+
+  getSellerData() {
+    FirebaseFirestore.instance.collection("sellers")
+        .doc(widget.sellerId)
+        .get().then((snap)
+    {
+      previousEarnings = snap.data()!["earnings"].toString();
+    });
+  }
+
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    _requestPermission();
+    getCustomerData();
+    getOrderByOrderId(widget.getOrderId);
+    getOrderDetails();
+    getOrderTotalAmount();
+    // location.changeSettings(interval: 300, accuracy: loc.LocationAccuracy.high);
+    // location.enableBackgroundMode(enable: true);
   }
 
   @override
@@ -332,109 +375,7 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
       ),
     );
   }
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     body: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.center,
-  //       mainAxisAlignment: MainAxisAlignment.center,
-  //       children: [
-  //
-  //         Image.asset(
-  //           "images/confirm1.png",
-  //           width: 350,
-  //         ),
-  //
-  //         const SizedBox(height: 5,),
-  //
-  //         GestureDetector(
-  //           onTap: ()
-  //           {
-  //             //show location from rider current location towards seller location
-  //             // MapUtils.lauchMapFromSourceToDestination(position!.latitude, position!.longitude, widget.purchaserLat, widget.purchaserLng);
-  //           },
-  //           child: Row(
-  //             mainAxisAlignment: MainAxisAlignment.center,
-  //             children: [
-  //
-  //               Image.asset(
-  //                 'images/restaurant.png',
-  //                 width: 50,
-  //               ),
-  //
-  //               const SizedBox(width: 7,),
-  //
-  //               Column(
-  //                 children: const [
-  //                   SizedBox(height: 12,),
-  //
-  //                   Text(
-  //                     "Show Cafe/Restaurant Location",
-  //                     style: TextStyle(
-  //                       fontFamily: "Signatra",
-  //                       fontSize: 18,
-  //                       letterSpacing: 2,
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //
-  //             ],
-  //           ),
-  //         ),
-  //
-  //         const SizedBox(height: 40,),
-  //
-  //         Padding(
-  //           padding: const EdgeInsets.all(10.0),
-  //           child: Center(
-  //             child: InkWell(
-  //               onTap: ()
-  //               {
-  //                 //rider location update
-  //                 // UserLocation uLocation = UserLocation();
-  //                 // uLocation.getCurrentLocation();
-  //
-  //                 //confirmed - that rider has picked parcel from seller
-  //                 confirmParcelHasBeenDelivered(
-  //                     widget.getOrderId,
-  //                     widget.sellerId,
-  //                     widget.purchaserId,
-  //                     widget.purchaserAddress,
-  //                     widget.purchaserLat,
-  //                     widget.purchaserLng
-  //                 );
-  //               },
-  //               child: Container(
-  //                 decoration: const BoxDecoration(
-  //                     gradient: LinearGradient(
-  //                       colors: [
-  //                         Colors.cyan,
-  //                         Colors.amber,
-  //                       ],
-  //                       begin:  FractionalOffset(0.0, 0.0),
-  //                       end:  FractionalOffset(1.0, 0.0),
-  //                       stops: [0.0, 1.0],
-  //                       tileMode: TileMode.clamp,
-  //                     )
-  //                 ),
-  //                 width: MediaQuery.of(context).size.width - 90,
-  //                 height: 50,
-  //                 child: const Center(
-  //                   child: Text(
-  //                     "Order has been Delivered - Confirm",
-  //                     style: TextStyle(color: Colors.white, fontSize: 15.0),
-  //                   ),
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //
-  //       ],
-  //     ),
-  //   );
-  // }
+
 
   Future<void> _listenLocation() async {
     _locationSubscription = location.onLocationChanged.handleError((onError) {
