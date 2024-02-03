@@ -6,7 +6,9 @@ import 'package:cpton_food2go_rider/mainScreen/home_screen.dart';
 
 import 'package:cpton_food2go_rider/mainScreen/ParcelPicking_Screen.dart';
 import 'package:cpton_food2go_rider/models/address.dart';
+import 'package:cpton_food2go_rider/theme/Colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:location/location.dart'as loc;
 import 'package:permission_handler/permission_handler.dart';
@@ -14,8 +16,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../splashScreen/splash_screen.dart';
 
-class ShipmentAddressDesign extends StatefulWidget
-{
+class ShipmentAddressDesign extends StatefulWidget {
   final Address? model;
   final String? orderStatus;
   final String? orderId;
@@ -96,11 +97,11 @@ class _ShipmentAddressDesignState extends State<ShipmentAddressDesign> {
 
 
 
-
   @override
   Widget build(BuildContext context)
   {
-    return Column(
+    return
+      Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
@@ -129,18 +130,18 @@ class _ShipmentAddressDesignState extends State<ShipmentAddressDesign> {
               ),
               TableRow(
                 children: [
-                  const Text(
+                   Text(
                     "Phone Number : ",
-                    style: TextStyle(color: Colors.black, fontFamily: "Poppins", fontSize: 12),
+                    style: TextStyle(color: AppColors().black, fontFamily: "Poppins", fontSize: 12),
                   ),
-                  Text(widget.model!.phoneNumber!,  style: TextStyle(color: Colors.black, fontFamily: "Poppins", fontSize: 12), ),
+                  Text(widget.model!.phoneNumber!,  style: TextStyle(color: AppColors().black, fontFamily: "Poppins", fontSize: 12), ),
                 ],
               ),
             ],
           ),
         ),
-        const SizedBox(
-          height: 20,
+         SizedBox(
+          height: 5.h,
         ),
         Padding(
           padding: const EdgeInsets.all(10.0),
@@ -163,24 +164,15 @@ class _ShipmentAddressDesignState extends State<ShipmentAddressDesign> {
               confirmedParcelShipment(context, widget.orderId!, widget.sellerId!, widget.orderByUser!);
             },
             child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.greenAccent,
-                    Colors.green,
-                  ],
-                  begin: FractionalOffset(0.0, 0.0),
-                  end: FractionalOffset(1.0, 0.0),
-                  stops: [0.0, 1.0],
-                  tileMode: TileMode.clamp,
-                ),
+              decoration: BoxDecoration(
+               color: AppColors().green
               ),
               width: MediaQuery.of(context).size.width - 40,
               height: 50,
               child: Center(
                 child: Text(
                   "Confirm - To Deliver this Parcel",
-                  style: TextStyle(color: Colors.white70, fontSize: 12.0),
+                  style: TextStyle(color: AppColors().white, fontSize: 12.sp),
                 ),
               ),
             ),
@@ -197,24 +189,15 @@ class _ShipmentAddressDesignState extends State<ShipmentAddressDesign> {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
               },
               child: Container(
-                decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Color(0xFF890010),
-                        Colors.red,
-                      ],
-                      begin:  FractionalOffset(0.0, 0.0),
-                      end:  FractionalOffset(1.0, 0.0),
-                      stops: [0.0, 1.0],
-                      tileMode: TileMode.clamp,
-                    )
+                decoration: BoxDecoration(
+                   color: AppColors().red
                 ),
                 width: MediaQuery.of(context).size.width - 40,
                 height: 50,
-                child: const Center(
+                child: Center(
                   child: Text(
                     "Go Back",
-                    style: TextStyle(color: Colors.white, fontSize: 15.0),
+                    style: TextStyle(color: Colors.white, fontSize: 12.0.sp),
                   ),
                 ),
               ),

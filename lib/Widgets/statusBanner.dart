@@ -1,7 +1,9 @@
 
 import 'package:cpton_food2go_rider/mainScreen/home_screen.dart';
+import 'package:cpton_food2go_rider/theme/Colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class StatusBanner extends StatelessWidget
 {
@@ -21,32 +23,24 @@ class StatusBanner extends StatelessWidget
     status! ? iconData  = Icons.done : Icons.cancel;
 
     status! ? message = "successful"  : message = "unsuccessful";
-    return Container(margin: const EdgeInsets.symmetric(vertical: 10),
-      padding: const EdgeInsets.all(10.0),
+    return Container(margin: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.all(5.0),
       decoration: BoxDecoration(
-        color: Colors.red,
+        color: AppColors().black,
         borderRadius: BorderRadius.circular(12.0),
       ),
-      height: 40,
+      height: 50,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          GestureDetector(
-            onTap: ()
-            {
-              Navigator.push(context, MaterialPageRoute(builder: (c) => const HomeScreen()));
-            },
-            child: Icon(
-              Icons.arrow_back,
-              color: Colors.black,
-            ),
-          ),
           SizedBox(width: 20,),
           Text(
             orderStatus == "ended" ? "Parcel Delivered $message"
                 : "Order Placed $message",
             style: TextStyle(
-                color: Colors.white
+                color: AppColors().white,
+              fontFamily: "Poppins",
+              fontSize: 12.sp,
             ),
 
           ),

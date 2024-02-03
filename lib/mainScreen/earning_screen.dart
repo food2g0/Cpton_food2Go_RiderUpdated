@@ -11,14 +11,14 @@ import '../assisstantMethod/assistant_methods.dart';
 import 'history_screen.dart';
 import 'order_in_progress.dart';
 
+// ... Your imports
+
 class EarningScreen extends StatefulWidget {
-  const EarningScreen({super.key});
+  const EarningScreen({Key? key}) : super(key: key);
 
   @override
   State<EarningScreen> createState() => _EarningScreenState();
 }
-
-
 
 class _EarningScreenState extends State<EarningScreen> {
   int _currentIndex = 0;
@@ -33,7 +33,7 @@ class _EarningScreenState extends State<EarningScreen> {
             fontFamily: "Poppins",
             fontSize: 14,
             fontWeight: FontWeight.w700,
-            color: AppColors().white
+            color: AppColors().white,
           ),
         ),
         backgroundColor: AppColors().red,
@@ -78,7 +78,6 @@ class _EarningScreenState extends State<EarningScreen> {
                           color: AppColors().red,
                         ),
                       ),
-
                     ],
                   ),
                 ),
@@ -86,8 +85,10 @@ class _EarningScreenState extends State<EarningScreen> {
             ),
           ),
           SizedBox(height: 20,),
-          Divider(thickness: 2,
-          color: AppColors().black,),
+          Divider(
+            thickness: 2,
+            color: AppColors().black,
+          ),
           SizedBox(height: 20,),
           Text(
             'Recent Deliveries',
@@ -96,7 +97,8 @@ class _EarningScreenState extends State<EarningScreen> {
               fontSize: 12.sp,
               fontWeight: FontWeight.w700,
               color: AppColors().black,
-            ),),
+            ),
+          ),
           SizedBox(height: 20,),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
@@ -114,7 +116,8 @@ class _EarningScreenState extends State<EarningScreen> {
                       future: FirebaseFirestore.instance
                           .collection("items")
                           .where("productsID",
-                          whereIn: separateOrderItemIDs((snapshot.data!.docs[index].data()! as Map<String, dynamic>)["productsIDs"]))
+                          whereIn: separateOrderItemIDs(
+                              (snapshot.data!.docs[index].data()! as Map<String, dynamic>)["productsIDs"]))
                           .orderBy("publishedDate", descending: true)
                           .get(),
                       builder: (c, snap) {
@@ -186,5 +189,6 @@ class _EarningScreenState extends State<EarningScreen> {
     );
   }
 }
+
 
 

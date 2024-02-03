@@ -43,6 +43,16 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: AppColors().red,
+        title: Text("Order Details",
+        style:
+          TextStyle(
+            fontSize: 14.sp,
+            color: AppColors().white,
+            fontFamily: "Poppins"
+          ),),
+      ),
       body: SingleChildScrollView(
         child: FutureBuilder<DocumentSnapshot>(
           future: FirebaseFirestore.instance
@@ -59,17 +69,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 ? Container(
               child: Column(
                 children: [
-                  StatusBanner(
-                    status: dataMap!["isSuccess"] == true,
-                    orderStatus: orderStatus,
-                  ),
                  SizedBox(height: 5.h),
                   Padding(
                     padding:  EdgeInsets.all(8.0.w),
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        "Total Amount (including shipping fee): Php ${dataMap["totalAmount"] + 50}",
+                        "Total Amount (including shipping fee): Php ${dataMap?["totalAmount"] + 50}",
                         style: TextStyle(
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w700,
@@ -99,7 +105,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                       child: Text(
                           "Order at: ${DateFormat("dd MMMM, yyyy - hh:mm aa").format(
                                 DateTime.fromMillisecondsSinceEpoch(
-                                  int.parse(dataMap["orderTime"]),
+                                  int.parse(dataMap?["orderTime"]),
                                 ),
                               )}",
                           style:  TextStyle(
@@ -127,7 +133,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                         .collection("users")
                         .doc(orderByUser)
                         .collection("userAddress")
-                        .doc(dataMap["addressID"])
+                        .doc(dataMap?["addressID"])
                         .get(),
                     builder: (context, snapshot) {
                       return snapshot.hasData

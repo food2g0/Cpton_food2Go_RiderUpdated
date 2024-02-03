@@ -82,7 +82,7 @@ class _RatingScreenState extends State<RatingScreen> {
                         'Your current Ratings: ',
                         style: TextStyle(
                           fontFamily: "Poppins",
-                          fontSize: 14.sp,
+                          fontSize: 12.sp,
                           fontWeight: FontWeight.w600,
                           color: AppColors().black,
                         ),
@@ -95,7 +95,7 @@ class _RatingScreenState extends State<RatingScreen> {
                             rating: averageRating,
                             allowHalfRating: false,
                             starCount: 5,
-                            size: 35,
+                            size: 25,
                             color: AppColors().black,
                             borderColor: AppColors().black1,
                           ),
@@ -105,7 +105,7 @@ class _RatingScreenState extends State<RatingScreen> {
                             style: TextStyle(
                               fontFamily: "Poppins",
                               color: AppColors().black1,
-                              fontSize: 14.sp,
+                              fontSize: 12.sp,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
