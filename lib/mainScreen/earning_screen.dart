@@ -3,6 +3,7 @@ import 'package:cpton_food2go_rider/global/global.dart';
 import 'package:cpton_food2go_rider/mainScreen/home_screen.dart';
 import 'package:cpton_food2go_rider/theme/Colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../Widgets/order_card.dart';
 import '../Widgets/progress_bar.dart';
@@ -48,6 +49,7 @@ class _EarningScreenState extends State<EarningScreen> {
             child: Container(
               height: 200,
               child: Card(
+                color: AppColors().white,
                 elevation: 5,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -62,7 +64,7 @@ class _EarningScreenState extends State<EarningScreen> {
                         'Your Total Earnings',
                         style: TextStyle(
                           fontFamily: "Poppins",
-                          fontSize: 16,
+                          fontSize: 12.sp,
                           fontWeight: FontWeight.w700,
                           color: AppColors().black,
                         ),
@@ -71,7 +73,7 @@ class _EarningScreenState extends State<EarningScreen> {
                       Text(
                         '\Php $previousRiderEarnings',
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
                           color: AppColors().red,
                         ),
@@ -91,7 +93,7 @@ class _EarningScreenState extends State<EarningScreen> {
             'Recent Deliveries',
             style: TextStyle(
               fontFamily: "Poppins",
-              fontSize: 14,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w700,
               color: AppColors().black,
             ),),
