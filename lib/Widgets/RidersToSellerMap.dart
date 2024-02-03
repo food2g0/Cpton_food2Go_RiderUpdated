@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cpton_food2go_rider/Widgets/progress_bar.dart';
 import 'package:cpton_food2go_rider/theme/Colors.dart';
 
 import 'package:flutter/material.dart';
@@ -8,8 +9,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as loc;
 import 'package:permission_handler/permission_handler.dart';
 
+import '../assisstantMethod/assistant_methods.dart';
 import '../global/global.dart';
 import '../mainScreen/parcel_delivering_screen.dart';
+import 'order_card.dart';
 
 class RiderToSellerMap extends StatefulWidget {
   final String user_id;
@@ -246,8 +249,11 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
               ),
             ),
           ),
+
         ],
+
       ),
+
     );
   }
 

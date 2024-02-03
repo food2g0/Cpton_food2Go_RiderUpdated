@@ -3,7 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpton_food2go_rider/Maps/map.dart';
 import 'package:cpton_food2go_rider/global/global.dart';
 import 'package:cpton_food2go_rider/mainScreen/parcel_delivering_screen.dart';
+import 'package:cpton_food2go_rider/theme/Colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:location/location.dart';
 import 'package:location/location.dart' as loc;
 import 'package:permission_handler/permission_handler.dart';
@@ -107,10 +109,10 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF890010),
-        title: const Text(
+        backgroundColor: AppColors().black,
+        title:  Text(
           "Track Order",
-          style: TextStyle(fontSize: 18, color: Colors.white70, fontFamily: "Poppins"),
+          style: TextStyle(fontSize: 14.sp, color: AppColors().white, fontFamily: "Poppins"),
         ),
       ),
       body: SingleChildScrollView(

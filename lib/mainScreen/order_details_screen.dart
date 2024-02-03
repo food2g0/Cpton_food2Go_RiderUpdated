@@ -3,7 +3,9 @@ import 'package:cpton_food2go_rider/Widgets/progress_bar.dart';
 import 'package:cpton_food2go_rider/Widgets/shipment_address_design.dart';
 import 'package:cpton_food2go_rider/Widgets/statusBanner.dart';
 import 'package:cpton_food2go_rider/models/address.dart';
+import 'package:cpton_food2go_rider/theme/Colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
 class OrderDetailsScreen extends StatefulWidget {
@@ -61,15 +63,15 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     status: dataMap!["isSuccess"] == true,
                     orderStatus: orderStatus,
                   ),
-                  const SizedBox(height: 10.0),
+                 SizedBox(height: 5.h),
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding:  EdgeInsets.all(8.0.w),
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         "Total Amount (including shipping fee): Php ${dataMap["totalAmount"] + 50}",
-                        style: const TextStyle(
-                          fontSize: 14,
+                        style: TextStyle(
+                          fontSize: 12.sp,
                           fontWeight: FontWeight.w700,
                           fontFamily: "Poppins",
                         ),
@@ -82,8 +84,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                        alignment: Alignment.centerLeft,
                        child: Text(
                           "Order Id = ${widget.orderID!}",
-                          style: const TextStyle(
-                            fontSize: 12,
+                          style:  TextStyle(
+                            fontSize: 12.sp,
                             fontFamily: "Poppins",
                           ),
                         ),
@@ -100,16 +102,19 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                   int.parse(dataMap["orderTime"]),
                                 ),
                               )}",
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
+                          style:  TextStyle(
+                            fontSize: 12.sp,
+                            color: AppColors().black1,
                             fontFamily: "Poppins",
                           ),
                         ),
                     ),
                   ),
 
+
                   const Divider(thickness: 4),
+
+
 
                   orderStatus == "ended"
 

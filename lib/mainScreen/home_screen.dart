@@ -5,6 +5,7 @@ import 'package:cpton_food2go_rider/Widgets/riders_drawer.dart';
 import 'package:cpton_food2go_rider/assisstantMethod/assistant_methods.dart';
 import 'package:cpton_food2go_rider/mainScreen/earning_screen.dart';
 import 'package:cpton_food2go_rider/mainScreen/history_screen.dart';
+import 'package:cpton_food2go_rider/mainScreen/my_ratings_screen.dart';
 import 'package:cpton_food2go_rider/mainScreen/order_in_progress.dart';
 import 'package:cpton_food2go_rider/theme/Colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -152,14 +153,27 @@ class _HomeScreenState extends State<HomeScreen> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start, // Align to the start (left)
                                 children: [
-                                  Text(
-                                    'Your current Ratings: ',
-                                    style: TextStyle(
-                                      fontFamily: "Poppins",
-                                      fontSize: 12.sp,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors().black1,
-                                    ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        'Your current Ratings: ',
+                                        style: TextStyle(
+                                          fontFamily: "Poppins",
+                                          fontSize: 12.sp,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors().black1,
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () { Navigator.push(context, MaterialPageRoute(builder: (c)=> RatingScreen())); },
+                                        child: Text("View Ratings", style:
+                                          TextStyle(
+                                            color: AppColors().red,
+                                            fontFamily: "Poppins",
+                                            fontSize: 12.sp
+                                          ),),
+                                      )
+                                    ],
                                   ),
                                   SizedBox(height: 10.h),
                                   Row(
@@ -180,6 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         fontSize: 10.sp,
                                         fontWeight: FontWeight.w600
                                       ),),
+
                                     ],
                                   ),
                                 ],

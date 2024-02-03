@@ -303,7 +303,7 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
                                 // Check if values are not null before using them
                                 if (customerLatitude != null && customerLongitude != null && purchaserAddress != null) {
                                   // Start location listening
-                                  _listenLocation();
+                                  _listenLocation(sharedPreferences!.getString("uid") ?? "");
 
                                   // Navigate to RiderToCustomerMap with the updated values
                                   Navigator.of(context).push(
@@ -384,7 +384,7 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
   }
 
 
-  Future<void> _listenLocation() async {
+  Future<void> _listenLocation(String riderUID) async {
     _locationSubscription = location.onLocationChanged.handleError((onError) {
       print(onError);
       _locationSubscription?.cancel();
@@ -395,7 +395,8 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
       await FirebaseFirestore.instance.collection('location').doc('user1').set({
         'latitude': currentlocation.latitude,
         'longitude': currentlocation.longitude,
-        'name': 'john'
+        'riderUID': riderUID,
+        'name': 'John Doe'
       }, SetOptions(merge: true));
     });
   }

@@ -153,40 +153,34 @@ class _ShipmentAddressDesignState extends State<ShipmentAddressDesign> {
           ),
         ),
 
-
         widget.orderStatus == "ended"
             ? Container()
-            : Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Center(
-            child: InkWell(
-              onTap: ()
-              {
-                _getLocation();
-                _requestPermission();
-                confirmedParcelShipment(context, widget.orderId!, widget.sellerId!, widget.orderByUser!);
-
-              },
-              child: Container(
-                decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.greenAccent,
-                        Colors.green,
-                      ],
-                      begin:  FractionalOffset(0.0, 0.0),
-                      end:  FractionalOffset(1.0, 0.0),
-                      stops: [0.0, 1.0],
-                      tileMode: TileMode.clamp,
-                    )
+            : Center(
+          child: InkWell(
+            onTap: () {
+              _getLocation();
+              _requestPermission();
+              confirmedParcelShipment(context, widget.orderId!, widget.sellerId!, widget.orderByUser!);
+            },
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.greenAccent,
+                    Colors.green,
+                  ],
+                  begin: FractionalOffset(0.0, 0.0),
+                  end: FractionalOffset(1.0, 0.0),
+                  stops: [0.0, 1.0],
+                  tileMode: TileMode.clamp,
                 ),
-                width: MediaQuery.of(context).size.width - 40,
-                height: 50,
-                child: const Center(
-                  child: Text(
-                    "Confirm - To Deliver this Parcel",
-                    style: TextStyle(color: Colors.white70, fontSize: 12.0),
-                  ),
+              ),
+              width: MediaQuery.of(context).size.width - 40,
+              height: 50,
+              child: Center(
+                child: Text(
+                  "Confirm - To Deliver this Parcel",
+                  style: TextStyle(color: Colors.white70, fontSize: 12.0),
                 ),
               ),
             ),
