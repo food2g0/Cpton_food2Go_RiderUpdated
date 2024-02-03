@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../Widgets/order_card.dart';
 import '../Widgets/progress_bar.dart';
@@ -27,7 +28,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           backgroundColor: AppColors().red,
           title: Text("History",
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 14.sp,
             fontFamily: "Poppins",
             fontWeight: FontWeight.w700,
             color: AppColors().white,

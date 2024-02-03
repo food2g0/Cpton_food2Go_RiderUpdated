@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpton_food2go_rider/theme/Colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../mainScreen/order_details_screen.dart';
 import '../models/items.dart';
 
@@ -23,106 +24,133 @@ class OrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (c) => OrderDetailsScreen(orderID: orderID)));
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (c) => OrderDetailsScreen(orderID: orderID)),
+        );
       },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0),
-          color: Colors.white,
-          border: Border.all(
-            color: AppColors().red, // You can change the border color
-            width: 1.0, // You can change the border width
-          ),
-        ),
-
-
-        padding: const EdgeInsets.all(10),
-        margin: const EdgeInsets.all(10),
-        height: itemCount! * 120,
-        child: ListView.builder(
-          itemCount: itemCount,
-          physics: NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) {
-            Items model = Items.fromJson(data![index].data()! as Map<String, dynamic>);
-            return placedOrderDesignWidget(model, context, seperateQuantitiesList![index], sellerName);
-          },
+      child: Card(
+        elevation: 2,
+        child: Column(
+          children: [
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: itemCount,
+              itemBuilder: (context, index) {
+                Items model = Items.fromJson(data![index].data()! as Map<String, dynamic>);
+                return placedOrderDesignWidget(model, context, seperateQuantitiesList![index], sellerName);
+              },
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-Widget placedOrderDesignWidget(Items model, BuildContext context, String seperateQuantitiesList, String? sellerName) {
-  return Row(
-    children: [
-      ClipRRect(
-        borderRadius: BorderRadius.circular(10.0), // You can adjust the border radius as needed
-        child: Image.network(
-          model.thumbnailUrl!,
-          width: 100,
-          height: 100, // Adjust the height to match the container size
-          fit: BoxFit.cover,
+Widget placedOrderDesignWidget(Items model, BuildContext context, String separateQuantitiesList, String? sellerName) {
+  return SizedBox(
+    height: 140,
+    child: Row(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10.0),
+            child: Image.network(
+              model.thumbnailUrl!,
+              width: 150.w,
+              height: 120.h,
+              fit: BoxFit.cover,
+            ),
+          ),
         ),
-      ),
-      const SizedBox(width: 10.0,),
-      Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-               model.productTitle!,
-              style: const TextStyle(
-                color: Colors.black87,
-                fontSize: 12,
-                fontFamily: "Poppins",
-                fontWeight: FontWeight.w600
-              ),
-            ),
-            const SizedBox(height: 5,),
-            Text(
-              sellerName ?? '',
-              style: const TextStyle(
-                  color: Colors.black54,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: "Poppins"
-              ),
-            ),
-            Row(
+
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Price: Php ",
-                  style: TextStyle(fontSize: 14.0, color: Colors.black),
-                ),
                 Text(
-                  model.productPrice.toString(),
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 14.0,
-                  ),
-                ),
-                const SizedBox(width: 5),
-                const Text(
-                  "qty: x ",
+                  model.productTitle!,
                   style: TextStyle(
-                    color: Colors.black54,
-                    fontSize: 14,
-                  ),
-                ),
-                Text(
-                  seperateQuantitiesList,
-                  style: const TextStyle(
-                    color: Colors.black54,
-                    fontSize: 14,
+                    color: AppColors().black,
+                    fontSize: 12.sp,
                     fontFamily: "Poppins",
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
+                const SizedBox(height: 5,),
+
+                Row(
+                  children: [
+                    Image.asset(
+                      "images/store.png",
+                      width: 14.w,
+                      height: 14.h,
+                      color: AppColors().red,
+                    ),
+                    SizedBox(width: 5.w,),
+                    Text(
+                      sellerName ?? '',
+                      style: const TextStyle(
+                        color: Colors.black54,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: "Poppins",
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Image.asset(
+                     'images/peso.png',
+                      width: 14,
+                      height: 14,
+                      color: AppColors().red,
+                    ),
+                    SizedBox(width: 5.w,),
+                    Text(
+                        model.productPrice.toString(),
+                      style: TextStyle(
+                        color: AppColors().black1,
+                        fontSize: 14.0.sp,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: "Poppins",
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+
+                    Text(
+                      "x ",
+                      style: TextStyle(
+                        color: AppColors().black1,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 10.sp,
+                        fontFamily: "Poppins",
+                      ),
+                    ),
+
+                    Text(
+                      separateQuantitiesList,
+                      style: TextStyle(
+                        color: AppColors().black1,
+                        fontSize: 14,
+                        fontFamily: "Poppins",
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10,),
               ],
             ),
-            const SizedBox(height: 10,),
-          ],
+          ),
         ),
-      ),
-    ],
+
+      ],
+    ),
   );
 }

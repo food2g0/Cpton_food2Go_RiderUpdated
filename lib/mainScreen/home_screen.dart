@@ -9,6 +9,7 @@ import 'package:cpton_food2go_rider/mainScreen/order_in_progress.dart';
 import 'package:cpton_food2go_rider/theme/Colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:smooth_star_rating_null_safety/smooth_star_rating_null_safety.dart';
 
 import '../authentication/auth_screen.dart';
@@ -72,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
             "Riders Dashboard",
             style: TextStyle(
               fontFamily: "Poppins",
-              fontSize: 16,
+              fontSize: 14.sp,
               color: AppColors().white,
             ),
           ),
@@ -86,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             Card(
-              color: AppColors().black,
+              color: AppColors().white,
               elevation: 2,
               child: Align(
                 alignment: Alignment.topLeft,
@@ -99,9 +100,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         text: TextSpan(
                           style: TextStyle(
                             fontFamily: "Poppins",
-                            fontSize: 14,
+                            fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
-                            color: AppColors().white,
+                            color: AppColors().black,
                           ),
                           children: [
                             TextSpan(
@@ -110,13 +111,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             TextSpan(
                               text: sharedPreferences!.getString("name")!,
                               style: TextStyle(
-                                color: AppColors().white,
+                                color: AppColors().black,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      SizedBox(height: 10,),
+                      SizedBox(height: 10.h,),
                       StreamBuilder<QuerySnapshot>(
                         stream: FirebaseFirestore.instance
                             .collection("riders")
@@ -155,12 +156,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                     'Your current Ratings: ',
                                     style: TextStyle(
                                       fontFamily: "Poppins",
-                                      fontSize: 14,
+                                      fontSize: 12.sp,
                                       fontWeight: FontWeight.w600,
                                       color: AppColors().black1,
                                     ),
                                   ),
-                                  SizedBox(height: 10),
+                                  SizedBox(height: 10.h),
                                   Row(
                                     children: [
                                       SmoothStarRating(
@@ -176,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       style: TextStyle(
                                         fontFamily: "Poppins",
                                         color: AppColors().black1,
-                                        fontSize: 14,
+                                        fontSize: 10.sp,
                                         fontWeight: FontWeight.w600
                                       ),),
                                     ],
@@ -199,9 +200,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 "New Order",
                 style: TextStyle(
                   fontFamily: "Poppins",
-                  fontSize: 16,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.w700,
-                  color: Colors.black,
+                  color: AppColors().black,
                 ),
               ),
             ),
@@ -245,14 +246,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                 .get(),
                             builder: (context, sellerSnap) {
                               return sellerSnap.hasData
-                                  ? OrderCard(
-                                itemCount: snap.data!.docs.length,
-                                data: snap.data!.docs,
-                                orderID: snapshot.data!.docs[index].id,
-                                seperateQuantitiesList: separateOrderItemQuantities(
-                                  (snapshot.data!.docs[index].data()! as Map<String, dynamic>)["productsIDs"],
-                                ),
-                                sellerName: sellerSnap.data!["sellersName"], // Pass the seller's name
+                                  ? Column(
+                                children: [
+                                  OrderCard(
+                                    itemCount: snap.data!.docs.length,
+                                    data: snap.data!.docs,
+                                    orderID: snapshot.data!.docs[index].id,
+                                    seperateQuantitiesList: separateOrderItemQuantities(
+                                      (snapshot.data!.docs[index].data()! as Map<String, dynamic>)["productsIDs"],
+                                    ),
+                                    sellerName: sellerSnap.data!["sellersName"], // Pass the seller's name
+                                  ),
+                                  if (snap.data!.docs.length > 1)
+                                    SizedBox(height: 10), // Adjust the height as needed
+                                ],
                               )
                                   : Center(child: circularProgress());
                             },
@@ -265,7 +272,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       : Center(child: circularProgress());
                 },
               ),
-
             ),
           ],
         ),
