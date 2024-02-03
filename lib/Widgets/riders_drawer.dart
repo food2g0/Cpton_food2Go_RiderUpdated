@@ -1,5 +1,7 @@
 
+import 'package:cpton_food2go_rider/theme/Colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../authentication/auth_screen.dart';
 import '../global/global.dart';
@@ -19,7 +21,7 @@ class RidersDrawer extends StatelessWidget {
       child: ListView(
         children: [
           Container(
-            color: Colors.black87, // Set your desired background color here
+            color: AppColors().black, // Set your desired background color here
             padding: const EdgeInsets.only(top: 25, bottom: 10),
             child: Column(
               children: [
@@ -33,14 +35,20 @@ class RidersDrawer extends StatelessWidget {
                       height: 100,
                       width: 100,
                       child: CircleAvatar(
-                        backgroundImage: NetworkImage(
-                            sharedPreferences!.getString("riderAvatarUrl").toString()
-                        ),
-
+                        backgroundImage: sharedPreferences!.getString("riderAvatarUrl") != null
+                            ? NetworkImage(
+                          sharedPreferences!.getString("riderAvatarUrl")!.toString(),
+                        )
+                            : AssetImage('images/avatar.png') as ImageProvider<Object>, // Explicit cast
                       ),
                     ),
                   ),
                 ),
+
+
+
+
+
 
                 const SizedBox(height: 30),
                 Align(
@@ -61,52 +69,67 @@ class RidersDrawer extends StatelessWidget {
             ),
           ),
           //body drawer
+
           ListTile(
-            leading: const Icon(
-              Icons.local_offer,
-              color: Colors.red,
-            ),
-            title: const Text("Vouchers and Offers"),
-            onTap: () {
-              // Handle the Home item tap
-            },
-          ),
-          ListTile(
-            leading: const Icon(
+            leading:  Icon(
               Icons.fastfood_rounded,
-              color: Colors.red,
+              color: AppColors().red,
             ),
-            title: const Text("Orders"),
+            title: Text("Orders",
+            style: TextStyle(
+              color: AppColors().black,
+              fontFamily: "Poppins",
+              fontWeight: FontWeight.w500,
+              fontSize: 14.sp
+            ),),
             onTap: () {
 
             },
           ),
           ListTile(
-            leading: const Icon(
+            leading:  Icon(
               Icons.info_rounded,
-              color: Colors.red,
+              color: AppColors().red,
             ),
-            title: const Text("About"),
+            title:  Text("About",
+            style: TextStyle(
+             color: AppColors().black,
+              fontFamily: "Poppins",
+              fontWeight: FontWeight.w500,
+             fontSize: 14.sp
+              ),),
             onTap: () {
               // Handle the About item tap
             },
           ),
           ListTile(
-            leading: const Icon(
+            leading: Icon(
               Icons.favorite_border,
-              color: Colors.red,
+              color: AppColors().red,
             ),
-            title: const Text("Favorites"),
+            title:  Text("Favorites",
+              style: TextStyle(
+                  color: AppColors().black,
+                  fontFamily: "Poppins",
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14.sp
+              ),),
             onTap: () {
               // Handle the Favorites item tap
             },
           ),
           ListTile(
-            leading: const Icon(
+            leading:  Icon(
               Icons.logout_rounded,
-              color: Colors.red,
+              color: AppColors().red,
             ),
-            title: const Text("Logout"),
+            title: Text("Logout",
+              style: TextStyle(
+                  color: AppColors().black,
+                  fontFamily: "Poppins",
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14.sp
+              ),),
             onTap: () {
               firebaseAuth.signOut().then((value){
                 Navigator.push(context, MaterialPageRoute(builder: (c)=> const AuthScreen()));
