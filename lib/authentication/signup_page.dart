@@ -164,25 +164,6 @@ class _SignUpPageState extends State<SignUpPage> {
             .then((DocumentSnapshot documentSnapshot) {
           if (documentSnapshot.exists) {
             String status = documentSnapshot.get("status");
-
-            // Check the status
-            if (status == "disapproved") {
-              // Disapproved status, show a message or take appropriate action
-              Navigator.pop(context); // Close loading dialog
-              showDialog(
-                context: context,
-                builder: (c) {
-                  return ErrorDialog(
-                    message: "Your account is not approved yet. Please wait for approval.",
-                  );
-                },
-              );
-            } else {
-              // Approved status, redirect to the home page
-              Navigator.pop(context); // Close loading dialog
-              Route newRoute = MaterialPageRoute(builder: (c) => const HomeScreen());
-              Navigator.pushReplacement(context, newRoute);
-            }
           } else {
             // Handle the case where the document does not exist
           }

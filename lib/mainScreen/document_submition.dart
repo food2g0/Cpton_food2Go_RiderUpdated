@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:cpton_food2go_rider/theme/Colors.dart';
@@ -15,41 +14,67 @@ class DocumentSubmition extends StatefulWidget {
 }
 
 class _DocumentSubmitionState extends State<DocumentSubmition> {
+  PlatformFile? driverLicenseFile;
+  PlatformFile? registrationFile;
+  UploadTask? driverLicenseUploadTask;
+  UploadTask? registrationUploadTask;
 
-  PlatformFile? pickedFile;
-  UploadTask? uploadTask;
-
-
-  Future selectFile() async
-  {
+  Future selectDriverLicenseFile() async {
     final result = await FilePicker.platform.pickFiles();
     if (result == null) return;
 
     setState(() {
-      pickedFile = result.files.first;
+      driverLicenseFile = result.files.first;
     });
-
   }
 
-  Future uploadFile() async
-  {
-    final path = 'files/${pickedFile!.name}';
-    final file = File(pickedFile!.path!);
+  Future selectRegistrationFile() async {
+    final result = await FilePicker.platform.pickFiles();
+    if (result == null) return;
+
+    setState(() {
+      registrationFile = result.files.first;
+    });
+  }
+
+  Future uploadDriverLicenseFile() async {
+    await _uploadFile(driverLicenseFile, (snapshot) {
+      driverLicenseUploadTask = null;
+    });
+  }
+
+  Future uploadRegistrationFile() async {
+    await _uploadFile(registrationFile, (snapshot) {
+      registrationUploadTask = null;
+    });
+  }
+
+  Future<void> _uploadFile(
+      PlatformFile? file,
+      void Function(TaskSnapshot) onComplete,
+      ) async {
+    if (file == null) return;
+
+    final path = 'files/${file.name}';
+    final fileContent = File(file.path!);
 
     final ref = FirebaseStorage.instance.ref().child(path);
     setState(() {
-      uploadTask = ref.putFile(file);
+      if (file == driverLicenseFile) {
+        driverLicenseUploadTask = ref.putFile(fileContent);
+      } else if (file == registrationFile) {
+        registrationUploadTask = ref.putFile(fileContent);
+      }
     });
 
-    final snapshot = await uploadTask!.whenComplete(() {});
+    final snapshot = await (file == driverLicenseFile
+        ? driverLicenseUploadTask!.whenComplete(() {})
+        : registrationUploadTask!.whenComplete(() {}));
 
     final urlDownload = await snapshot.ref.getDownloadURL();
     print('Download Link: $urlDownload');
 
-    setState(() {
-      uploadTask = null;
-    });
-
+    onComplete(snapshot);
   }
 
   @override
@@ -57,71 +82,59 @@ class _DocumentSubmitionState extends State<DocumentSubmition> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors().red,
-        title: Text("Document Submission",
-        style: TextStyle(
-          fontFamily: "Poppins",
-          fontSize: 12.sp,
-          color: AppColors().white
-        ),),
-
+        title: Text(
+          "Document Submission",
+          style: TextStyle(
+            fontFamily: "Poppins",
+            fontSize: 12.sp,
+            color: AppColors().white,
+          ),
+        ),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (pickedFile != null)
-              Expanded(child: Container(
-                color: AppColors().white,
-                child: Center(
-                  child: Text(pickedFile!.name),
+            if (driverLicenseFile != null)
+              Expanded(
+                child: Container(
+                  color: AppColors().white,
+                  child: Center(
+                    child: Text(driverLicenseFile!.name),
+                  ),
                 ),
-              )),
-            ElevatedButton(onPressed: selectFile,
-                child: Text("Select File")),
-            SizedBox(height: 20.h,),
-            ElevatedButton(onPressed: uploadFile,
-                child: Text("upload File")),
-            SizedBox(height: 30.h,),
-            buildProgress(),
+              ),
+            ElevatedButton(
+              onPressed: selectDriverLicenseFile,
+              child: Text("Select Driver License File"),
+            ),
+            SizedBox(height: 20.h),
+            ElevatedButton(
+              onPressed: uploadDriverLicenseFile,
+              child: Text("Upload Driver License File"),
+            ),
+            SizedBox(height: 20.h),
+            if (registrationFile != null)
+              Expanded(
+                child: Container(
+                  color: AppColors().white,
+                  child: Center(
+                    child: Text(registrationFile!.name),
+                  ),
+                ),
+              ),
+            ElevatedButton(
+              onPressed: selectRegistrationFile,
+              child: Text("Select Motorcycle Registration File"),
+            ),
+            SizedBox(height: 20.h),
+            ElevatedButton(
+              onPressed: uploadRegistrationFile,
+              child: Text("Upload Motorcycle Registration File"),
+            ),
           ],
         ),
       ),
     );
   }
-
-  Widget buildProgress() => StreamBuilder<TaskSnapshot>(
-      stream: uploadTask?.snapshotEvents ,
-      builder: (context, snapshot) {
-        if (snapshot.hasData)
-        {
-          final data = snapshot.data!;
-          double progress = data.bytesTransferred / data.totalBytes;
-
-          return SizedBox(height: 50,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              LinearProgressIndicator(
-                value: progress,
-                backgroundColor: AppColors().black1,
-                color: AppColors().green,
-
-              ),
-              Center(
-                child: Text(
-                  '${(100 * progress).roundToDouble()}%',
-                  style: TextStyle(
-                    color: AppColors().white
-                  ),
-                ),
-              )
-
-            ],
-          ),);
-        }else{
-          return SizedBox(height: 50.h,);
-        }
-      });
-
-
 }

@@ -1,12 +1,12 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../authentication/auth_screen.dart';
+import '../authentication/auth_screen.dart'; // Import the ConfirmationScreen widget
 import '../global/global.dart';
+import '../mainScreen/confirmation_Screen.dart';
 import '../mainScreen/home_screen.dart';
-
-
 
 class MySplashScreen extends StatefulWidget {
   const MySplashScreen({super.key});
@@ -19,7 +19,17 @@ class _MySplashScreenState extends State<MySplashScreen> {
   startTimer() {
     Timer(const Duration(seconds: 4), () async {
       if (firebaseAuth.currentUser != null) {
-        Navigator.push(context, MaterialPageRoute(builder: (c) => const HomeScreen()));
+        // Check if user is disapproved
+        String? currentUserUID = firebaseAuth.currentUser!.uid;
+        DocumentSnapshot userSnapshot = await FirebaseFirestore.instance.collection('riders').doc(currentUserUID).get();
+        String userStatus = userSnapshot.get('status');
+
+        if (userStatus == 'disapproved') {
+          // Navigate to confirmation screen if disapproved
+          Navigator.push(context, MaterialPageRoute(builder: (c) => const ConfirmationScreen()));
+        } else {
+          Navigator.push(context, MaterialPageRoute(builder: (c) => const HomeScreen()));
+        }
       } else {
         Navigator.push(context, MaterialPageRoute(builder: (c) => const AuthScreen()));
       }
@@ -70,4 +80,3 @@ class _MySplashScreenState extends State<MySplashScreen> {
     );
   }
 }
-
