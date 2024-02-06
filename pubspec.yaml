@@ -35,6 +35,7 @@ dependencies:
   flutter_polyline_points: ^2.0.0
   fluttertoast: ^8.2.4
   smooth_star_rating_null_safety: ^1.0.4+2
+  file_picker: ^6.1.1
 
 
 dev_dependencies:

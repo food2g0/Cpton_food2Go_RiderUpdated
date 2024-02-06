@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cpton_food2go_rider/mainScreen/document_submition.dart';
 import 'package:cpton_food2go_rider/theme/Colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -354,6 +355,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     width: 150, // Set the desired width
                     child: ElevatedButton(
                       onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (c)=>DocumentSubmition()));
                         formValidation();
                       },
                       style: ElevatedButton.styleFrom(

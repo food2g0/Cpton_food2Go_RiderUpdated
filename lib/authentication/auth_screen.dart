@@ -11,6 +11,7 @@ import '../Widgets/custom_text_field.dart';
 import '../Widgets/error_dialog.dart';
 import '../Widgets/loading_dialog.dart';
 import '../global/global.dart';
+import '../mainScreen/confirmation_Screen.dart';
 import '../mainScreen/home_screen.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -40,72 +41,90 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  loginNow()async
-  {
-    showDialog(context: context, builder: (c) {
-      return LoadingDialog(message: "Checking credentials",);
-    }
+  Future<void> loginNow() async {
+    showDialog(
+      context: context,
+      builder: (c) {
+        return LoadingDialog(
+          message: "Checking credentials",
+        );
+      },
     );
 
     User? currentUser;
-    await firebaseAuth.signInWithEmailAndPassword(
+    await firebaseAuth
+        .signInWithEmailAndPassword(
       email: emailcontroller.text.trim(),
       password: passwordcontroller.text.trim(),
-    ).then((auth)
-    {
+    )
+        .then((auth) {
       currentUser = auth.user!;
     }).catchError((error) {
-      Navigator.pop(context as BuildContext);
+      Navigator.pop(context);
 
-      showDialog(context: context, builder: (c) {
-        return ErrorDialog(message: error.message.toString(),
-        );
-      }
+      showDialog(
+        context: context,
+        builder: (c) {
+          return ErrorDialog(
+            message: error.message.toString(),
+          );
+        },
       );
     });
-    if (currentUser != null)
-      {
-          readDataAndSetDataLocally(currentUser!);
-      }
+
+    if (currentUser != null) {
+      await readDataAndSetDataLocally(currentUser!);
+    }
   }
 
-  Future readDataAndSetDataLocally(User currentUser) async
-  {
-    await FirebaseFirestore.instance.collection("riders")
+  Future<void> readDataAndSetDataLocally(User currentUser) async {
+    await FirebaseFirestore.instance
+        .collection("riders")
         .doc(currentUser.uid)
         .get()
-        .then((snapshot)
-    async {
-          if(snapshot.exists)
-          {
-            await sharedPreferences!.setString("uid", currentUser.uid);
-            await sharedPreferences!.setString("email", snapshot.data()!["riderEmail"]);
-            await sharedPreferences!.setString("name", snapshot.data()!["riderName"]);
+        .then((snapshot) async {
+      if (snapshot.exists) {
+        String status = snapshot.data()!["status"];
 
-            Navigator.pop(context as BuildContext);
-            Navigator.push(context as BuildContext, MaterialPageRoute(builder: (c)=> const HomeScreen()));
+        if (status == "disapproved") {
+          // Status is disapproved, navigate to the ConfirmationScreen
+          Navigator.pop(context);
+          Route newRoute = MaterialPageRoute(
+            builder: (c) => const ConfirmationScreen(),
+          );
+          Navigator.pushReplacement(context, newRoute);
+        } else {
+          // Status is not disapproved, proceed with login
+          await sharedPreferences!.setString("uid", currentUser.uid);
+          await sharedPreferences!.setString("email", snapshot.data()!["riderEmail"]);
+          await sharedPreferences!.setString("name", snapshot.data()!["riderName"]);
 
-          }
-          else
-          {
-            firebaseAuth.signOut();
-            Navigator.pop(context as BuildContext);
-            Navigator.push(context as BuildContext, MaterialPageRoute(builder: (c)=> const AuthScreen()));
+          Navigator.pop(context);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (c) => const HomeScreen()),
+          );
+        }
+      } else {
+        firebaseAuth.signOut();
+        Navigator.pop(context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (c) => const AuthScreen()),
+        );
 
-            showDialog(
-                context: context,
-                builder: (c)
-                {
-                  return ErrorDialog(
-                    message: "no record exists.",
-                  );
-                }
+        showDialog(
+          context: context,
+          builder: (c) {
+            return ErrorDialog(
+              message: "No record exists.",
             );
-
-          }
-
+          },
+        );
+      }
     });
   }
+
 
 
   @override
