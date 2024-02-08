@@ -191,9 +191,11 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
         FirebaseFirestore.instance
             .collection("sellers")
             .doc(widget.sellerId)
+            .collection("sales")
+            .doc("02_February")
             .update(
             {
-              "earnings": (double.parse(orderTotalAmount!) + previousRiderEarningsValue).toString(),
+              "saleVal": (double.parse(orderTotalAmount!) + previousRiderEarningsValue).toString(),
             });
       }).then((value)
       {
