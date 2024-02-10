@@ -42,66 +42,60 @@ class _OrderInProgressState extends State<OrderInProgress> {
           centerTitle: false,
           automaticallyImplyLeading: true,
         ),
-        body: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection("orders")
-              .where("status", isEqualTo: "accepted")
-              .where("riderUID", isEqualTo: sharedPreferences!.getString("uid"))
-              .orderBy("orderTime", descending: true)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Center(child: Text("Error: ${snapshot.error}"));
-            }
+        body:
+        Expanded( // Add another Expanded widget here
+          child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection("orders")
+                .where("status", isEqualTo: "accepted")
+                .orderBy("orderTime", descending: true)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              }
+              if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              }
 
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: circularProgress());
-            }
+              // Extract orders data from snapshot
+              List<DocumentSnapshot> orders = snapshot.data!.docs;
 
-            if (snapshot.data!.docs.isEmpty) {
-              // The stream has no items
-              return Center(child: Text("No orders in progress"));
-            }
+              // Build your UI using the orders data
+              return ListView.builder(
+                itemCount: orders.length,
+                itemBuilder: (context, index) {
+                  // Extract order details from each document snapshot
+                  dynamic productsData = orders[index].get("products");
+                  List<Map<String, dynamic>> productList = [];
+                  if (productsData != null && productsData is List) {
+                    productList =
+                    List<Map<String, dynamic>>.from(productsData);
+                  }
 
-            // The stream has items, proceed with building the UI
-            return ListView.builder(
-              itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, index) {
-                return StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection("items")
-                      .where(
-                    "productsID",
-                    whereIn: separateOrderItemIDs(
-                      (snapshot.data!.docs[index].data()!
-                      as Map<String, dynamic>)["productsIDs"],
-                    ),
-                  )
-                      .where(
-                    "orderBy",
-                    whereIn: (snapshot.data!.docs[index].data()!
-                    as Map<String, dynamic>)["uid"],
-                  )
-                      .orderBy("publishedDate", descending: true)
-                      .snapshots(),
-                  builder: (context, snap) {
-                    return snap.hasData
-                        ? OrderCard(
-                      itemCount: snap.data!.docs.length,
-                      data: snap.data!.docs,
-                      orderID: snapshot.data!.docs[index].id,
-                      seperateQuantitiesList:
-                      separateOrderItemQuantities(
-                        (snapshot.data!.docs[index].data()!
-                        as Map<String, dynamic>)["productsIDs"],
+                  print("Product List: $productList"); // Print productList
+
+                  return Column(
+                    children: [
+                      OrderCard(
+                        itemCount: productList.length,
+                        data: productList,
+                        orderID: snapshot.data!.docs[index].id,
+                        sellerName: "", // Pass the seller's name
+                        paymentDetails:
+                        snapshot.data!.docs[index].get("paymentDetails"),
+                        totalAmount:
+                        snapshot.data!.docs[index].get("totalAmount").toString(),
+                        cartItems: productList, // Pass the products list
                       ),
-                    )
-                        : Center(child: circularProgress());
-                  },
-                );
-              },
-            );
-          },
+                      if (productList.length > 1)
+                        SizedBox(height: 10), // Adjust the height as needed
+                    ],
+                  );
+                },
+              );
+            },
+          ),
         ),
         bottomNavigationBar: Theme(
           data: ThemeData(

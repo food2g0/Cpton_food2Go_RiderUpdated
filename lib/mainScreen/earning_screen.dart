@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpton_food2go_rider/global/global.dart';
 import 'package:cpton_food2go_rider/mainScreen/home_screen.dart';
 import 'package:cpton_food2go_rider/theme/Colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -10,8 +11,6 @@ import '../Widgets/progress_bar.dart';
 import '../assisstantMethod/assistant_methods.dart';
 import 'history_screen.dart';
 import 'order_in_progress.dart';
-
-// ... Your imports
 
 class EarningScreen extends StatefulWidget {
   const EarningScreen({Key? key}) : super(key: key);
@@ -25,6 +24,7 @@ class _EarningScreenState extends State<EarningScreen> {
 
   @override
   Widget build(BuildContext context) {
+    String riderUID = FirebaseAuth.instance.currentUser!.uid;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -101,43 +101,59 @@ class _EarningScreenState extends State<EarningScreen> {
           ),
           SizedBox(height: 20,),
           Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection("orders")
-                  .where("riderUID", isEqualTo: sharedPreferences!.getString("uid"))
-                  .where("status", isEqualTo: "ended")
-                  .snapshots(),
-              builder: (c, snapshot) {
-                return snapshot.hasData
-                    ? ListView.builder(
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (c, index) {
-                    return FutureBuilder<QuerySnapshot>(
-                      future: FirebaseFirestore.instance
-                          .collection("items")
-                          .where("productsID",
-                          whereIn: separateOrderItemIDs(
-                              (snapshot.data!.docs[index].data()! as Map<String, dynamic>)["productsIDs"]))
-                          .orderBy("publishedDate", descending: true)
-                          .get(),
-                      builder: (c, snap) {
-                        return snap.hasData
-                            ? OrderCard(
-                          itemCount: snap.data!.docs.length,
-                          data: snap.data!.docs,
-                          orderID: snapshot.data!.docs[index].id,
-                          seperateQuantitiesList: separateOrderItemQuantities(
-                              (snapshot.data!.docs[index].data()! as Map<String, dynamic>)["productsIDs"]),
-                        )
-                            : Center(child: circularProgress());
-                      },
-                    );
-                  },
-                )
-                    : Center(
-                  child: circularProgress(),
-                );
-              },
+            child: SizedBox(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection("orders")
+                    .where("status", isEqualTo: "ended")
+                    .where("riderUID", isEqualTo: riderUID) // Filter by rider ID
+                    .orderBy("orderTime", descending: true)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+
+                  // Extract orders data from snapshot
+                  List<DocumentSnapshot> orders = snapshot.data!.docs;
+
+                  // Build your UI using the orders data
+                  return ListView.builder(
+                    itemCount: orders.length,
+                    itemBuilder: (context, index) {
+                      // Extract order details from each document snapshot
+                      dynamic productsData = orders[index].get("products");
+                      List<Map<String, dynamic>> productList = [];
+                      if (productsData != null && productsData is List) {
+                        productList =
+                        List<Map<String, dynamic>>.from(productsData);
+                      }
+
+                      print("Product List: $productList"); // Print productList
+
+                      return Column(
+                        children: [
+                          OrderCard(
+                            itemCount: productList.length,
+                            data: productList,
+                            orderID: snapshot.data!.docs[index].id,
+                            sellerName: "", // Pass the seller's name
+                            paymentDetails:
+                            snapshot.data!.docs[index].get("paymentDetails"),
+                            totalAmount: snapshot.data!.docs[index].get("totalAmount").toString(),
+                            cartItems: productList, // Pass the products list
+                          ),
+                          if (productList.length > 1)
+                            SizedBox(height: 10), // Adjust the height as needed
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ),
         ],
@@ -189,6 +205,3 @@ class _EarningScreenState extends State<EarningScreen> {
     );
   }
 }
-
-
-
