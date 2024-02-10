@@ -195,7 +195,7 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
             .doc("02_February")
             .update(
             {
-              "saleVal": (double.parse(orderTotalAmount!) + previousRiderEarningsValue).toString(),
+              "saleVal": (double.parse(orderTotalAmount!) + previousRiderEarningsValue),
             });
       }).then((value)
       {
