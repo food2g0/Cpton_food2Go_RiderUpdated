@@ -37,61 +37,57 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ),),
         ),
 
-        body: Expanded(
-          // Add another Expanded widget here
-          child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection("orders")
-                .where("status", isEqualTo: "ended")
-                .where("riderUID", isEqualTo: riderUID) // Filter by rider ID
-                .orderBy("orderTime", descending: true)
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
-              }
-              if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              }
+        body: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection("orders")
+              .where("status", isEqualTo: "rated")
+              .where("riderUID", isEqualTo: riderUID) // Filter by rider ID
+              .orderBy("orderTime", descending: true)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            }
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
 
-              // Extract orders data from snapshot
-              List<DocumentSnapshot> orders = snapshot.data!.docs;
+            // Extract orders data from snapshot
+            List<DocumentSnapshot> orders = snapshot.data!.docs;
 
-              // Build your UI using the orders data
-              return ListView.builder(
-                itemCount: orders.length,
-                itemBuilder: (context, index) {
-                  // Extract order details from each document snapshot
-                  dynamic productsData = orders[index].get("products");
-                  List<Map<String, dynamic>> productList = [];
-                  if (productsData != null && productsData is List) {
-                    productList =
-                    List<Map<String, dynamic>>.from(productsData);
-                  }
+            // Build your UI using the orders data
+            return ListView.builder(
+              itemCount: orders.length,
+              itemBuilder: (context, index) {
+                // Extract order details from each document snapshot
+                dynamic productsData = orders[index].get("products");
+                List<Map<String, dynamic>> productList = [];
+                if (productsData != null && productsData is List) {
+                  productList =
+                  List<Map<String, dynamic>>.from(productsData);
+                }
 
-                  print("Product List: $productList"); // Print productList
+                print("Product List: $productList"); // Print productList
 
-                  return Column(
-                    children: [
-                      OrderCard(
-                        itemCount: productList.length,
-                        data: productList,
-                        orderID: snapshot.data!.docs[index].id,
-                        sellerName: "", // Pass the seller's name
-                        paymentDetails:
-                        snapshot.data!.docs[index].get("paymentDetails"),
-                        totalAmount: snapshot.data!.docs[index].get("totalAmount").toString(),
-                        cartItems: productList, // Pass the products list
-                      ),
-                      if (productList.length > 1)
-                        SizedBox(height: 10), // Adjust the height as needed
-                    ],
-                  );
-                },
-              );
-            },
-          ),
-
+                return Column(
+                  children: [
+                    OrderCard(
+                      itemCount: productList.length,
+                      data: productList,
+                      orderID: snapshot.data!.docs[index].id,
+                      sellerName: "", // Pass the seller's name
+                      paymentDetails:
+                      snapshot.data!.docs[index].get("paymentDetails"),
+                      totalAmount: snapshot.data!.docs[index].get("totalAmount").toString(),
+                      cartItems: productList, // Pass the products list
+                    ),
+                    if (productList.length > 1)
+                      SizedBox(height: 10), // Adjust the height as needed
+                  ],
+                );
+              },
+            );
+          },
         ),
         bottomNavigationBar: Theme(
           data: ThemeData(

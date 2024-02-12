@@ -4,11 +4,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpton_food2go_rider/Maps/const.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_place_search_advance/google_maps_place_search_advance.dart';
 import 'package:location/location.dart' as loc;
 import 'package:permission_handler/permission_handler.dart';
 
+import '../assisstantMethod/black_theme_google_map.dart';
 import '../theme/Colors.dart';
 
 class RiderToCustomerMap extends StatefulWidget {
@@ -22,6 +24,7 @@ class RiderToCustomerMap extends StatefulWidget {
   String? riderName;
   String? riderUID;
   String? customersUID;
+  String? purchaserName;
   double? customerLatitude;
   double? customerLongitude;
 
@@ -36,7 +39,8 @@ class RiderToCustomerMap extends StatefulWidget {
     this.customerLongitude,
     this.riderName,
     this.riderUID,
-    this.customersUID
+    this.customersUID,
+    this.purchaserName
   });
 
   @override
@@ -45,18 +49,18 @@ class RiderToCustomerMap extends StatefulWidget {
 
 class _RiderToCustomerMapState extends State<RiderToCustomerMap> {
 
-
-
+  late Stream<DocumentSnapshot> _orderStream;
   final loc.Location location = loc.Location();
-  late double destinationLatitude;
-  late double destinationLongitude;
-  late double originlatitude;
-  late double originlongitude;
+  double destinationLatitude = 0.0; // Default value
+  double destinationLongitude = 0.0; // Default value
+  double originlatitude = 0.0; // Default value
+  double originlongitude = 0.0; // Default value
   StreamSubscription<loc.LocationData>? _locationSubscription;
   GoogleMapController? _googleMapController;
   Marker? _origin;
   Marker? _destination;
   Set<Polyline> _polylines = {};
+  double mapPadding = 0;
 
   @override
   void initState() {
@@ -66,6 +70,12 @@ class _RiderToCustomerMapState extends State<RiderToCustomerMap> {
     _fetchDestinationData();
     _requestPermission();
     _subscribeToLocationUpdates();
+    originlatitude = 0.0;
+    originlongitude = 0.0;
+    _orderStream = FirebaseFirestore.instance
+        .collection('orders')
+        .doc(widget.getOrderID)
+        .snapshots();
   }
 
   @override
@@ -84,7 +94,6 @@ class _RiderToCustomerMapState extends State<RiderToCustomerMap> {
     });
   }
 
-
   Future<void> _updateUserLocationOnMap(DocumentSnapshot snapshot) async {
     double originlatitude = snapshot['latitude'];
     double originlongitude = snapshot['longitude'];
@@ -94,7 +103,7 @@ class _RiderToCustomerMapState extends State<RiderToCustomerMap> {
         markerId: const MarkerId('origin'),
         infoWindow: const InfoWindow(title: 'Origin'),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-        position: LatLng(originlatitude, originlongitude),
+        position: LatLng(0.0, 0.0),
       );
 
       if (_googleMapController != null) {
@@ -160,9 +169,9 @@ class _RiderToCustomerMapState extends State<RiderToCustomerMap> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors().red,
@@ -171,59 +180,222 @@ class _RiderToCustomerMapState extends State<RiderToCustomerMap> {
           style: TextStyle(fontSize: 12, color: AppColors().white),
         ),
       ),
-      body: Stack(
-        children: [
-          GoogleMap(
-            mapType: MapType.normal,
-            onMapCreated: (controller) {
-              _googleMapController = controller;
-            },
-            markers: _getMarkers(),
-            polylines: _polylines,
-            initialCameraPosition: const CameraPosition(
-              target: LatLng(0.0, 0.0),
-            ),
-          ),
-          Positioned(
-            bottom: 16.0,
-            child: FloatingActionButton(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.black,
-              onPressed: () {
-                _fetchDestinationData();
-              },
-              child: const Icon(Icons.location_on),
-            ),
-          ),
-          Positioned(
-            bottom: 70.0,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: ElevatedButton(
-                onPressed: () {
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: _orderStream,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          // Extract order data from the snapshot
+          var orderData = snapshot.data!.data() as Map<String, dynamic>?;
+
+          if (orderData == null) {
+            return Center(child: Text('No order data available'));
+          }
+
+          String paymentDetails = orderData['paymentDetails'] ?? '';
+          double totalAmount = orderData['totalAmount'] ?? 0.0;
+
+          // Build your UI based on order data
+          return Stack(
+            children: [
+              GoogleMap(
+                mapType: MapType.normal,
+                onMapCreated: (controller) {
+                  _googleMapController = controller;
+
+                  setState(() {
+                    mapPadding = 350.h;
+                  });
                 },
-                style: ElevatedButton.styleFrom(
-                  primary: AppColors().red, // Set the background color
-                  onPrimary: Colors.white, // Set the text color
-                  minimumSize: Size(200.0, 50.0), // Set the button size
+                markers: _getMarkers(),
+                padding: EdgeInsets.only(bottom: mapPadding),
+                polylines: _polylines,
+                initialCameraPosition: CameraPosition(
+                  target: LatLng(originlatitude,originlongitude),
                 ),
-                child: Text('Parcel has been Picked',
-                  style: TextStyle(
-                      fontFamily: "Poppins"
-                  ),),
               ),
-            ),
-          ),
-        ],
+
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors().black,
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10)
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+                    child: Column(
+                      children: [
+
+                        //duration
+                        Text(
+                          "18 mins",
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.lightGreenAccent,
+                          ),
+                        ),
+
+                        const SizedBox(height: 18,),
+
+                        const Divider(
+                          thickness: 2,
+                          height: 2,
+                          color: Colors.grey,
+                        ),
+
+                        const SizedBox(height: 8,),
+
+                        //user name - icon
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text("Address: ",
+                              style: TextStyle(
+                                  color: AppColors().white,
+                                  fontSize: 12.sp,
+                                  fontFamily: "Poppins"
+                              ),),
+                            SizedBox(width: 14.w,),
+                            Text(
+                              widget.purchaserAddress.toString(),
+                              style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors().red,
+                                  fontFamily: "Poppins"
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 10.h,),
+
+                        //user DropOff Address with icon
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text("Name:",
+                              style:
+                              TextStyle(
+                                  color: AppColors().white,
+                                  fontFamily: "Poppins",
+                                  fontSize: 12.sp
+                              ),),
+
+                            SizedBox(width: 14.w,),
+                            Text(
+                              widget.purchaserName.toString(),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text("Payment Details:",
+                              style:
+                              TextStyle(
+                                  color: AppColors().white,
+                                  fontFamily: "Poppins",
+                                  fontSize: 12.sp
+                              ),),
+
+                            SizedBox(width: 14.w,),
+                            Text(
+                              paymentDetails,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text("Total Amount:",
+                              style:
+                              TextStyle(
+                                  color: AppColors().white,
+                                  fontFamily: "Poppins",
+                                  fontSize: 12.sp
+                              ),),
+
+                            SizedBox(width: 14.w,),
+                            Text(
+                              totalAmount.toString(),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 24,),
+
+                        const Divider(
+                          thickness: 2,
+                          height: 2,
+                          color: Colors.grey,
+                        ),
+
+                        const SizedBox(height: 10.0),
+
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            // Handle button press
+                          },
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)
+                            ),
+                            primary: AppColors().red,
+                          ),
+                          icon: const Icon(
+                            Icons.directions_car,
+                            color: Colors.white,
+                            size: 25,
+                          ),
+                          label: Text(
+                            "Navigate",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
-
   Set<Marker> _getMarkers() {
     final Set<Marker> markers = {};
-
     if (_origin != null) markers.add(_origin!);
     if (_destination != null) markers.add(_destination!);
 
@@ -251,6 +423,4 @@ class _RiderToCustomerMapState extends State<RiderToCustomerMap> {
       print("Error fetching location data: $e");
     }
   }
-
-
 }

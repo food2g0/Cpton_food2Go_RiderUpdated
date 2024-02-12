@@ -18,6 +18,7 @@ class ParcelDeliveringScreen extends StatefulWidget
   String? customersUID;
   String? sellerId;
   String? getOrderId;
+  String? purchaserName;
 
   ParcelDeliveringScreen({
     this.purchaserId,
@@ -25,6 +26,7 @@ class ParcelDeliveringScreen extends StatefulWidget
     this.customersUID,
     this.sellerId,
     this.getOrderId,
+    this.purchaserName
   });
 
 
@@ -315,6 +317,8 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
                                         customerLatitude: customerLat,
                                         customerLongitude: customerLng,
                                         purchaserAddress: customerAddress,
+                                        getOrderID: widget.getOrderId,
+                                        purchaserName: widget.purchaserName,
                                       ),
                                     ),
                                   );

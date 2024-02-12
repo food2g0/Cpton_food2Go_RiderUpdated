@@ -88,6 +88,7 @@ class _ShipmentAddressDesignState extends State<ShipmentAddressDesign> {
         purchaserAddress: widget.model!.fullAddress,
         purchaserLat: widget.model!.lat,
         purchaserLng: widget.model!.lng,
+        purchaserName: widget.model!.name!,
         sellerId: sellerId,
         getOrderID: getOrderID,
       )));

@@ -19,6 +19,7 @@ class ParcelPickingScreen extends StatefulWidget
   String? sellerId;
   String? getOrderID;
   String? purchaserAddress;
+  String? purchaserName;
   double? purchaserLat;
   double? purchaserLng;
   String? riderName;
@@ -34,7 +35,8 @@ class ParcelPickingScreen extends StatefulWidget
     this.riderName,
     this.purchaserLng,
     this.riderUID,
-    this.orderByUser
+    this.orderByUser,
+    this.purchaserName
   });
 
   @override
@@ -49,6 +51,7 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
   StreamSubscription<loc.LocationData>? _locationSubscription;
   double? sellerLat, sellerLng;
   String? sellerAddress;
+  String? sellerName;
 
 
   @override
@@ -70,6 +73,7 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
     {
       sellerLat = DocumentSnapshot.data()!["lat"];
       sellerLng = DocumentSnapshot.data()!["lng"];
+      sellerName = DocumentSnapshot.data()!["sellersName"];
       sellerAddress = DocumentSnapshot.data()!["sellersAddress"];
     });
   }
@@ -102,6 +106,7 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
       purchaserAddress: purchaserAddress,
       sellerId: sellerId,
       getOrderId: getOrderId,
+      purchaserName: widget.purchaserName,
     )));
   }
 
@@ -152,6 +157,8 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
                                     user_id: snapshot.data!.docs[index].id,
                                     sellerUID: widget.sellerId ?? "",
                                     sellerAddress: sellerAddress,
+                                    getOrderID: widget.getOrderID,
+                                    sellerName: sellerName,
                                   ),
                                 ),
                               );
@@ -228,7 +235,7 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
       await FirebaseFirestore.instance.collection('location').doc('user1').set({
         'latitude': currentlocation.latitude,
         'longitude': currentlocation.longitude,
-        'name': 'john'
+        'name': widget.riderName,
       }, SetOptions(merge: true));
     });
   }

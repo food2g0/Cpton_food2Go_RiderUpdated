@@ -6,8 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:smooth_star_rating_null_safety/smooth_star_rating_null_safety.dart';
-
-import '../authentication/auth_screen.dart';
 import '../global/global.dart';
 import '../mainScreen/earning_screen.dart';
 import '../mainScreen/history_screen.dart';
@@ -77,7 +75,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-        centerTitle: false,
         automaticallyImplyLeading: true,
       ),
       drawer: RidersDrawer(),
@@ -206,125 +203,118 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            Expanded( // Add an Expanded widget here
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    // Your existing code for the welcome card and ratings display
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "New Order",
-                        style: TextStyle(
-                          fontFamily: "Poppins",
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors().black,
-                        ),
-                      ),
-                    ),
-                    Expanded( // Add another Expanded widget here
-                      child: StreamBuilder<QuerySnapshot>(
-                        stream: FirebaseFirestore.instance
-                            .collection("orders")
-                            .where("status", isEqualTo: "normal")
-                            .orderBy("orderTime", descending: true)
-                            .snapshots(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return CircularProgressIndicator();
-                          }
-                          if (snapshot.hasError) {
-                            return Text('Error: ${snapshot.error}');
-                          }
-
-                          // Extract orders data from snapshot
-                          List<DocumentSnapshot> orders = snapshot.data!.docs;
-
-                          // Build your UI using the orders data
-                          return ListView.builder(
-                            itemCount: orders.length,
-                            itemBuilder: (context, index) {
-                              // Extract order details from each document snapshot
-                              dynamic productsData = orders[index].get("products");
-                              List<Map<String, dynamic>> productList = [];
-                              if (productsData != null && productsData is List) {
-                                productList =
-                                List<Map<String, dynamic>>.from(productsData);
-                              }
-
-                              print("Product List: $productList"); // Print productList
-
-                              return Column(
-                                children: [
-                                  OrderCard(
-                                    itemCount: productList.length,
-                                    data: productList,
-                                    orderID: snapshot.data!.docs[index].id,
-                                    sellerName: "", // Pass the seller's name
-                                    paymentDetails:
-                                    snapshot.data!.docs[index].get("paymentDetails"),
-                                    totalAmount:
-                                    snapshot.data!.docs[index].get("totalAmount").toString(),
-                                    cartItems: productList, // Pass the products list
-                                  ),
-                                  if (productList.length > 1)
-                                    SizedBox(height: 10), // Adjust the height as needed
-                                ],
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "New Order",
+                style: TextStyle(
+                  fontFamily: "Poppins",
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors().black,
                 ),
+              ),
+            ),
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection("orders")
+                    .where("status", isEqualTo: "normal")
+                    .orderBy("orderTime", descending: true)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+
+                  // Extract orders data from snapshot
+                  List<DocumentSnapshot> orders = snapshot.data!.docs;
+
+                  // Build your UI using the orders data
+                  return ListView.builder(
+                    itemCount: orders.length,
+                    itemBuilder: (context, index) {
+                      // Extract order details from each document snapshot
+                      dynamic productsData = orders[index].get("products");
+                      List<Map<String, dynamic>> productList = [];
+                      if (productsData != null && productsData is List) {
+                        productList =
+                        List<Map<String, dynamic>>.from(productsData);
+                      }
+
+                      print("Product List: $productList"); // Print productList
+
+                      return Column(
+                        children: [
+                          OrderCard(
+                            itemCount: productList.length,
+                            data: productList,
+                            orderID: snapshot.data!.docs[index].id,
+                            sellerName: "", // Pass the seller's name
+                            paymentDetails:
+                            snapshot.data!.docs[index].get("paymentDetails"),
+                            totalAmount:
+                            snapshot.data!.docs[index].get("totalAmount").toString(),
+                            cartItems: productList, // Pass the products list
+                          ),
+                          if (productList.length > 1)
+                            SizedBox(height: 10), // Adjust the height as needed
+                        ],
+                      );
+                    },
+                  );
+                },
               ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+      bottomNavigationBar: Theme(
+        data: ThemeData(
+          canvasColor: AppColors().black,
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
 
-          // Handle navigation to different screens based on index
-          if (index == 1) {
-            // Navigate to History screen
-            Navigator.push(context, MaterialPageRoute(builder: (c) => HistoryScreen()));
-          } else if (index == 2) {
-            // Navigate to Earnings screen
-            Navigator.push(context, MaterialPageRoute(builder: (c) => EarningScreen()));
-          } else if (index == 3) {
-            // Navigate to Ongoing Delivery screen
-            Navigator.push(context, MaterialPageRoute(builder: (c) => OrderInProgress()));
-          }
-        },
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: 'History',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.monetization_on),
-            label: 'Earnings',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.delivery_dining),
-            label: 'Ongoing Delivery',
-          ),
-        ],
-        selectedItemColor: Colors.black, // Color of the selected item
-        unselectedItemColor: Colors.black54, // Color of the unselected items
-        backgroundColor: Colors.white, // Background color of the bottom navigation bar
+            // Handle navigation to different screens based on index
+            if (index == 0) {
+              Navigator.push(context, MaterialPageRoute(builder: (c) => HomeScreen()));
+            } else if (index == 1) {
+              Navigator.push(context, MaterialPageRoute(builder: (c) => HistoryScreen()));
+            } else if (index == 2) {
+              Navigator.push(context, MaterialPageRoute(builder: (c) => EarningScreen()));
+            } else if (index == 3) {
+              Navigator.push(context, MaterialPageRoute(builder: (c) => OrderInProgress()));
+            }
+          },
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.grey,
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.history),
+              label: 'History',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.monetization_on),
+              label: 'Earnings',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.delivery_dining),
+              label: 'Ongoing Delivery',
+            ),
+          ],
+        ),
       ),
 
     );
