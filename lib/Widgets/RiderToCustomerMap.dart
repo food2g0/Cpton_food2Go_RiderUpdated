@@ -53,8 +53,6 @@ class _RiderToCustomerMapState extends State<RiderToCustomerMap> {
   final loc.Location location = loc.Location();
   double destinationLatitude = 0.0; // Default value
   double destinationLongitude = 0.0; // Default value
-  double originlatitude = 0.0; // Default value
-  double originlongitude = 0.0; // Default value
   StreamSubscription<loc.LocationData>? _locationSubscription;
   GoogleMapController? _googleMapController;
   Marker? _origin;
@@ -70,8 +68,7 @@ class _RiderToCustomerMapState extends State<RiderToCustomerMap> {
     _fetchDestinationData();
     _requestPermission();
     _subscribeToLocationUpdates();
-    originlatitude = 0.0;
-    originlongitude = 0.0;
+
     _orderStream = FirebaseFirestore.instance
         .collection('orders')
         .doc(widget.getOrderID)
@@ -104,6 +101,7 @@ class _RiderToCustomerMapState extends State<RiderToCustomerMap> {
         infoWindow: const InfoWindow(title: 'Origin'),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
         position: LatLng(0.0, 0.0),
+
       );
 
       if (_googleMapController != null) {
@@ -130,6 +128,7 @@ class _RiderToCustomerMapState extends State<RiderToCustomerMap> {
         );
       }
     });
+    print("myorigin: $_origin");
   }
 
   Future<void> _updateUserLocation(double latitude, double longitude) async {
@@ -217,7 +216,7 @@ class _RiderToCustomerMapState extends State<RiderToCustomerMap> {
                 padding: EdgeInsets.only(bottom: mapPadding),
                 polylines: _polylines,
                 initialCameraPosition: CameraPosition(
-                  target: LatLng(originlatitude,originlongitude),
+                  target: LatLng(0,0),
                 ),
               ),
 

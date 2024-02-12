@@ -30,11 +30,10 @@ class RiderToSellerMap extends StatefulWidget {
   String? riderUID;
   String? sellerName;
 
-
-
   RiderToSellerMap({
     required this.user_id,
-    required this.sellerUID,  this.sellerAddress,
+    required this.sellerUID,
+    this.sellerAddress,
     this.purchaserId,
     this.sellerId,
     this.getOrderID,
@@ -43,7 +42,7 @@ class RiderToSellerMap extends StatefulWidget {
     this.riderName,
     this.purchaserLng,
     this.riderUID,
-    this.sellerName
+    this.sellerName,
   });
 
   @override
@@ -51,8 +50,6 @@ class RiderToSellerMap extends StatefulWidget {
 }
 
 class _RiderToSellerMapState extends State<RiderToSellerMap> {
-
-
   late Stream<DocumentSnapshot> _orderStream;
   final loc.Location location = loc.Location();
   double destinationLatitude = 0.0; // Default value
@@ -60,12 +57,11 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
   double originlatitude = 0.0; // Default value
   double originlongitude = 0.0; // Default value
   double mapPadding = 0;
-  StreamSubscription<loc.LocationData>? _locationSubscription;
+  StreamSubscription<DocumentSnapshot>? _locationSubscription;
   GoogleMapController? _googleMapController;
   Marker? _origin;
   Marker? _destination;
   Set<Polyline> _polylines = {};
-
 
   @override
   void initState() {
@@ -82,36 +78,15 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
         .doc(widget.getOrderID)
         .snapshots();
   }
+
   @override
   void dispose() {
-    _locationSubscription?.cancel(); // Cancel the subscription
+    _locationSubscription?.cancel();
     super.dispose();
   }
-  confirmParcelHasBeenPicked(getOrderId, sellerId, purchaserId, purchaserAddress, )
-  {
-    FirebaseFirestore.instance
-        .collection("orders")
-        .doc(getOrderId).update({
-      "status": "delivering",
-      "address": completeAddress,
-      // "lat": position!.latitude,
-      // "lng": position!.longitude,
-    });
-
-    Navigator.push(context, MaterialPageRoute(builder: (c)=> ParcelDeliveringScreen(
-      purchaserId: purchaserId,
-      purchaserAddress: purchaserAddress,
-
-      sellerId: sellerId,
-      getOrderId: getOrderId,
-    )));
-  }
-
-
-
 
   Future<void> _subscribeToLocationUpdates() async {
-    FirebaseFirestore.instance
+    _locationSubscription = FirebaseFirestore.instance
         .collection('location')
         .doc(widget.user_id)
         .snapshots()
@@ -120,17 +95,16 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
     });
   }
 
-
   Future<void> _updateUserLocationOnMap(DocumentSnapshot snapshot) async {
-    double originlatitude = snapshot['latitude1'];
-    double originlongitude = snapshot['longitude1'];
+    double originLatitude = snapshot['latitude1'];
+    double originLongitude = snapshot['longitude1'];
 
     setState(() {
       _origin = Marker(
         markerId: const MarkerId('origin'),
         infoWindow: const InfoWindow(title: 'Origin'),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-        position: LatLng(originlatitude, originlongitude),
+        position: LatLng(originLatitude, originLongitude),
       );
 
       if (_googleMapController != null) {
@@ -138,7 +112,7 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
           Polyline(
             polylineId: const PolylineId('route'),
             points: [
-              LatLng(originlatitude, originlongitude),
+              LatLng(originLatitude, originLongitude),
               LatLng(destinationLatitude, destinationLongitude),
             ],
             color: Colors.blue,
@@ -149,7 +123,7 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
         _googleMapController!.animateCamera(
           CameraUpdate.newCameraPosition(
             CameraPosition(
-              target: LatLng(originlatitude, originlongitude),
+              target: LatLng(originLatitude, originLongitude),
               zoom: 15.0,
               tilt: 45.0,
             ),
@@ -177,12 +151,12 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
     try {
       print("Fetching destination data for sellerUID: ${widget.sellerUID}");
 
-      var sellerSnapshot = await FirebaseFirestore.instance.collection('sellers').doc(widget.sellerUID).get();
+      var sellerSnapshot =
+      await FirebaseFirestore.instance.collection('sellers').doc(widget.sellerUID).get();
 
       if (sellerSnapshot.exists) {
         destinationLatitude = sellerSnapshot.data()!["lat"];
         destinationLongitude = sellerSnapshot.data()!["lng"];
-        // print("Seller Address: ${widget.sellerAddress}");
 
         setState(() {
           _destination = Marker(
@@ -225,7 +199,6 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
 
-          // Extract order data from the snapshot
           var orderData = snapshot.data!.data() as Map<String, dynamic>?;
 
           if (orderData == null) {
@@ -235,7 +208,6 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
           String paymentDetails = orderData['paymentDetails'] ?? '';
           double totalAmount = orderData['totalAmount'] ?? 0.0;
 
-          // Build your UI based on order data
           return Stack(
             children: [
               GoogleMap(
@@ -251,12 +223,10 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
                 markers: _getMarkers(),
                 polylines: _polylines,
                 initialCameraPosition: CameraPosition(
-                  // Set the target to the origin latitude and longitude
                   target: LatLng(originlatitude, originlongitude),
                   zoom: 15.0,
                 ),
               ),
-
               Positioned(
                 bottom: 50.0,
                 child: FloatingActionButton(
@@ -276,16 +246,14 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
                   decoration: BoxDecoration(
                     color: AppColors().black,
                     borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10)
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
                     ),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
                     child: Column(
                       children: [
-
-                        //duration
                         Text(
                           "18 mins",
                           style: TextStyle(
@@ -294,53 +262,48 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
                             color: Colors.lightGreenAccent,
                           ),
                         ),
-
                         const SizedBox(height: 18,),
-
                         const Divider(
                           thickness: 2,
                           height: 2,
                           color: Colors.grey,
                         ),
-
                         const SizedBox(height: 8,),
-
-                        //user name - icon
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text("Address: ",
+                            Text(
+                              "Address: ",
                               style: TextStyle(
-                                  color: AppColors().white,
-                                  fontSize: 12.sp,
-                                  fontFamily: "Poppins"
-                              ),),
+                                color: AppColors().white,
+                                fontSize: 12.sp,
+                                fontFamily: "Poppins",
+                              ),
+                            ),
                             SizedBox(width: 14.w,),
                             Text(
                               limitedAddress,
                               style: TextStyle(
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors().red,
-                                  fontFamily: "Poppins"
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors().red,
+                                fontFamily: "Poppins",
                               ),
                             ),
                           ],
                         ),
                         SizedBox(height: 10.h,),
-
-                        //user DropOff Address with icon
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text("Name:",
-                              style:
-                              TextStyle(
-                                  color: AppColors().white,
-                                  fontFamily: "Poppins",
-                                  fontSize: 12.sp
-                              ),),
-
+                            Text(
+                              "Name:",
+                              style: TextStyle(
+                                color: AppColors().white,
+                                fontFamily: "Poppins",
+                                fontSize: 12.sp,
+                              ),
+                            ),
                             SizedBox(width: 14.w,),
                             Text(
                               widget.sellerName.toString(),
@@ -354,14 +317,14 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text("Payment Details:",
-                              style:
-                              TextStyle(
-                                  color: AppColors().white,
-                                  fontFamily: "Poppins",
-                                  fontSize: 12.sp
-                              ),),
-
+                            Text(
+                              "Payment Details:",
+                              style: TextStyle(
+                                color: AppColors().white,
+                                fontFamily: "Poppins",
+                                fontSize: 12.sp,
+                              ),
+                            ),
                             SizedBox(width: 14.w,),
                             Text(
                               paymentDetails,
@@ -375,14 +338,14 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text("Total Amount:",
-                              style:
-                              TextStyle(
-                                  color: AppColors().white,
-                                  fontFamily: "Poppins",
-                                  fontSize: 12.sp
-                              ),),
-
+                            Text(
+                              "Total Amount:",
+                              style: TextStyle(
+                                color: AppColors().white,
+                                fontFamily: "Poppins",
+                                fontSize: 12.sp,
+                              ),
+                            ),
                             SizedBox(width: 14.w,),
                             Text(
                               totalAmount.toString(),
@@ -393,25 +356,20 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
                             ),
                           ],
                         ),
-
                         const SizedBox(height: 24,),
-
                         const Divider(
                           thickness: 2,
                           height: 2,
                           color: Colors.grey,
                         ),
-
                         const SizedBox(height: 10.0),
-
                         ElevatedButton.icon(
                           onPressed: () {
                             // Handle button press
-                            _stopListening;
                           },
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)
+                              borderRadius: BorderRadius.circular(10),
                             ),
                             primary: AppColors().red,
                           ),
@@ -429,7 +387,6 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
                             ),
                           ),
                         ),
-
                       ],
                     ),
                   ),
@@ -441,8 +398,6 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
       ),
     );
   }
-
-
 
   Set<Marker> _getMarkers() {
     final Set<Marker> markers = {};
@@ -467,18 +422,11 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
 
   Future<void> _fetchLocationData() async {
     try {
-      _locationSubscription = location.onLocationChanged.listen((loc.LocationData currentlocation) async {
-        await _updateUserLocation(currentlocation.latitude!, currentlocation.longitude!);
-      });
+      _locationSubscription = location.onLocationChanged.listen((loc.LocationData currentLocation) async {
+        await _updateUserLocation(currentLocation.latitude!, currentLocation.longitude!);
+      }) as StreamSubscription<DocumentSnapshot<Object?>>?;
     } catch (e) {
       print("Error fetching location data: $e");
     }
   }
-  _stopListening() {
-    _locationSubscription?.cancel();
-    setState(() {
-      _locationSubscription = null;
-    });
-  }
-
 }
