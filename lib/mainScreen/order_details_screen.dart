@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
+import '../Widgets/order_card.dart';
+
 class OrderDetailsScreen extends StatefulWidget {
   final String? orderID;
 
@@ -22,138 +24,157 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   String orderStatus = "";
   String orderByUser = "";
   String sellerId = "";
-  getOrderInfo() {
-    FirebaseFirestore.instance
-        .collection("orders")
-        .doc(widget.orderID)
-        .get()
-        .then((DocumentSnapshot) {
-      orderStatus = DocumentSnapshot.data()!["status"].toString();
-      orderByUser = DocumentSnapshot.data()!["orderBy"].toString();
-      sellerId = DocumentSnapshot.data()!["sellerUID"].toString();
-    });
-  }
+  String products = "";
+  String paymentDetails = "";
+  late Future<DocumentSnapshot> _orderInfoFuture;
 
   @override
   void initState() {
-
     super.initState();
-    getOrderInfo();
+    _orderInfoFuture = getOrderInfo();
   }
+
+  Future<DocumentSnapshot> getOrderInfo() {
+    return FirebaseFirestore.instance
+        .collection("orders")
+        .doc(widget.orderID)
+        .get();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors().red,
-        title: Text("Order Details",
-        style:
-          TextStyle(
+        title: Text(
+          "Order Details",
+          style: TextStyle(
             fontSize: 14.sp,
             color: AppColors().white,
-            fontFamily: "Poppins"
-          ),),
+            fontFamily: "Poppins",
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: FutureBuilder<DocumentSnapshot>(
-          future: FirebaseFirestore.instance
-              .collection("orders")
-              .doc(widget.orderID)
-              .get(),
+          future: _orderInfoFuture,
           builder: (context, snapshot) {
-            Map ? dataMap;
-            if (snapshot.hasData) {
-              dataMap = snapshot.data!.data()! as Map<String, dynamic>;
-              orderStatus = dataMap["status"].toString();
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: circularProgress());
             }
-            return snapshot.hasData
-                ? Container(
-              child: Column(
-                children: [
-                 SizedBox(height: 5.h),
-                  Padding(
-                    padding:  EdgeInsets.all(8.0.w),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Total Amount (including shipping fee): Php ${dataMap?["totalAmount"] + 50}",
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: "Poppins",
-                        ),
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
+            Map? dataMap = snapshot.data!.data()! as Map<String, dynamic>;
+            orderStatus = dataMap["status"].toString();
+            orderByUser = dataMap["orderBy"].toString();
+            sellerId = dataMap["sellerUID"].toString();
+            products = dataMap["products"].toString();
+            paymentDetails = dataMap["paymentDetails"].toString();
+
+            List<Map<String, dynamic>> productList = List<Map<String, dynamic>>.from(dataMap["products"]);
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 5.h),
+                Padding(
+                  padding: EdgeInsets.all(8.0.w),
+                  child: Text(
+                    "Total Amount (including shipping fee): Php ${dataMap?["totalAmount"]}",
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: "Poppins",
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(8.0.w),
+                  child: Text(
+                    "Payment: ${dataMap?["paymentDetails"]}",
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: "Poppins",
+                      color: AppColors().black
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Order Id = ${widget.orderID!}",
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontFamily: "Poppins",
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Order at: ${DateFormat("dd MMMM, yyyy - hh:mm aa").format(
+                      DateTime.fromMillisecondsSinceEpoch(
+                        int.parse(dataMap?["orderTime"]),
                       ),
+                    )}",
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: AppColors().black1,
+                      fontFamily: "Poppins",
                     ),
                   ),
-                   Padding(
-                     padding: const EdgeInsets.all(8.0),
-                     child: Align(
-                       alignment: Alignment.centerLeft,
-                       child: Text(
-                          "Order Id = ${widget.orderID!}",
-                          style:  TextStyle(
-                            fontSize: 12.sp,
-                            fontFamily: "Poppins",
-                          ),
-                        ),
-                     ),
-                   ),
+                ),
+                const Divider(thickness: 4),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: productList.length,
+                  itemBuilder: (context, index) {
+                    // Extract product details
+                    Map<String, dynamic> product = productList[index];
+                    // Return the product widget
+                    return ListTile(
+                      title: Text(product["productTitle"]),
+                      titleTextStyle: TextStyle(color: AppColors().black,
+                      fontFamily: "Poppins",
+                      fontSize: 12.sp),
+                      subtitle: Text("Price: ${product["productPrice"]}"),
+                      subtitleTextStyle: TextStyle(fontSize: 12.sp,
+                      fontFamily: "Poppins",
+                      color: AppColors().black),
+                      trailing: Text("Quantity: ${product["itemCounter"]}"),
+                      // You can add more details as needed
+                    );
+                  },
+                ),
 
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                          "Order at: ${DateFormat("dd MMMM, yyyy - hh:mm aa").format(
-                                DateTime.fromMillisecondsSinceEpoch(
-                                  int.parse(dataMap?["orderTime"]),
-                                ),
-                              )}",
-                          style:  TextStyle(
-                            fontSize: 12.sp,
-                            color: AppColors().black1,
-                            fontFamily: "Poppins",
-                          ),
-                        ),
-                    ),
-                  ),
+                const Divider(thickness: 4),
 
-
-                  const Divider(thickness: 4),
-
-
-
-                  orderStatus == "ended"
-
-
-                      ? Image.asset("images/delivered.jpg")
-                      : Image.asset("images/state.jpg"),
-                  const Divider(thickness: 4),
-                  FutureBuilder<DocumentSnapshot>(
-                    future: FirebaseFirestore.instance
-                        .collection("users")
-                        .doc(orderByUser)
-                        .collection("userAddress")
-                        .doc(dataMap?["addressID"])
-                        .get(),
-                    builder: (context, snapshot) {
-                      return snapshot.hasData
-                          ? ShipmentAddressDesign(
-                        model: Address.fromJson(
-                          snapshot.data!.data()!
-                          as Map<String, dynamic>
-                        ),
-                        orderStatus: orderStatus,
-                        orderId : widget.orderID,
-                        sellerId : sellerId,
-                        orderByUser : orderByUser,
-                      )
-                          : Center(child: circularProgress());
-                    },
-                  ),
-                ],
-              ),
-            )
-                : Center(child: circularProgress());
+                FutureBuilder<DocumentSnapshot>(
+                  future: FirebaseFirestore.instance
+                      .collection("users")
+                      .doc(orderByUser)
+                      .collection("userAddress")
+                      .doc(dataMap?["addressID"])
+                      .get(),
+                  builder: (context, snapshot) {
+                    return snapshot.hasData
+                        ? ShipmentAddressDesign(
+                      model: Address.fromJson(
+                        snapshot.data!.data()! as Map<String, dynamic>,
+                      ),
+                      orderStatus: orderStatus,
+                      orderId: widget.orderID,
+                      sellerId: sellerId,
+                      orderByUser: orderByUser,
+                    )
+                        : Center(child: circularProgress());
+                  },
+                ),
+              ],
+            );
           },
         ),
       ),

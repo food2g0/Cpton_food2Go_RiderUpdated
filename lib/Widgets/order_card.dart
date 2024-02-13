@@ -10,6 +10,7 @@ class OrderCard extends StatelessWidget {
   final String? paymentDetails;
   final String? totalAmount;
   final List<Map<String, dynamic>> cartItems;
+  final productData;
 
   OrderCard({
     required this.itemCount,
@@ -18,7 +19,7 @@ class OrderCard extends StatelessWidget {
     required this.sellerName,
     this.paymentDetails,
     this.totalAmount,
-    required this.cartItems,
+    required this.cartItems, this.productData,
   });
 
   @override
