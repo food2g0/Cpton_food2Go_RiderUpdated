@@ -92,16 +92,15 @@ class _RiderToCustomerMapState extends State<RiderToCustomerMap> {
   }
 
   Future<void> _updateUserLocationOnMap(DocumentSnapshot snapshot) async {
-    double originlatitude = snapshot['latitude'];
-    double originlongitude = snapshot['longitude'];
+    double originLatitude = snapshot['latitude1'];
+    double originLongitude = snapshot['longitude1'];
 
     setState(() {
       _origin = Marker(
         markerId: const MarkerId('origin'),
         infoWindow: const InfoWindow(title: 'Origin'),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-        position: LatLng(0.0, 0.0),
-
+        position: LatLng(originLatitude, originLongitude),
       );
 
       if (_googleMapController != null) {
@@ -109,7 +108,7 @@ class _RiderToCustomerMapState extends State<RiderToCustomerMap> {
           Polyline(
             polylineId: const PolylineId('route'),
             points: [
-              LatLng(originlatitude, originlongitude),
+              LatLng(originLatitude, originLongitude),
               LatLng(destinationLatitude, destinationLongitude),
             ],
             color: Colors.blue,
@@ -120,7 +119,7 @@ class _RiderToCustomerMapState extends State<RiderToCustomerMap> {
         _googleMapController!.animateCamera(
           CameraUpdate.newCameraPosition(
             CameraPosition(
-              target: LatLng(originlatitude, originlongitude),
+              target: LatLng(originLatitude, originLongitude),
               zoom: 15.0,
               tilt: 45.0,
             ),
@@ -128,7 +127,6 @@ class _RiderToCustomerMapState extends State<RiderToCustomerMap> {
         );
       }
     });
-    print("myorigin: $_origin");
   }
 
   Future<void> _updateUserLocation(double latitude, double longitude) async {
