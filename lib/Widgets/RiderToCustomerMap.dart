@@ -92,8 +92,8 @@ class _RiderToCustomerMapState extends State<RiderToCustomerMap> {
   }
 
   Future<void> _updateUserLocationOnMap(DocumentSnapshot snapshot) async {
-    double originLatitude = snapshot['latitude1'];
-    double originLongitude = snapshot['longitude1'];
+    double originLatitude = snapshot['latitude'];
+    double originLongitude = snapshot['longitude'];
 
     setState(() {
       _origin = Marker(
