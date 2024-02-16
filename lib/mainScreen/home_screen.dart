@@ -219,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection("orders")
-                    .where("status", isEqualTo: "normal")
+                    .where("status", isEqualTo: "To Pick")
                     .orderBy("orderTime", descending: true)
                     .snapshots(),
                 builder: (context, snapshot) {
