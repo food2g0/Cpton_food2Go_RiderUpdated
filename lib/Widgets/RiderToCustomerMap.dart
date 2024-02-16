@@ -259,24 +259,30 @@ class _RiderToCustomerMapState extends State<RiderToCustomerMap> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text("Address: ",
-                              style: TextStyle(
-                                  color: AppColors().white,
-                                  fontSize: 12.sp,
-                                  fontFamily: "Poppins"
-                              ),),
-                            SizedBox(width: 14.w,),
                             Text(
-                              widget.purchaserAddress.toString(),
+                              "Address: ",
                               style: TextStyle(
+                                color: AppColors().white,
+                                fontSize: 12.sp,
+                                fontFamily: "Poppins",
+                              ),
+                            ),
+                            SizedBox(width: 14.w),
+                            Expanded(
+                              child: Text(
+                                widget.purchaserAddress.toString(),
+                                style: TextStyle(
                                   fontSize: 12.sp,
                                   fontWeight: FontWeight.bold,
                                   color: AppColors().red,
-                                  fontFamily: "Poppins"
+                                  fontFamily: "Poppins",
+                                ),
+                                overflow: TextOverflow.ellipsis, // Apply ellipsis if the text overflows
                               ),
                             ),
                           ],
                         ),
+
                         SizedBox(height: 10.h,),
 
                         //user DropOff Address with icon
