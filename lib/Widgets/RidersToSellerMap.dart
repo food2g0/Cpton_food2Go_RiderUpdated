@@ -96,8 +96,8 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
   }
 
   Future<void> _updateUserLocationOnMap(DocumentSnapshot snapshot) async {
-    double originLatitude = snapshot['latitude1'];
-    double originLongitude = snapshot['longitude1'];
+    double originLatitude = snapshot['latitude'];
+    double originLongitude = snapshot['longitude'];
 
     setState(() {
       _origin = Marker(
@@ -137,8 +137,8 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
     try {
       await FirebaseFirestore.instance.collection('location').doc(widget.user_id).set(
         {
-          'latitude1': latitude,
-          'longitude1': longitude,
+          'latitude': latitude,
+          'longitude': longitude,
         },
         SetOptions(merge: true),
       );
