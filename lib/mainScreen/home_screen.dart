@@ -45,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
   getPerParcelDeliveryAmount() {
     FirebaseFirestore.instance
         .collection("perDelivery")
-        .doc("Xho8zZ64d1kXIUhuJ6q9")
+        .doc("b292YYxmdWdVF729PMoB")
         .get()
         .then((snap) {
       setState(() {
