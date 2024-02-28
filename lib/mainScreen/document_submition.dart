@@ -1,13 +1,18 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpton_food2go_rider/theme/Colors.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'confirmation_Screen.dart';
 
 class DocumentSubmition extends StatefulWidget {
-  const DocumentSubmition({super.key});
+  const DocumentSubmition({Key? key}) : super(key: key);
 
   @override
   State<DocumentSubmition> createState() => _DocumentSubmitionState();
@@ -16,8 +21,7 @@ class DocumentSubmition extends StatefulWidget {
 class _DocumentSubmitionState extends State<DocumentSubmition> {
   PlatformFile? driverLicenseFile;
   PlatformFile? registrationFile;
-  UploadTask? driverLicenseUploadTask;
-  UploadTask? registrationUploadTask;
+  UploadTask? uploadTask;
 
   Future selectDriverLicenseFile() async {
     final result = await FilePicker.platform.pickFiles();
@@ -37,44 +41,78 @@ class _DocumentSubmitionState extends State<DocumentSubmition> {
     });
   }
 
-  Future uploadDriverLicenseFile() async {
-    await _uploadFile(driverLicenseFile, (snapshot) {
-      driverLicenseUploadTask = null;
-    });
-  }
+  Future<void> uploadFiles() async {
+    if (driverLicenseFile == null || registrationFile == null) return;
 
-  Future uploadRegistrationFile() async {
-    await _uploadFile(registrationFile, (snapshot) {
-      registrationUploadTask = null;
-    });
-  }
+    final licensePath = 'RiderFiles/${driverLicenseFile!.name}';
+    final registrationPath = 'RiderFiles/${registrationFile!.name}';
 
-  Future<void> _uploadFile(
-      PlatformFile? file,
-      void Function(TaskSnapshot) onComplete,
-      ) async {
-    if (file == null) return;
+    final licenseFileContent = File(driverLicenseFile!.path!);
+    final registrationFileContent = File(registrationFile!.path!);
 
-    final path = 'files/${file.name}';
-    final fileContent = File(file.path!);
+    final licenseRef = FirebaseStorage.instance.ref().child(licensePath);
+    final registrationRef =
+    FirebaseStorage.instance.ref().child(registrationPath);
 
-    final ref = FirebaseStorage.instance.ref().child(path);
     setState(() {
-      if (file == driverLicenseFile) {
-        driverLicenseUploadTask = ref.putFile(fileContent);
-      } else if (file == registrationFile) {
-        registrationUploadTask = ref.putFile(fileContent);
-      }
+      uploadTask = licenseRef.putFile(licenseFileContent);
+      uploadTask = registrationRef.putFile(registrationFileContent);
     });
 
-    final snapshot = await (file == driverLicenseFile
-        ? driverLicenseUploadTask!.whenComplete(() {})
-        : registrationUploadTask!.whenComplete(() {}));
+    await uploadTask!.whenComplete(() {});
 
-    final urlDownload = await snapshot.ref.getDownloadURL();
-    print('Download Link: $urlDownload');
+    final licenseUrl = await licenseRef.getDownloadURL();
+    final registrationUrl = await registrationRef.getDownloadURL();
 
-    onComplete(snapshot);
+    await saveDataToFirestore(
+        FirebaseAuth.instance.currentUser!,
+        licenseUrl: licenseUrl,
+        registrationUrl: registrationUrl);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ConfirmationScreen()),
+    );
+
+    setState(() {
+      driverLicenseFile = null;
+      registrationFile = null;
+    });
+  }
+
+  Future saveDataToFirestore(User currentUser,
+      {String? registrationUrl, String? licenseUrl}) async {
+    // Get the current user's UID
+    String uid = currentUser.uid;
+
+    // Construct the data to be saved to Firestore
+    Map<String, dynamic> userData = {};
+    if (registrationUrl != null) {
+      userData["registrationUrl"] = registrationUrl;
+    }
+    if (licenseUrl != null) {
+      userData["licenseUrl"] = licenseUrl;
+    }
+
+    try {
+      // Save the data to Firestore
+      await FirebaseFirestore.instance
+          .collection("RidersDocs")
+          .doc(uid)
+          .set(userData, SetOptions(merge: true));
+
+      // Save data locally if needed
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      if (registrationUrl != null) {
+        await prefs.setString("registrationUrl", registrationUrl);
+      }
+      if (licenseUrl != null) {
+        await prefs.setString("licenseUrl", licenseUrl);
+      }
+    } catch (error) {
+      print("Error saving data to Firestore: $error");
+      // Handle error
+    }
   }
 
   @override
@@ -109,11 +147,6 @@ class _DocumentSubmitionState extends State<DocumentSubmition> {
               child: Text("Select Driver License File"),
             ),
             SizedBox(height: 20.h),
-            ElevatedButton(
-              onPressed: uploadDriverLicenseFile,
-              child: Text("Upload Driver License File"),
-            ),
-            SizedBox(height: 20.h),
             if (registrationFile != null)
               Expanded(
                 child: Container(
@@ -129,8 +162,8 @@ class _DocumentSubmitionState extends State<DocumentSubmition> {
             ),
             SizedBox(height: 20.h),
             ElevatedButton(
-              onPressed: uploadRegistrationFile,
-              child: Text("Upload Motorcycle Registration File"),
+              onPressed: uploadFiles,
+              child: Text("Upload Files"),
             ),
           ],
         ),
@@ -138,3 +171,5 @@ class _DocumentSubmitionState extends State<DocumentSubmition> {
     );
   }
 }
+
+
