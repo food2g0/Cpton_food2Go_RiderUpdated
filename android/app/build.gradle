@@ -1,9 +1,10 @@
 plugins {
+    id "com.android.application"
     id "kotlin-android"
-    id 'com.android.application'
-    id 'com.google.gms.google-services'
     id "dev.flutter.flutter-gradle-plugin"
+    id 'com.google.gms.google-services'
 }
+
 
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
@@ -47,11 +48,13 @@ android {
         applicationId "com.example.cpton_food2go_rider"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion 21
         targetSdkVersion 34
+        minSdkVersion flutter.minSdkVersion
+        targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
+        minSdkVersion 21
     }
 
     buildTypes {
@@ -68,8 +71,7 @@ flutter {
 }
 
 dependencies {
-    implementation 'com.android.support:multidex:2.0.1'
-    implementation platform('com.google.firebase:firebase-bom:32.7.1')
-    implementation 'com.google.firebase:firebase-analytics'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation platform('com.google.firebase:firebase-bom:32.4.0')
+    implementation 'com.google.firebase:firebase-analytics'
 }

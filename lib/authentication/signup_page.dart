@@ -164,6 +164,12 @@ class _SignUpPageState extends State<SignUpPage> {
             .then((DocumentSnapshot documentSnapshot) {
           if (documentSnapshot.exists) {
             String status = documentSnapshot.get("status");
+            if (status != "approved") {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => DocumentSubmition()),
+              );
+            }
           } else {
             // Handle the case where the document does not exist
           }
