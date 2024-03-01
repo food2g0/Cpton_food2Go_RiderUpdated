@@ -13,21 +13,26 @@ import '../mainScreen/order_in_progress.dart';
 import 'my_ratings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final int? currentIndex;
+  const HomeScreen({Key? key,this.currentIndex}) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>  with SingleTickerProviderStateMixin{
   int _currentIndex = 0;
   FirebaseAuth _auth = FirebaseAuth.instance;
+  int _selectedIndex = 0;
+  List<Widget> _pages = [];
+
 
   @override
   void initState() {
     super.initState();
     getPerParcelDeliveryAmount();
     getRiderPreviousEarnings();
+
   }
 
   getRiderPreviousEarnings() {
@@ -273,51 +278,201 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       bottomNavigationBar: Theme(
-        data: ThemeData(
+        data: Theme.of(context).copyWith(
           canvasColor: AppColors().black,
         ),
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
-          onTap: (index) {
+          onTap: (int index) {
             setState(() {
               _currentIndex = index;
+              switch (index) {
+                case 0:
+                // Navigate to Home Screen
+                  break;
+                case 1:
+                  _navigateToHistory(context);
+                  break;
+                case 2:
+                  _navigateToEarnings(context);
+                  break;
+                case 3:
+                  _navigateToOnDeliver(context);
+                  break;
+              }
             });
-
-            // Handle navigation to different screens based on index
-            if (index == 0) {
-              Navigator.push(context, MaterialPageRoute(builder: (c) => HomeScreen()));
-            } else if (index == 1) {
-              Navigator.push(context, MaterialPageRoute(builder: (c) => HistoryScreen()));
-            } else if (index == 2) {
-              Navigator.push(context, MaterialPageRoute(builder: (c) => EarningScreen()));
-            } else if (index == 3) {
-              Navigator.push(context, MaterialPageRoute(builder: (c) => OrderInProgress()));
-            }
           },
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.grey,
+
           items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
+              icon: Container(
+                width: 20.w,
+                height: 20.h,
+                child: Image.asset(
+                    'images/home.png', color: Colors.white),
+              ),
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.history),
+              icon: Container(
+                width: 20.w,
+                height: 20.h,
+                child: Image.asset(
+                    'images/history.png', color: Colors.white),
+              ),
               label: 'History',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.monetization_on),
+              icon: Container(
+                width: 20.w,
+                height: 20.h,
+                child: Image.asset(
+                    'images/cuba.png', color: Colors.white),
+              ),
               label: 'Earnings',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.delivery_dining),
-              label: 'Ongoing Delivery',
+              icon: Container(
+                width: 20.w,
+                height: 20.h,
+                child: Image.asset(
+
+                    'images/motorbike.png', color: Colors.white),
+              ),
+              label: 'On Process',
             ),
           ],
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.grey,
+          // Change as needed
+          selectedLabelStyle: TextStyle(
+            fontFamily: 'Poppins', // Change the font family as needed
+            fontSize: 10.sp, // Change the font size as needed
+            fontWeight: FontWeight.bold, // Change the font weight as needed
+          ),
+          unselectedLabelStyle: TextStyle(
+            fontFamily: 'Poppins', // Change the font family as needed
+            fontSize: 10.sp, // Change the font size as needed
+            fontWeight: FontWeight.normal, // Change the font weight as needed
+          ),
         ),
       ),
+    );
+  }
+  void _navigateToHistory(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) =>
+          HistoryScreen()), // Replace HistoryScreen with the actual screen you want to navigate to
+    );
+  }
 
+  void _navigateToEarnings(BuildContext context) {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => EarningScreen()));
+  }
+
+
+} void _navigateToOnDeliver(BuildContext context) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => OrderInProgress()), // Replace NotificationScreen with the actual screen you want to navigate to
+  );
+}
+
+
+
+class HomeTab extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text('Home Tab Content'),
+    );
+  }
+}
+
+class HistoryTab extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    String riderUID = FirebaseAuth.instance.currentUser!.uid;
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: AppColors().red,
+          title: Text("History",
+            style: TextStyle(
+              fontSize: 14.sp,
+              fontFamily: "Poppins",
+              fontWeight: FontWeight.w700,
+              color: AppColors().white,
+            ),),
+        ),
+
+        body: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection("orders")
+              .where("status", isEqualTo: "rated")
+              .where("riderUID", isEqualTo: riderUID) // Filter by rider ID
+              .orderBy("orderTime", descending: true)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            }
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
+
+            // Extract orders data from snapshot
+            List<DocumentSnapshot> orders = snapshot.data!.docs;
+
+            // Build your UI using the orders data
+            return ListView.builder(
+              itemCount: orders.length,
+              itemBuilder: (context, index) {
+                // Extract order details from each document snapshot
+                dynamic productsData = orders[index].get("products");
+                List<Map<String, dynamic>> productList = [];
+                if (productsData != null && productsData is List) {
+                  productList =
+                  List<Map<String, dynamic>>.from(productsData);
+                }
+
+                print("Product List: $productList"); // Print productList
+
+                return Column(
+                  children: [
+                    OrderCard(
+                      itemCount: productList.length,
+                      data: productList,
+                      orderID: snapshot.data!.docs[index].id,
+                      sellerName: "", // Pass the seller's name
+                      paymentDetails:
+                      snapshot.data!.docs[index].get("paymentDetails"),
+                      totalAmount: snapshot.data!.docs[index].get("totalAmount").toString(),
+                      cartItems: productList, // Pass the products list
+                    ),
+                    if (productList.length > 1)
+                      SizedBox(height: 10), // Adjust the height as needed
+                  ],
+                );
+              },
+            );
+          },
+        ),
+
+      ),
+    );
+  }
+}
+
+class NewOrderTab extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text('New Order Tab Content'),
     );
   }
 
 }
+

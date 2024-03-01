@@ -13,7 +13,8 @@ import 'history_screen.dart';
 import 'order_in_progress.dart';
 
 class EarningScreen extends StatefulWidget {
-  const EarningScreen({Key? key}) : super(key: key);
+  final int? currentIndex;
+  const EarningScreen({Key? key, this.currentIndex}) : super(key: key);
 
   @override
   State<EarningScreen> createState() => _EarningScreenState();
@@ -71,13 +72,14 @@ class _EarningScreenState extends State<EarningScreen> {
                       ),
                       SizedBox(height: 20),
                       Text(
-                        '\Php $previousRiderEarnings',
+                        '\Php ${(double.parse(previousRiderEarnings) * 0.7).toStringAsFixed(2)}', // Deduct 30% from total earnings
                         style: TextStyle(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
                           color: AppColors().red,
                         ),
                       ),
+
                     ],
                   ),
                 ),
@@ -158,50 +160,7 @@ class _EarningScreenState extends State<EarningScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: Theme(
-        data: ThemeData(
-          canvasColor: AppColors().black,
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
 
-            // Handle navigation to different screens based on index
-            if (index == 0) {
-              Navigator.push(context, MaterialPageRoute(builder: (c) => HomeScreen()));
-            } else if (index == 1) {
-              Navigator.push(context, MaterialPageRoute(builder: (c) => HistoryScreen()));
-            } else if (index == 2) {
-              Navigator.push(context, MaterialPageRoute(builder: (c) => EarningScreen()));
-            } else if (index == 3) {
-              Navigator.push(context, MaterialPageRoute(builder: (c) => OrderInProgress()));
-            }
-          },
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.grey,
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.history),
-              label: 'History',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.monetization_on),
-              label: 'Earnings',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.delivery_dining),
-              label: 'Ongoing Delivery',
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

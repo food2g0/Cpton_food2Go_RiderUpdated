@@ -7,6 +7,9 @@ import 'history_screen.dart';
 import 'home_screen.dart';
 
 class OrderInProgress extends StatefulWidget {
+  final int? currentIndex;
+
+  const OrderInProgress({Key? key, this.currentIndex});
   @override
   _OrderInProgressState createState() => _OrderInProgressState();
 }
@@ -106,13 +109,14 @@ class _OrderInProgressState extends State<OrderInProgress> {
 
               // Handle navigation to different screens based on index
               if (index == 0) {
-                Navigator.push(context, MaterialPageRoute(builder: (c) => HomeScreen()));
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => HomeScreen(currentIndex: 1)));
               } else if (index == 1) {
-                Navigator.push(context, MaterialPageRoute(builder: (c) => HistoryScreen()));
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => HistoryScreen(currentIndex: 1)));
+
               } else if (index == 2) {
-                Navigator.push(context, MaterialPageRoute(builder: (c) => EarningScreen()));
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => EarningScreen(currentIndex: 2)));
               } else if (index == 3) {
-                Navigator.push(context, MaterialPageRoute(builder: (c) => OrderInProgress()));
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => OrderInProgress(currentIndex: 3)));
               }
             },
             selectedItemColor: Colors.white,

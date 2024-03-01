@@ -13,7 +13,8 @@ import 'home_screen.dart';
 import 'order_in_progress.dart';
 
 class HistoryScreen extends StatefulWidget {
-  const HistoryScreen({super.key});
+  final int? currentIndex;
+  const HistoryScreen({super.key,  this.currentIndex});
 
   @override
   State<HistoryScreen> createState() => _HistoryScreenState();
@@ -89,50 +90,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             );
           },
         ),
-        bottomNavigationBar: Theme(
-          data: ThemeData(
-            canvasColor: AppColors().black,
-          ),
-          child: BottomNavigationBar(
-            currentIndex: _currentIndex,
-            onTap: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
 
-              // Handle navigation to different screens based on index
-              if (index == 0) {
-                Navigator.push(context, MaterialPageRoute(builder: (c) => HomeScreen()));
-              } else if (index == 1) {
-                Navigator.push(context, MaterialPageRoute(builder: (c) => HistoryScreen()));
-              } else if (index == 2) {
-                Navigator.push(context, MaterialPageRoute(builder: (c) => EarningScreen()));
-              } else if (index == 3) {
-                Navigator.push(context, MaterialPageRoute(builder: (c) => OrderInProgress()));
-              }
-            },
-            selectedItemColor: Colors.white,
-            unselectedItemColor: Colors.grey,
-            items: [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: 'Home',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.history),
-                label: 'History',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.monetization_on),
-                label: 'Earnings',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.delivery_dining),
-                label: 'Ongoing Delivery',
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
