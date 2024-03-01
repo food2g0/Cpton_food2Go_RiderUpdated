@@ -370,8 +370,7 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
-                            ),
-                            primary: AppColors().red,
+                            ), backgroundColor: AppColors().red,
                           ),
                           icon: const Icon(
                             Icons.directions_car,

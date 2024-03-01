@@ -164,7 +164,7 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
                               );
                             },
                             style: ElevatedButton.styleFrom(
-                              primary: Color(0xFF31572c),
+                              backgroundColor: Color(0xFF31572c),
                               padding: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                             ),
                             child: Row(
@@ -202,7 +202,7 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Color(0xFF890010),
+                    backgroundColor: Color(0xFF890010),
                     padding: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
                   ),
                   child: Row(
@@ -234,6 +234,7 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
     }).listen((loc.LocationData currentlocation) async {
       await FirebaseFirestore.instance.collection('location').doc('user1').set({
         'latitude': currentlocation.latitude,
+        'orderID': widget.getOrderID,
         'longitude': currentlocation.longitude,
         'name': widget.riderName,
       }, SetOptions(merge: true));

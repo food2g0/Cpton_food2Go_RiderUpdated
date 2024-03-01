@@ -331,7 +331,7 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
                             },
 
                             style: ElevatedButton.styleFrom(
-                              primary: Color(0xFF31572c),
+                              backgroundColor: Color(0xFF31572c),
                               padding: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                             ),
                             child: Row(
@@ -367,7 +367,7 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Color(0xFF890010),
+                    backgroundColor: Color(0xFF890010),
                     padding: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
                   ),
                   child: Row(
@@ -402,7 +402,7 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
         'latitude': currentlocation.latitude,
         'longitude': currentlocation.longitude,
         'riderUID': riderUID,
-        'name': 'John Doe'
+        'orderID': widget.getOrderId
       }, SetOptions(merge: true));
     });
   }

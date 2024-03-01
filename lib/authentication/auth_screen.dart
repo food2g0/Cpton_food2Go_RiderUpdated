@@ -183,7 +183,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   fontWeight: FontWeight.w700),
               ),
               style: ElevatedButton.styleFrom(
-                primary: AppColors().red,
+                backgroundColor: AppColors().red,
                 padding: const EdgeInsets.symmetric(
                     horizontal: 50, vertical: 15),
               ),
