@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpton_food2go_rider/Widgets/order_card.dart';
 import 'package:cpton_food2go_rider/Widgets/riders_drawer.dart';
+import 'package:cpton_food2go_rider/push%20notification/push_notification_system.dart';
 import 'package:cpton_food2go_rider/theme/Colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +36,7 @@ class _RiderDashboardState extends State<RiderDashboard>  with SingleTickerProvi
     getPerParcelDeliveryAmount();
     getRiderPreviousEarnings();
     checkRiderAvailability();
+    readCurrentRiderInformation();
 
   }
   void checkRiderAvailability() {
@@ -72,6 +74,12 @@ class _RiderDashboardState extends State<RiderDashboard>  with SingleTickerProvi
         perOrderDeliveryAmount = snap.data()!["amount"].toString();
       });
     });
+  }
+  readCurrentRiderInformation()async
+  {
+    PushNotificationSystem pushNotificationSystem = PushNotificationSystem();
+    pushNotificationSystem.initializeCloudMessaging();
+    pushNotificationSystem.generatingAndGetToken();
   }
 
   @override
