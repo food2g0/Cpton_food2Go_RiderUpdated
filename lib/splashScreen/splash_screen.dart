@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import '../authentication/auth_screen.dart'; // Import the ConfirmationScreen widget
 import '../global/global.dart';
@@ -16,6 +17,9 @@ class MySplashScreen extends StatefulWidget {
 }
 
 class _MySplashScreenState extends State<MySplashScreen> {
+
+
+
   startTimer() {
     Timer(const Duration(seconds: 4), () async {
       if (firebaseAuth.currentUser != null) {
