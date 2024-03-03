@@ -187,6 +187,7 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
             .update(
             {
               "earnings": newRiderTotalEarningsAmount,
+              "availability": "yes", // Update availability to "yes"
             });
       }).then((value)
       {

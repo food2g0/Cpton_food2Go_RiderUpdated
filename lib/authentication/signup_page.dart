@@ -187,6 +187,7 @@ class _SignUpPageState extends State<SignUpPage> {
       "phone": phoneController.text.trim(),
       "address": completeAddress,
       "status": "disapproved",
+      "availability": "yes",
       "earnings": 0.0,
       "lat": position?.latitude ?? 0.0, // Handle null position gracefully
       "lng": position?.longitude ?? 0.0,

@@ -7,10 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../Widgets/order_card.dart';
-import '../Widgets/progress_bar.dart';
-import '../assisstantMethod/assistant_methods.dart';
 import 'history_screen.dart';
 import 'order_in_progress.dart';
+
 
 class EarningScreen extends StatefulWidget {
   final int? currentIndex;
@@ -21,7 +20,6 @@ class EarningScreen extends StatefulWidget {
 }
 
 class _EarningScreenState extends State<EarningScreen> {
-  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -70,19 +68,49 @@ class _EarningScreenState extends State<EarningScreen> {
                           color: AppColors().black,
                         ),
                       ),
+
                       SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Total Earnings: Php ${double.parse(
+                                previousRiderEarnings).toStringAsFixed(2)}',
+                            // Display previous earnings without deduction
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: AppColors().black,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10),
+                      // Add some spacing between the texts
                       Text(
-                        '\Php ${(double.parse(previousRiderEarnings) * 0.7).toStringAsFixed(2)}', // Deduct 30% from total earnings
+                        'Current Earnings: Php ${(double.parse(
+                            previousRiderEarnings) * 0.7).toStringAsFixed(2)}',
+                        // Display current earnings after deduction
                         style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 12.sp,
                           color: AppColors().red,
                         ),
                       ),
-
+                      SizedBox(height: 10),
+                      // Add some spacing between the texts
+                      Text(
+                        'Total Amount to Turnover: Php ${(double.parse(
+                            previousRiderEarnings) - (double.parse(
+                            previousRiderEarnings) * 0.7)).toStringAsFixed(2)}',
+                        // Display total amount to turnover
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: AppColors().black,
+                        ),
+                      ),
                     ],
                   ),
                 ),
+
               ),
             ),
           ),
@@ -108,7 +136,8 @@ class _EarningScreenState extends State<EarningScreen> {
                 stream: FirebaseFirestore.instance
                     .collection("orders")
                     .where("status", isEqualTo: "ended")
-                    .where("riderUID", isEqualTo: riderUID) // Filter by rider ID
+                    .where(
+                    "riderUID", isEqualTo: riderUID) // Filter by rider ID
                     .orderBy("orderTime", descending: true)
                     .snapshots(),
                 builder: (context, snapshot) {
@@ -142,10 +171,12 @@ class _EarningScreenState extends State<EarningScreen> {
                             itemCount: productList.length,
                             data: productList,
                             orderID: snapshot.data!.docs[index].id,
-                            sellerName: "", // Pass the seller's name
+                            sellerName: "",
+                            // Pass the seller's name
                             paymentDetails:
                             snapshot.data!.docs[index].get("paymentDetails"),
-                            totalAmount: snapshot.data!.docs[index].get("totalAmount").toString(),
+                            totalAmount: snapshot.data!.docs[index].get(
+                                "totalAmount").toString(),
                             cartItems: productList, // Pass the products list
                           ),
                           if (productList.length > 1)
@@ -160,7 +191,8 @@ class _EarningScreenState extends State<EarningScreen> {
           ),
         ],
       ),
-
     );
   }
+
+
 }

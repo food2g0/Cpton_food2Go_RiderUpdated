@@ -56,6 +56,9 @@ class _ShipmentAddressDesignState extends State<ShipmentAddressDesign> {
       "status": "accepted",
       "address": completeAddress,
     });
+    await FirebaseFirestore.instance.collection("riders").doc(sharedPreferences!.getString("uid")).update({
+      "availability": "no",
+    });
 
     // Get the updated order snapshot
     DocumentSnapshot orderSnapshot = await orderRef.get();
@@ -217,7 +220,7 @@ class _ShipmentAddressDesignState extends State<ShipmentAddressDesign> {
       await FirebaseFirestore.instance.collection('location').doc('user1').set({
         'latitude1': _locationResult.latitude,
         'longitude1': _locationResult.longitude,
-        'name': 'john'
+        'name': widget.riderUID
       }, SetOptions(merge: true));
     } catch (e) {
       print(e);
