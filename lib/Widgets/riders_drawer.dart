@@ -1,4 +1,7 @@
 
+import 'package:cpton_food2go_rider/mainScreen/About_screen.dart';
+import 'package:cpton_food2go_rider/mainScreen/New_order.dart';
+import 'package:cpton_food2go_rider/mainScreen/profile_Screen.dart';
 import 'package:cpton_food2go_rider/theme/Colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -55,14 +58,7 @@ class RidersDrawer extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                  child: Padding(
                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                 child: Text(
-                  capitalize (sharedPreferences!.getString("name")!),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontFamily: "Roboto",
-                  ),
-                ),
+
                  )
                 ),
               ],
@@ -72,10 +68,10 @@ class RidersDrawer extends StatelessWidget {
 
           ListTile(
             leading:  Icon(
-              Icons.fastfood_rounded,
+              Icons.account_circle,
               color: AppColors().red,
             ),
-            title: Text("Orders",
+            title: Text("Profile",
             style: TextStyle(
               color: AppColors().black,
               fontFamily: "Poppins",
@@ -83,7 +79,7 @@ class RidersDrawer extends StatelessWidget {
               fontSize: 14.sp
             ),),
             onTap: () {
-
+Navigator.push(context, MaterialPageRoute(builder: (c)=> ProfileScreen()));
             },
           ),
           ListTile(
@@ -100,14 +96,15 @@ class RidersDrawer extends StatelessWidget {
               ),),
             onTap: () {
               // Handle the About item tap
+              Navigator.push(context, MaterialPageRoute(builder: (c)=> AboutScreen()));
             },
           ),
           ListTile(
             leading: Icon(
-              Icons.favorite_border,
+              Icons.delivery_dining_outlined,
               color: AppColors().red,
             ),
-            title:  Text("Favorites",
+            title:  Text("New Order",
               style: TextStyle(
                   color: AppColors().black,
                   fontFamily: "Poppins",
@@ -116,6 +113,7 @@ class RidersDrawer extends StatelessWidget {
               ),),
             onTap: () {
               // Handle the Favorites item tap
+              Navigator.push(context, MaterialPageRoute(builder: (c)=> NewOrderScreen()));
             },
           ),
           ListTile(

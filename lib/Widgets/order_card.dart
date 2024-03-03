@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../mainScreen/order_details_screen.dart';
 
@@ -31,8 +32,7 @@ class OrderCard extends StatelessWidget {
           MaterialPageRoute(builder: (c) => OrderDetailsScreen(orderID: orderID)),
         );
       },
-      child: Card(
-        elevation: 2,
+      child: Container(
         child: Column(
           children: [
             ListView.builder(
@@ -52,7 +52,7 @@ class OrderCard extends StatelessWidget {
   Widget placedOrderDesignWidget(BuildContext context, int index) {
     Map<String, dynamic> snapshot = data[index];
     return SizedBox(
-      height: 140,
+      height: 100.h,
       child: Row(
         children: [
           Padding(
@@ -61,8 +61,8 @@ class OrderCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(10.0),
               child: Image.network(
                 cartItems[index]['thumbnailUrl'], // Use cartItems instead of data
-                width: 150,
-                height: 120,
+                width: 100.w,
+                height: 100.h,
                 fit: BoxFit.cover,
               ),
             ),

@@ -10,7 +10,6 @@ import '../Widgets/order_card.dart';
 import 'history_screen.dart';
 import 'order_in_progress.dart';
 
-
 class EarningScreen extends StatefulWidget {
   final int? currentIndex;
   const EarningScreen({Key? key, this.currentIndex}) : super(key: key);
@@ -20,10 +19,28 @@ class EarningScreen extends StatefulWidget {
 }
 
 class _EarningScreenState extends State<EarningScreen> {
+  String riderUID = FirebaseAuth.instance.currentUser!.uid;
+
+  // Getter function to fetch seller's name
+  Future<String?> getSellerName(String sellerUID) async {
+    try {
+      DocumentSnapshot sellerSnapshot = await FirebaseFirestore.instance
+          .collection('sellers')
+          .doc(sellerUID)
+          .get();
+      if (sellerSnapshot.exists) {
+        return sellerSnapshot.get('sellersName');
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching seller name: $e');
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    String riderUID = FirebaseAuth.instance.currentUser!.uid;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -45,14 +62,14 @@ class _EarningScreenState extends State<EarningScreen> {
           SizedBox(height: 16), // Add some space at the top
           Align(
             alignment: Alignment.topCenter,
-            child: Container(
-              height: 200,
-              child: Card(
-                color: AppColors().white,
-                elevation: 5,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors().backgroundWhite,
+                  borderRadius: BorderRadius.circular(10)
                 ),
+                height: 200,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -78,7 +95,9 @@ class _EarningScreenState extends State<EarningScreen> {
                                 previousRiderEarnings).toStringAsFixed(2)}',
                             // Display previous earnings without deduction
                             style: TextStyle(
+                              fontFamily: "Poppins",
                               fontSize: 12.sp,
+
                               color: AppColors().black,
                             ),
                           ),
@@ -91,8 +110,9 @@ class _EarningScreenState extends State<EarningScreen> {
                             previousRiderEarnings) * 0.7).toStringAsFixed(2)}',
                         // Display current earnings after deduction
                         style: TextStyle(
+                          fontFamily: "Poppins",
                           fontSize: 12.sp,
-                          color: AppColors().red,
+                          color: AppColors().green,
                         ),
                       ),
                       SizedBox(height: 10),
@@ -103,6 +123,7 @@ class _EarningScreenState extends State<EarningScreen> {
                             previousRiderEarnings) * 0.7)).toStringAsFixed(2)}',
                         // Display total amount to turnover
                         style: TextStyle(
+                          fontFamily: "Poppins",
                           fontSize: 12.sp,
                           color: AppColors().black,
                         ),
@@ -110,7 +131,6 @@ class _EarningScreenState extends State<EarningScreen> {
                     ],
                   ),
                 ),
-
               ),
             ),
           ),
@@ -165,23 +185,41 @@ class _EarningScreenState extends State<EarningScreen> {
 
                       print("Product List: $productList"); // Print productList
 
-                      return Column(
-                        children: [
-                          OrderCard(
-                            itemCount: productList.length,
-                            data: productList,
-                            orderID: snapshot.data!.docs[index].id,
-                            sellerName: "",
-                            // Pass the seller's name
-                            paymentDetails:
-                            snapshot.data!.docs[index].get("paymentDetails"),
-                            totalAmount: snapshot.data!.docs[index].get(
-                                "totalAmount").toString(),
-                            cartItems: productList, // Pass the products list
-                          ),
-                          if (productList.length > 1)
-                            SizedBox(height: 10), // Adjust the height as needed
-                        ],
+                      return FutureBuilder<String?>(
+                        future: getSellerName(
+                            orders[index].get('sellerUID')), // Fetch seller name
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return CircularProgressIndicator();
+                          }
+                          if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          }
+                          String? sellerName = snapshot.data;
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              children: [
+                                OrderCard(
+                                  itemCount: productList.length,
+                                  data: productList,
+                                  orderID: orders[index].id,
+                                  sellerName: sellerName ?? "",
+                                  // Pass the seller's name
+                                  paymentDetails: orders[index]
+                                      .get("paymentDetails"),
+                                  totalAmount: orders[index]
+                                      .get("totalAmount")
+                                      .toString(),
+                                  cartItems: productList, // Pass the products list
+                                ),
+                                if (productList.length > 1)
+                                  SizedBox(height: 10), // Adjust the height as needed
+                              ],
+                            ),
+                          );
+                        },
                       );
                     },
                   );
@@ -193,6 +231,5 @@ class _EarningScreenState extends State<EarningScreen> {
       ),
     );
   }
-
-
 }
+

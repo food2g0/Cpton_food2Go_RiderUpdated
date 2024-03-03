@@ -107,7 +107,7 @@ Widget build(BuildContext context)
                 ),
               ],
               currentIndex: _selectedIndex,
-              selectedItemColor: AppColors().red,
+              selectedItemColor: AppColors().white,
               unselectedItemColor: AppColors().white,
               selectedLabelStyle:  TextStyle(
                 fontWeight: FontWeight.w500,
@@ -214,7 +214,7 @@ Widget build(BuildContext context)
                   ),
                 ],
                 currentIndex: _selectedIndex,
-                selectedItemColor: AppColors().red,
+                selectedItemColor: AppColors().white,
                 unselectedItemColor: AppColors().white,
                 selectedLabelStyle:  TextStyle(
                   fontWeight: FontWeight.w500,
