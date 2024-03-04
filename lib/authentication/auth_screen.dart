@@ -43,41 +43,76 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  Future<void> loginNow() async {
+  loginNow() async {
     showDialog(
       context: context,
       builder: (c) {
-        return LoadingDialog(
-          message: "Checking credentials",
-        );
+        return LoadingDialog(message: "Checking credentials");
       },
     );
 
     User? currentUser;
-    await firebaseAuth
-        .signInWithEmailAndPassword(
-      email: emailcontroller.text.trim(),
-      password: passwordcontroller.text.trim(),
-    )
-        .then((auth) {
-      currentUser = auth.user!;
-    }).catchError((error) {
-      Navigator.pop(context);
-
-      showDialog(
-        context: context,
-        builder: (c) {
-          return ErrorDialog(
-            message: error.message.toString(),
-          );
-        },
+    try {
+      final authResult = await firebaseAuth.signInWithEmailAndPassword(
+        email: emailcontroller.text.trim(),
+        password: passwordcontroller.text.trim(),
       );
-    });
+      currentUser = authResult.user!;
+    } catch (error) {
+      Navigator.pop(context); // Close loading dialog
+      if (error is FirebaseAuthException) {
+        showDialog(
+          context: context,
+          builder: (c) {
+            return ErrorDialog(
+              message: error.message ?? "An error occurred",
+            );
+          },
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (c) {
+            return ErrorDialog(
+              message: "An error occurred: $error",
+            );
+          },
+        );
+      }
+      return; // Exit the function if an error occurs
+    }
 
     if (currentUser != null) {
-      await readDataAndSetDataLocally(currentUser!);
+      await currentUser.reload(); // Refresh user data
+      if (currentUser.emailVerified) {
+        readDataAndSetDataLocally(currentUser);
+      } else {
+        // User's email is not verified
+        Navigator.pop(context); // Close loading dialog
+        showDialog(
+          context: context,
+          builder: (c) {
+            return AlertDialog(
+              title:  Text('Email Not Verified',
+              style: TextStyle(color: AppColors().red,
+              fontFamily: "Poppins"),),
+              content: const Text('Please verify your email to log in.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(c).pop(); // Close AlertDialog using its context
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
     }
   }
+
+
 
   Future<void> readDataAndSetDataLocally(User currentUser) async {
     await FirebaseFirestore.instance
