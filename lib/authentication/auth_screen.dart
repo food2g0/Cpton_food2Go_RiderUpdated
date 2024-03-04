@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import '../Widgets/custom_text_field.dart';
@@ -13,6 +14,7 @@ import '../Widgets/loading_dialog.dart';
 import '../global/global.dart';
 import '../mainScreen/confirmation_Screen.dart';
 import '../mainScreen/home_screen.dart';
+import 'forgot_password.dart';
 
 class AuthScreen extends StatefulWidget {
     const AuthScreen({Key? key}) : super(key: key);
@@ -171,6 +173,17 @@ class _AuthScreenState extends State<AuthScreen> {
                     isObsecure: true,
                     controller: passwordcontroller,
 
+                  ),
+                  RichText(text: TextSpan(
+                      text: "Forgot Password?",
+                      style: TextStyle(
+                        color: AppColors().black,
+                        fontFamily: "Poppins",
+                        fontSize: 12.sp,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () => Get.to(() => const ForgotPassword())
+                  )
                   ),
                 ],
               ),

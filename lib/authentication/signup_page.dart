@@ -139,8 +139,12 @@ class _SignUpPageState extends State<SignUpPage> {
       email: emailController.text.trim(),
       password: passwordController.text.trim(),
     )
-        .then((auth) {
+        .then((auth) async {
       currentUser = auth.user;
+      if (currentUser != null) {
+        // Send email verification
+        await currentUser!.sendEmailVerification();
+      }
     }).catchError((error) {
       Navigator.pop(context);
       showDialog(
@@ -164,19 +168,36 @@ class _SignUpPageState extends State<SignUpPage> {
             .then((DocumentSnapshot documentSnapshot) {
           if (documentSnapshot.exists) {
             String status = documentSnapshot.get("status");
-            if (status != "approved") {
-              Navigator.push(
+            bool emailVerified = currentUser!.emailVerified;
+            if (emailVerified && status == "approved") {
+              // Navigate to home screen
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => HomeScreen()),
+              );
+            } else {
+              // Navigate to document submission screen
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => DocumentSubmition()),
               );
             }
           } else {
             // Handle the case where the document does not exist
+            showDialog(
+              context: context,
+              builder: (c) {
+                return ErrorDialog(
+                  message: "User document does not exist in Firestore.",
+                );
+              },
+            );
           }
         });
       }
     }
   }
+
 
   Future saveDataToFirestore(User currentUser) async {
     FirebaseFirestore.instance.collection("riders").doc(currentUser.uid).set({

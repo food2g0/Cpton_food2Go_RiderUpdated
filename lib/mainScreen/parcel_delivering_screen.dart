@@ -195,7 +195,7 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
             .collection("sellers")
             .doc(widget.sellerId)
             .collection("sales")
-            .doc("02_February")
+            .doc("03_March")
             .update(
             {
               "saleVal": (double.parse(orderTotalAmount!) + previousRiderEarningsValue),
