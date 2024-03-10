@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:firebase_storage/firebase_storage.dart' as fStorage;
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -291,6 +292,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     child: Column(
                       children: [
                         CustomTextField(
+                          keyboardType: TextInputType.text,
                           controller: nameController,
                           data: Icons.person,
                           hintText: "Enter your Full Name",
@@ -307,6 +309,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         CustomTextField(
                           controller: phoneController,
                           data: Icons.phone_android,
+                          keyboardType: TextInputType.number,
                           hintText: "Enter your Phone Number",
                           isObsecure: false,
                         ),
@@ -364,6 +367,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     width: 150, // Set the desired width
                     child: ElevatedButton(
                       onPressed: () {
+
                         Navigator.push(context, MaterialPageRoute(builder: (c)=>DocumentSubmition()));
                         formValidation();
                       },

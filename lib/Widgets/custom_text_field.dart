@@ -1,34 +1,42 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter/services.dart';
 import '../theme/Colors.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController? controller;
   final IconData? data;
+  final Widget? suffixIcon; // Updated to accept Widget
   final String? hintText;
-  bool? isObsecure = true;
-  bool? enabled = true;
+  final bool? isObsecure;
+  final bool? enabled;
+  final TextInputType? keyboardType;
 
   CustomTextField({
     this.controller,
     this.data,
+    this.suffixIcon,
     this.hintText,
     this.isObsecure,
     this.enabled,
+    this.keyboardType,
   });
 
-  String? _validateemail(String? value) {
+  String? _validateName(String? value) {
     if (value == null || value.isEmpty) {
       return "Full Name is required";
-    } else if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$')
-        .hasMatch(value)) {
-      return "Please enter a valid Full Name";
     }
     return null; // Input is valid
   }
 
   @override
   Widget build(BuildContext context) {
+    List<TextInputFormatter>? inputFormatters;
+    if (keyboardType == TextInputType.text) {
+      inputFormatters = [
+        FilteringTextInputFormatter.allow(RegExp(r'^[a-zA-Z ]+$')),
+      ];
+    }
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.transparent,
@@ -41,9 +49,11 @@ class CustomTextField extends StatelessWidget {
         enabled: enabled,
         controller: controller,
         obscureText: isObsecure!,
-        validator: _validateemail,
+        validator: _validateName,
         cursorColor: Theme.of(context).primaryColor,
-        style: TextStyle( // Set the font family here
+        keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
+        style: TextStyle(
           fontFamily: "Poppins",
         ),
         decoration: InputDecoration(
@@ -52,6 +62,7 @@ class CustomTextField extends StatelessWidget {
             data,
             color: AppColors().red,
           ),
+          suffixIcon: suffixIcon, // Use suffixIcon if provided
           hintText: hintText,
         ),
       ),

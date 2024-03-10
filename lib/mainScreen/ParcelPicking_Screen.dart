@@ -134,7 +134,7 @@ class _ParcelPickingScreenState extends State<ParcelPickingScreen>
             Container(
               height: 100, // Set a specific height for your ListView.builder
               child: StreamBuilder(
-                stream: FirebaseFirestore.instance.collection("orders").limit(1).snapshots(),
+                stream: FirebaseFirestore.instance.collection("location").limit(1).snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (!snapshot.hasData) {
                     return Center(child: CircularProgressIndicator());

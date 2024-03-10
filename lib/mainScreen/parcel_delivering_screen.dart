@@ -202,6 +202,22 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
             });
       }).then((value)
       {
+        double orderTotal = double.parse(orderTotalAmount!);
+        double deliverPercent = 15;
+        double tenPercent = orderTotal * 0.1;
+
+
+        FirebaseFirestore.instance
+            .collection("admin")
+            .doc("L2XpbhbHgLUkHrk45en6AJL1krI3")
+            .collection("sales")
+            .doc("03_March")
+            .update(
+            {
+              "saleVal": tenPercent + previousRiderEarningsValue + deliverPercent,
+            });
+      }).then((value)
+      {
         FirebaseFirestore.instance
             .collection("users")
             .doc(purchaserId)

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cpton_food2go_rider/theme/Colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -50,7 +51,7 @@ class _MySplashScreenState extends State<MySplashScreen> {
   Widget build(BuildContext context) {
     return Material(
       child: Container(
-        color: Colors.black,
+        color: AppColors().black,
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -64,13 +65,13 @@ class _MySplashScreenState extends State<MySplashScreen> {
                 ),
               ),
               const SizedBox(height: 10,),
-              const Padding(
+           Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text(
                   "Welcome Food2Go Rider",
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Color(0xFF890010),
+                    color: AppColors().white,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     fontFamily: "Poppins",

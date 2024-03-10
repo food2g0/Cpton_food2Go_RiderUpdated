@@ -17,28 +17,31 @@ import '../mainScreen/home_screen.dart';
 import 'forgot_password.dart';
 
 class AuthScreen extends StatefulWidget {
-    const AuthScreen({Key? key}) : super(key: key);
+  const AuthScreen({Key? key}) : super(key: key);
 
   @override
   _AuthScreenState createState() => _AuthScreenState();
-
-
 }
 
 class _AuthScreenState extends State<AuthScreen> {
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   TextEditingController emailcontroller = TextEditingController();
   TextEditingController passwordcontroller = TextEditingController();
+  bool agreedToTerms = false;
+  bool _obscureText = true; // Added
 
   formValidation() {
     if (emailcontroller.text.isNotEmpty && passwordcontroller.text.isNotEmpty) {
       //login
       loginNow();
-    }
-    else {
-      showDialog(context: context, builder: (c) {
-        return ErrorDialog(message: "Please write Email and password.",);
-      }
+    } else {
+      showDialog(
+        context: context,
+        builder: (c) {
+          return ErrorDialog(
+            message: "Please write Email and password.",
+          );
+        },
       );
     }
   }
@@ -93,9 +96,13 @@ class _AuthScreenState extends State<AuthScreen> {
           context: context,
           builder: (c) {
             return AlertDialog(
-              title:  Text('Email Not Verified',
-              style: TextStyle(color: AppColors().red,
-              fontFamily: "Poppins"),),
+              title: Text(
+                'Email Not Verified',
+                style: TextStyle(
+                  color: AppColors().red,
+                  fontFamily: "Poppins",
+                ),
+              ),
               content: const Text('Please verify your email to log in.'),
               actions: [
                 TextButton(
@@ -111,8 +118,6 @@ class _AuthScreenState extends State<AuthScreen> {
       }
     }
   }
-
-
 
   Future<void> readDataAndSetDataLocally(User currentUser) async {
     await FirebaseFirestore.instance
@@ -133,8 +138,10 @@ class _AuthScreenState extends State<AuthScreen> {
         } else {
           // Status is not disapproved, proceed with login
           await sharedPreferences!.setString("uid", currentUser.uid);
-          await sharedPreferences!.setString("email", snapshot.data()!["riderEmail"]);
-          await sharedPreferences!.setString("name", snapshot.data()!["riderName"]);
+          await sharedPreferences!.setString(
+              "email", snapshot.data()!["riderEmail"]);
+          await sharedPreferences!.setString(
+              "name", snapshot.data()!["riderName"]);
 
           Navigator.pop(context);
           Navigator.pushReplacement(
@@ -162,22 +169,14 @@ class _AuthScreenState extends State<AuthScreen> {
     });
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-    double w = MediaQuery
-        .of(context)
-        .size
-        .width;
-    double h = MediaQuery
-        .of(context)
-        .size
-        .height;
+    double w = MediaQuery.of(context).size.width;
+    double h = MediaQuery.of(context).size.height;
 
     return Scaffold(
       backgroundColor: AppColors().white,
-      body: SingleChildScrollView( // Wrap with SingleChildScrollView
+      body: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
@@ -191,81 +190,206 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
               ),
             ),
-            Form(key: _formkey,
+            Form(
+              key: _formkey,
               child: Column(
-
                 children: [
                   CustomTextField(
                     data: Icons.email,
                     hintText: "Enter your Email",
                     isObsecure: false,
                     controller: emailcontroller,
-
                   ),
                   CustomTextField(
                     data: Icons.password,
                     hintText: "Enter your Password",
-                    isObsecure: true,
+                    isObsecure: _obscureText,
                     controller: passwordcontroller,
-
+                    suffixIcon: IconButton(
+                      icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility),
+                      onPressed: () {
+                        setState(() {
+                          _obscureText = !_obscureText;
+                        });
+                      },
+                    ),
                   ),
-                  RichText(text: TextSpan(
-                      text: "Forgot Password?",
-                      style: TextStyle(
-                        color: AppColors().black,
-                        fontFamily: "Poppins",
-                        fontSize: 12.sp,
+
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: agreedToTerms,
+                        onChanged: (value) {
+                          setState(() {
+                            agreedToTerms = value!;
+                          });
+                        },
                       ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () => Get.to(() => const ForgotPassword())
-                  )
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text(
+                                    "Terms and Conditions",
+                                    style: TextStyle(
+                                      fontFamily: "Poppins",
+                                      fontSize: 10.sp,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  content: SingleChildScrollView(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "1. Prior to using the program, make sure your store is switched on, and after using it, turn it off.",
+                                          style: TextStyle(
+                                            fontFamily: "Poppins",
+                                            fontSize: 8.sp,
+                                          ),
+                                        ),
+                                        SizedBox(height: 5,),
+                                        Text(
+                                          "2. As per agreement, store owners are mandatory to give 10% of their income to food2go. ",
+                                          style: TextStyle(
+                                            fontFamily: "Poppins",
+                                            fontSize: 8.sp,
+                                          ),
+                                        ),
+                                        SizedBox(height: 5,),
+                                        Text(
+                                          "3. Failure to give 10% will result to account termination",
+                                          style: TextStyle(
+                                            fontFamily: "Poppins",
+                                            fontSize: 8.sp,
+                                          ),
+                                        ),
+                                        SizedBox(height: 5,),
+                                        Text(
+                                          "4. Make sure to remain your ratings high, making your rating low will result to account suspension or termination",
+                                          style: TextStyle(
+                                            fontFamily: "Poppins",
+                                            fontSize: 8.sp,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text("Close"),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          child: Text(
+                            "I agree to the Terms and Conditions",
+                            style: TextStyle(
+                              color: AppColors().black,
+                              fontFamily: "Poppins",
+                              fontSize: 8.sp,
+                            ),
+                          ),
+
+                        ),
+
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20, top: 20),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: RichText(
+                        text: TextSpan(
+                          text: "Forgot Password?",
+                          style: TextStyle(
+                            color: AppColors().black,
+                            fontFamily: "Poppins",
+                            fontSize: 12.sp,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => Get.to(() => const ForgotPassword()),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
             SizedBox(height: w * 0.08),
             ElevatedButton(
-              child: const Text("Login", style: TextStyle(
+              child: const Text(
+                "Login",
+                style: TextStyle(
                   color: Colors.white,
                   fontFamily: "Poppins",
-                  fontWeight: FontWeight.w700),
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors().red,
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 50, vertical: 15),
+                  horizontal: 50,
+                  vertical: 15,
+                ),
               ),
               onPressed: () {
-                formValidation();
-                loginNow();
+                if (!agreedToTerms) {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("Error"),
+                        content: Text("Please agree to the Terms and Conditions to proceed."),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text("OK"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                } else {
+                  formValidation();
+                }
               },
             ),
-
-
             SizedBox(height: w * 0.08),
-            RichText(text: TextSpan(
+            RichText(
+              text: TextSpan(
                 text: "Don\'t have an account?",
                 style: TextStyle(
-                    color: AppColors().black1,
-                    fontSize: 15,
-                  fontFamily: "Poppins"
+                  color: AppColors().black1,
+                  fontSize: 15,
+                  fontFamily: "Poppins",
                 ),
                 children: [
                   TextSpan(
-                      text: "  Create!",
-                      style: TextStyle(
-                          color: AppColors().black,
-                          fontFamily: "Poppins",
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600
-
-                      ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () => Get.to(() => const SignUpPage())
+                    text: "  Create!",
+                    style: TextStyle(
+                      color: AppColors().black,
+                      fontFamily: "Poppins",
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => Get.to(() => const SignUpPage()),
                   ),
-
-                ]
-            )),
+                ],
+              ),
+            ),
           ],
         ),
       ),

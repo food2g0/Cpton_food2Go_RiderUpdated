@@ -85,6 +85,7 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
     super.dispose();
   }
 
+
   Future<void> _subscribeToLocationUpdates() async {
     _locationSubscription = FirebaseFirestore.instance
         .collection('location')
@@ -139,6 +140,7 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
         {
           'latitude': latitude,
           'longitude': longitude,
+          'orderID': widget.getOrderID,
         },
         SetOptions(merge: true),
       );
@@ -254,14 +256,7 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
                     padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
                     child: Column(
                       children: [
-                        Text(
-                          "18 mins",
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.lightGreenAccent,
-                          ),
-                        ),
+
                         const SizedBox(height: 18,),
                         const Divider(
                           thickness: 2,
@@ -362,30 +357,7 @@ class _RiderToSellerMapState extends State<RiderToSellerMap> {
                           height: 2,
                           color: Colors.grey,
                         ),
-                        const SizedBox(height: 10.0),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            // Handle button press
-                          },
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ), backgroundColor: AppColors().red,
-                          ),
-                          icon: const Icon(
-                            Icons.directions_car,
-                            color: Colors.white,
-                            size: 25,
-                          ),
-                          label: Text(
-                            "Navigate",
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
+
                       ],
                     ),
                   ),
