@@ -319,6 +319,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           data: Icons.password,
                           hintText: "Enter your Password",
                           isObsecure: true,
+
                         ),
                         const SizedBox(height: 20),
                         CustomTextField(
@@ -326,6 +327,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           data: Icons.password_rounded,
                           hintText: "Confirm your Password",
                           isObsecure: true,
+
                         ),
                         const SizedBox(height: 20),
                         CustomTextField(

@@ -245,7 +245,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          "1. Prior to using the program, make sure your store is switched on, and after using it, turn it off.",
+                                          "1. Always be careful in driving, the company is not responsible in any damage.",
                                           style: TextStyle(
                                             fontFamily: "Poppins",
                                             fontSize: 8.sp,
@@ -253,7 +253,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                         ),
                                         SizedBox(height: 5,),
                                         Text(
-                                          "2. As per agreement, store owners are mandatory to give 10% of their income to food2go. ",
+                                          "2. As per agreement, Riders are mandatory to give 30% of their income to food2go. ",
                                           style: TextStyle(
                                             fontFamily: "Poppins",
                                             fontSize: 8.sp,
@@ -261,7 +261,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                         ),
                                         SizedBox(height: 5,),
                                         Text(
-                                          "3. Failure to give 10% will result to account termination",
+                                          "3. Failure to give 30% will result to account termination",
                                           style: TextStyle(
                                             fontFamily: "Poppins",
                                             fontSize: 8.sp,
@@ -269,7 +269,15 @@ class _AuthScreenState extends State<AuthScreen> {
                                         ),
                                         SizedBox(height: 5,),
                                         Text(
-                                          "4. Make sure to remain your ratings high, making your rating low will result to account suspension or termination",
+                                          "4. Make sure to remain your ratings high, making your ratings low will result to account suspension or termination",
+                                          style: TextStyle(
+                                            fontFamily: "Poppins",
+                                            fontSize: 8.sp,
+                                          ),
+                                        ),
+                                        SizedBox(height: 5,),
+                                        Text(
+                                          "5. Make sure to cary your driver license and registration of motorcycle everytime you have trip",
                                           style: TextStyle(
                                             fontFamily: "Poppins",
                                             fontSize: 8.sp,

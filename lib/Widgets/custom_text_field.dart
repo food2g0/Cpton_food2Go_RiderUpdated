@@ -31,10 +31,14 @@ class CustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<TextInputFormatter>? inputFormatters;
+    int? maxLength;
+
     if (keyboardType == TextInputType.text) {
       inputFormatters = [
         FilteringTextInputFormatter.allow(RegExp(r'^[a-zA-Z ]+$')),
       ];
+    } else if (keyboardType == TextInputType.number) {
+      maxLength = 11;
     }
 
     return Container(
@@ -53,6 +57,7 @@ class CustomTextField extends StatelessWidget {
         cursorColor: Theme.of(context).primaryColor,
         keyboardType: keyboardType,
         inputFormatters: inputFormatters,
+        maxLength: maxLength,
         style: TextStyle(
           fontFamily: "Poppins",
         ),

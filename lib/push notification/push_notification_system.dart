@@ -35,9 +35,7 @@ class PushNotificationSystem {
         String currentUserId = FirebaseAuth.instance.currentUser!.uid;
         await FirebaseFirestore.instance.collection('riders')
             .doc(currentUserId)
-            .collection('token')
-            .doc('deviceToken')
-            .set({
+            .update({
           'registrationToken': registrationToken,
         });
         print('Registration token saved successfully: $registrationToken');

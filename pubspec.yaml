@@ -37,6 +37,7 @@ dependencies:
   file_picker: ^6.1.1
   carousel_slider: ^4.2.1
   firebase_messaging: ^14.7.17
+  battery: ^2.0.0
 
 
 dev_dependencies:

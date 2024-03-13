@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../push notification/push_notification_system.dart';
+
 class ConfirmationScreen extends StatefulWidget {
   const ConfirmationScreen({Key? key});
 
@@ -17,10 +19,17 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
   @override
   void initState() {
     super.initState();
+    readCurrentRiderInformation();
     _statusStream = FirebaseFirestore.instance
         .collection('RidersDocs')
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .snapshots();
+  }
+  readCurrentRiderInformation()async
+  {
+    PushNotificationSystem pushNotificationSystem = PushNotificationSystem();
+    pushNotificationSystem.initializeCloudMessaging();
+    pushNotificationSystem.generatingAndGetToken();
   }
 
   @override
