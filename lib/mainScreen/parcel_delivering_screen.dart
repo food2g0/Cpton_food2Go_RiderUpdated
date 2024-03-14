@@ -44,8 +44,24 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
   double? customerLat, customerLng;
   String? customerAddress;
   String? orderTotalAmount = "";
+  String? paymentMethod = "";
 
+  Future<Map<String, dynamic>?> getOrderPaymentDetails(String orderId) async {
+    try {
+      DocumentSnapshot orderSnapshot = await FirebaseFirestore.instance.collection("orders").doc(orderId).get();
 
+      if (orderSnapshot.exists) {
+        Map<String, dynamic>? orderData = orderSnapshot.data() as Map<String, dynamic>?;
+
+        if (orderData != null) {
+          return orderData['paymentDetails'];
+        }
+      }
+    } catch (e) {
+      print("Error fetching order payment details: $e");
+    }
+    return null; // Return null if payment details are not found or an error occurs
+  }
 
   Future<Map<String, dynamic>?> getOrderByOrderId(String? orderId) async {
     if (orderId != null) {
@@ -155,7 +171,13 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
 
 
 
-  confirmParcelHasBeenDelivered(getOrderId, sellerId, purchaserId, purchaserAddress,) {
+  confirmParcelHasBeenDelivered(
+      String getOrderId,
+      String sellerId,
+      String purchaserId,
+      String purchaserAddress,
+      String paymentMethod, // Add payment method parameter
+      ) {
     try {
       print('getOrderId: $getOrderId'); // Print the value of getOrderId
       print('previousRiderEarnings: $previousRiderEarnings');
@@ -175,65 +197,79 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
 
       FirebaseFirestore.instance
           .collection("orders")
-          .doc(getOrderId).update({
+          .doc(getOrderId)
+          .update({
         "status": "ended",
         "address": completeAddress,
         "earnings": perOrderDeliveryAmount, // pay per parcel delivery amount
-      }).then((value)
-      {
+      }).then((value) {
         FirebaseFirestore.instance
             .collection("riders")
             .doc(sharedPreferences!.getString("uid"))
-            .update(
-            {
-              "earnings": newRiderTotalEarningsAmount,
-              "availability": "yes", // Update availability to "yes"
-            });
-      }).then((value)
-      {
+            .update({
+          "earnings": newRiderTotalEarningsAmount,
+          "availability": "yes", // Update availability to "yes"
+        });
+      }).then((value) {
         FirebaseFirestore.instance
             .collection("sellers")
             .doc(widget.sellerId)
             .collection("sales")
             .doc("03_March")
-            .update(
-            {
-              "saleVal": (double.parse(orderTotalAmount!) + previousRiderEarningsValue),
-            });
-      }).then((value)
-      {
+            .update({
+          "saleVal": (double.parse(orderTotalAmount!) + previousRiderEarningsValue),
+        });
+      }).then((value) {
+        FirebaseFirestore.instance
+            .collection("sellers")
+            .doc(widget.sellerId)
+            .update({
+          "earnings": (double.parse(orderTotalAmount!) + previousRiderEarningsValue),
+        });
+      }).then((value) {
         double orderTotal = double.parse(orderTotalAmount!);
         double deliverPercent = 15;
         double tenPercent = orderTotal * 0.1;
-
 
         FirebaseFirestore.instance
             .collection("admin")
             .doc("L2XpbhbHgLUkHrk45en6AJL1krI3")
             .collection("sales")
             .doc("03_March")
-            .update(
-            {
-              "saleVal": tenPercent + previousRiderEarningsValue + deliverPercent,
-            });
-      }).then((value)
-      {
+            .update({
+          "saleVal": tenPercent + previousRiderEarningsValue + deliverPercent,
+        });
+      }).then((value) {
         FirebaseFirestore.instance
             .collection("users")
             .doc(purchaserId)
             .collection("orders")
-            .doc(getOrderId).update(
-            {
-              "status": "ended",
-              "riderUID": sharedPreferences!.getString("uid"),
-            });
+            .doc(getOrderId)
+            .update({
+          "status": "ended",
+          "riderUID": sharedPreferences!.getString("uid"),
+        });
       });
 
-      Navigator.push(context, MaterialPageRoute(builder: (c)=> const MySplashScreen()));
+      // Separate earnings based on payment method
+      if (paymentMethod == "CashOnDelivery") {
+        // Upload earnings to cash on delivery earnings
+        FirebaseFirestore.instance.collection("sellers").doc(sellerId).update({
+          "cashondeliverearnings": (double.parse(orderTotalAmount!) + previousRiderEarningsValue),
+        });
+      } else if (paymentMethod == "Gcash") {
+        // Upload earnings to GCash earnings
+        FirebaseFirestore.instance.collection("sellers").doc(sellerId).update({
+          "gcashearnings": (double.parse(orderTotalAmount!) + previousRiderEarningsValue),
+        });
+      }
+
+      Navigator.push(context, MaterialPageRoute(builder: (c) => const MySplashScreen()));
     } catch (e) {
       print("Error confirming parcel delivery: $e");
     }
   }
+
 
   getOrderTotalAmount() {
     FirebaseFirestore.instance.collection("orders").doc(widget.getOrderId)
@@ -375,13 +411,23 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
               padding: const EdgeInsets.all(8.0),
               child: Center(
                 child: ElevatedButton(
-                  onPressed: () {
-                    confirmParcelHasBeenDelivered(
-                      widget.getOrderId,
-                      widget.sellerId,
-                      widget.purchaserId,
-                      widget.purchaserAddress,
-                    );
+                  onPressed: () async {
+                    Map<String, dynamic>? paymentDetails = await getOrderPaymentDetails(widget.getOrderId!);
+                    if (paymentDetails != null) {
+                      setState(() {
+                        paymentMethod = paymentDetails['method']; // Assuming the payment method is stored under a field named "method"
+                      });
+                      // Now you have the payment method, you can proceed with the delivery confirmation
+                      confirmParcelHasBeenDelivered(
+                        widget.getOrderId!,
+                        widget.sellerId!,
+                        widget.purchaserId!,
+                        widget.purchaserAddress!,
+                        paymentMethod!, // Use the retrieved payment method
+                      );
+                    } else {
+                      print("Error: Payment details not found");
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF890010),
@@ -390,14 +436,14 @@ class _ParcelDeliveringScreenState extends State<ParcelDeliveringScreen>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.check, color: Color(0xFFFFFFFF),),
+                      Icon(Icons.check, color: Color(0xFFFFFFFF)),
                       Text(
                         "Order has been Delivered",
                         style: TextStyle(color: Colors.white, fontSize: 14.0),
                       ),
                     ],
                   ),
-                ),
+                )
               ),
             ),
           ],
