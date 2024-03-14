@@ -381,7 +381,7 @@ class _RiderDashboardState extends State<RiderDashboard>  with SingleTickerProvi
 
   void _navigateToEarnings(BuildContext context) {
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => EarningScreen()));
+        context, MaterialPageRoute(builder: (context) => EarningsScreen()));
   }
 
 

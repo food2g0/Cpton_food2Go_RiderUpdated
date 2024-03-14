@@ -1,235 +1,392 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cpton_food2go_rider/global/global.dart';
-import 'package:cpton_food2go_rider/mainScreen/home_screen.dart';
-import 'package:cpton_food2go_rider/theme/Colors.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../Widgets/order_card.dart';
-import 'history_screen.dart';
-import 'order_in_progress.dart';
+import '../theme/Colors.dart';
 
-class EarningScreen extends StatefulWidget {
-  final int? currentIndex;
-  const EarningScreen({Key? key, this.currentIndex}) : super(key: key);
+class EarningsScreen extends StatefulWidget {
+  const EarningsScreen({Key? key}) : super(key: key);
 
   @override
-  State<EarningScreen> createState() => _EarningScreenState();
+  State<EarningsScreen> createState() => _EarningsScreenState();
 }
 
-class _EarningScreenState extends State<EarningScreen> {
-  String riderUID = FirebaseAuth.instance.currentUser!.uid;
+class _EarningsScreenState extends State<EarningsScreen> {
+  late User? _user;
+  double totalEarnings = 0.0;
+  double totalEarningsCashonDelivery = 0.0;
 
-  // Getter function to fetch seller's name
-  Future<String?> getSellerName(String sellerUID) async {
+  @override
+  void initState() {
+    super.initState();
+    _user = FirebaseAuth.instance.currentUser;
+    fetchEarnings();
+  }
+
+  void fetchEarnings() async {
     try {
-      DocumentSnapshot sellerSnapshot = await FirebaseFirestore.instance
-          .collection('sellers')
-          .doc(sellerUID)
+      // Get the sales document for the current user for the month of March
+      DocumentSnapshot<Map<String, dynamic>> salesSnapshot = await FirebaseFirestore.instance
+          .collection('riders')
+          .doc(_user!.uid)
           .get();
-      if (sellerSnapshot.exists) {
-        return sellerSnapshot.get('sellersName');
+
+      // Check if the document exists
+      if (salesSnapshot.exists) {
+        // Extract the sale value from the document and update the total earnings
+        setState(() {
+          totalEarnings = salesSnapshot['earningsGCash'] ?? 0.0;
+          totalEarningsCashonDelivery = salesSnapshot['earningsCashOnDelivery'] ?? 0.0;
+        });
       } else {
-        return null;
+        // If the document doesn't exist, set earnings to 0
+        setState(() {
+          totalEarnings = 0.0;
+          totalEarningsCashonDelivery = 0.0;
+        });
       }
-    } catch (e) {
-      print('Error fetching seller name: $e');
-      return null;
+    } catch (error) {
+      print('Error fetching earnings: $error');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Calculate 10% of total earnings
+    double totalEarningsGcashAndCod = totalEarnings + totalEarningsCashonDelivery * 0.3;
+    double tenPercent = (totalEarnings) * 0.7;
+    // Calculate earnings after deducting 10%
+    double earningsAfterDeduction = tenPercent;
+
+    double turnOverAmount = totalEarningsCashonDelivery * 0.3;
+    String formattedTurnOverAmount = turnOverAmount.toStringAsFixed(2);
+    String formattedWithdraw = earningsAfterDeduction.toStringAsFixed(2);
+
     return Scaffold(
+      resizeToAvoidBottomInset: true,
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.red,
         title: Text(
           'Earnings',
           style: TextStyle(
+            color: Colors.white,
+            fontSize: 12.sp,
             fontFamily: "Poppins",
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: AppColors().white,
           ),
         ),
-        backgroundColor: AppColors().red,
       ),
-      backgroundColor: AppColors().white,
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(height: 16), // Add some space at the top
-          Align(
-            alignment: Alignment.topCenter,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors().backgroundWhite,
-                  borderRadius: BorderRadius.circular(10)
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                SizedBox(
+                  width: 180.w,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors().green.withOpacity(0.5), // Set the opacity here
+                      borderRadius: BorderRadius.circular(10),
+
+                    ),
+                    padding: EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Text(
+                          'G-cash',
+                          style: TextStyle(fontSize: 10.sp, fontFamily: "Poppins"),
+                        ),
+                        SizedBox(height: 8.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'images/peso.png', // Path to your image asset
+                              width: 12.w,
+                              height: 12.h,
+                            ),
+                            SizedBox(width: 5.w),
+                            Text(
+                              '$totalEarnings',
+                              style: TextStyle(fontSize: 10.sp, fontFamily: "Poppins"),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
                 ),
-                height: 200,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                SizedBox(width: 20), // Add spacing between the first and second container
+                SizedBox(
+                  width: 180.w,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors().green.withOpacity(0.5), // Set the opacity here
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Cash on Delivery',
+                          style: TextStyle(fontSize: 10.sp, fontFamily: "Poppins"),
+                        ),
+                        SizedBox(height: 8.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'images/peso.png', // Path to your image asset
+                              width: 12.w,
+                              height: 12.h,
+                            ),
+                            SizedBox(width: 5.w),
+                            Text(
+                              '$totalEarningsCashonDelivery',
+                              style: TextStyle(fontSize: 10.sp, fontFamily: "Poppins"),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 20), // Add spacing between the first row and the second container
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors().green.withOpacity(0.5), // Set the opacity here
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: EdgeInsets.all(8.0),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        'Your Total Earnings',
-                        style: TextStyle(
-                          fontFamily: "Poppins",
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors().black,
-                        ),
+                        'Total Earnings',
+                        style: TextStyle(fontSize: 10.sp, fontFamily: "Poppins"),
                       ),
-
-                      SizedBox(height: 20),
+                      SizedBox(height: 8.h),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          Image.asset(
+                            'images/peso.png', // Path to your image asset
+                            width: 12.w,
+                            height: 12.h,
+                          ),
+                          SizedBox(width: 5.w),
                           Text(
-                            'Total Earnings: Php ${double.parse(
-                                previousRiderEarnings).toStringAsFixed(2)}',
-                            // Display previous earnings without deduction
-                            style: TextStyle(
-                              fontFamily: "Poppins",
-                              fontSize: 12.sp,
-
-                              color: AppColors().black,
-                            ),
+                            '$totalEarningsGcashAndCod',
+                            style: TextStyle(fontSize: 10.sp, fontFamily: "Poppins"),
                           ),
                         ],
-                      ),
-                      SizedBox(height: 10),
-                      // Add some spacing between the texts
+                      )
+                    ],
+                  ),
+                ),
+
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors().green.withOpacity(0.5), // Set the opacity here
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
                       Text(
-                        'Current Earnings: Php ${(double.parse(
-                            previousRiderEarnings) * 0.7).toStringAsFixed(2)}',
-                        // Display current earnings after deduction
+                        'Withdraw',
+                        style: TextStyle(fontSize: 10.sp, fontFamily: "Poppins"),
+                      ),
+                      SizedBox(height: 8.h),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'images/peso.png', // Path to your image asset
+                            width: 12.w,
+                            height: 12.h,
+                          ),
+                          SizedBox(width: 5.w),
+                          Text(
+                            '$formattedWithdraw',
+                            style: TextStyle(fontSize: 10.sp, fontFamily: "Poppins"),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors().green.withOpacity(0.5), // Set the opacity here
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Amount to turnover',
+                        style: TextStyle(fontSize: 8.sp, fontFamily: "Poppins"),
+                      ),
+                      SizedBox(height: 8.h),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'images/peso.png', // Path to your image asset
+                            width: 12.w,
+                            height: 12.h,
+                          ),
+                          SizedBox(width: 5.w),
+                          Text(
+                            '$formattedTurnOverAmount',
+                            style: TextStyle(fontSize: 10.sp, fontFamily: "Poppins"),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+          ],
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+
+            ElevatedButton(onPressed: (){
+              requestTurnover();
+            },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors().red,
+                    minimumSize: Size(150, 60),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)
+                    )
+                ),
+                child: Text("Turn Over", style: TextStyle(
+                  color: AppColors().white,
+                  fontFamily: "Poppins",
+                  fontSize: 12.sp,
+
+                ),))
+          ],
+        ),
+      ),
+    );
+  }
+  void requestTurnover() {
+    TextEditingController referenceController = TextEditingController(); // Controller for reference number
+
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+          physics: BouncingScrollPhysics(), // Allow the sheet to adjust its height according to its content
+          reverse: true, // Scroll to the bottom of the sheet initially
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom, // Ensure the bottom padding adjusts for the keyboard
+            ),
+            child: Container(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: referenceController, // Assign controller to reference number text field
+                    decoration: InputDecoration(labelText: 'Reference Number'),
+                    maxLength: 13,
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Text(
+                        'Gcash Number: ', // Display the Gcash number as text
                         style: TextStyle(
-                          fontFamily: "Poppins",
-                          fontSize: 12.sp,
-                          color: AppColors().green,
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 10),
-                      // Add some spacing between the texts
                       Text(
-                        'Total Amount to Turnover: Php ${(double.parse(
-                            previousRiderEarnings) - (double.parse(
-                            previousRiderEarnings) * 0.7)).toStringAsFixed(2)}',
-                        // Display total amount to turnover
+                        '09271679585 - Paolo Somido', // Replace 'Your Gcash Number Here' with the actual Gcash number
                         style: TextStyle(
-                          fontFamily: "Poppins",
-                          fontSize: 12.sp,
-                          color: AppColors().black,
+                            fontSize: 10.sp,
+                            fontFamily: "Poppins"
+                          // Add your styles here
                         ),
                       ),
                     ],
                   ),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 20,),
-          Divider(
-            thickness: 2,
-            color: AppColors().black,
-          ),
-          SizedBox(height: 20,),
-          Text(
-            'Recent Deliveries',
-            style: TextStyle(
-              fontFamily: "Poppins",
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w700,
-              color: AppColors().black,
-            ),
-          ),
-          SizedBox(height: 20,),
-          Expanded(
-            child: SizedBox(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection("orders")
-                    .where("status", isEqualTo: "ended")
-                    .where(
-                    "riderUID", isEqualTo: riderUID) // Filter by rider ID
-                    .orderBy("orderTime", descending: true)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
-
-                  // Extract orders data from snapshot
-                  List<DocumentSnapshot> orders = snapshot.data!.docs;
-
-                  // Build your UI using the orders data
-                  return ListView.builder(
-                    itemCount: orders.length,
-                    itemBuilder: (context, index) {
-                      // Extract order details from each document snapshot
-                      dynamic productsData = orders[index].get("products");
-                      List<Map<String, dynamic>> productList = [];
-                      if (productsData != null && productsData is List) {
-                        productList =
-                        List<Map<String, dynamic>>.from(productsData);
-                      }
-
-                      print("Product List: $productList"); // Print productList
-
-                      return FutureBuilder<String?>(
-                        future: getSellerName(
-                            orders[index].get('sellerUID')), // Fetch seller name
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return CircularProgressIndicator();
-                          }
-                          if (snapshot.hasError) {
-                            return Text('Error: ${snapshot.error}');
-                          }
-                          String? sellerName = snapshot.data;
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              children: [
-                                OrderCard(
-                                  itemCount: productList.length,
-                                  data: productList,
-                                  orderID: orders[index].id,
-                                  sellerName: sellerName ?? "",
-                                  // Pass the seller's name
-                                  paymentDetails: orders[index]
-                                      .get("paymentDetails"),
-                                  totalAmount: orders[index]
-                                      .get("totalAmount")
-                                      .toString(),
-                                  cartItems: productList, // Pass the products list
-                                ),
-                                if (productList.length > 1)
-                                  SizedBox(height: 10), // Adjust the height as needed
-                              ],
-                            ),
-                          );
-                        },
-                      );
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Save turnover details to Firestore with reference number
+                      saveTurnoverRequest(referenceController.text);
+                      Navigator.pop(context); // Close the modal
                     },
-                  );
-                },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors().red,
+                      minimumSize: Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text('Submit',
+                      style: TextStyle(color: AppColors().white,
+                          fontFamily: "Poppins"),),
+                  ),
+                ],
               ),
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
+
+
+  void saveTurnoverRequest(String referenceNumber) {
+    // Reset the value of totalEarningsCashonDelivery * 0.1 to 0
+    double turnOverAmount = totalEarningsCashonDelivery * 0.1;
+
+    // Save turnover details to Firestore
+    FirebaseFirestore.instance.collection('turnover').doc(_user!.uid).set({
+      'userId': _user!.uid,
+      'status': 'sent',
+      'amount': turnOverAmount, // Reset to 0
+      'referenceNumber': referenceNumber,
+      'timestamp': DateTime.now(),
+    }).then((value) {
+      // Reset the value of earningsCashOnDelivery to 0 in the database
+      FirebaseFirestore.instance.collection('riders').doc(_user!.uid).update({
+        'earningsCashOnDelivery': 0.0,
+      }).then((_) {
+        // Do something after updating the earningsCashOnDelivery field
+      }).catchError((error) {
+        print('Error updating earningsCashOnDelivery: $error');
+      });
+    }).catchError((error) {
+      print('Error saving turnover request: $error');
+    });
+  }
+
+
+
+
 }
 

@@ -36,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen>  with SingleTickerProviderState
     _pages = [
        RiderDashboard(),
       HistoryScreen(),
-      EarningScreen(),
+      EarningsScreen(),
       OrderInProgress(),
     ];
   }
