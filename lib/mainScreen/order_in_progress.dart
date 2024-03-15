@@ -45,8 +45,7 @@ class _OrderInProgressState extends State<OrderInProgress> {
         child: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection("orders")
-              // .where("status", isEqualTo: "accepted")
-              .where("status", isEqualTo: "delivering")
+              .where("status", whereIn: ["accepted", "delivering"])
               .orderBy("orderTime", descending: true)
               .snapshots(),
           builder: (context, snapshot) {

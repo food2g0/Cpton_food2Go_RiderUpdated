@@ -124,7 +124,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                 ),
                 SizedBox(width: 20), // Add spacing between the first and second container
                 SizedBox(
-                  width: 180.w,
+                  width: 170.w,
                   child: Container(
                     decoration: BoxDecoration(
                       color: AppColors().green.withOpacity(0.5), // Set the opacity here
